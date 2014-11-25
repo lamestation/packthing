@@ -1,0 +1,12 @@
+Package: propelleride
+Version: VERSION
+Architecture: CPU
+Depends: libqtgui4, libqtcore4, zlib1g, libftdi1
+Pre-Depends:
+Recommends:
+Maintainer: lamestation.com
+Conflicts:
+Replaces:
+Provides: propelleride
+Description: Cross-Platform Spin IDE
+ An easy-to-use cross-platform development tool for the Parallax Propeller microcontroller.
