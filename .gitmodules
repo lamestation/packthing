@@ -1,0 +1,3 @@
+[submodule "gitchangelog"]
+	path = gitchangelog
+	url = https://github.com/vaab/gitchangelog.git
