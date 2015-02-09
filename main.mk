@@ -82,11 +82,8 @@ deb: clean_staging copy
 	cp -f $(shell ldd $(DIR_OUT)/bin/$(NAME) \
 		| grep "libQt" \
 		| awk '{print $$3}') $(DIR_OUT)/share/$(NAME)/bin/
-	cp -f $(DIR_DIST)/control $(DIR_DEBIAN) 
+	$(DIR_DIST)/debian.py --arch $(CPU) --out $(DIR_DEBIAN)/control  $(XML)
 	echo 9 > $(DIR_DEBIAN)/compat
-	sed -e "s/VERSION/$(VERSION)/" \
-		-e "s/CPU/$(CPU)/" \
-		-i $(DIR_DEBIAN)/control
 	dpkg-deb -b $(DIR_STAGING)/$(NAME) $(DIR_STAGING)/$(NAME)-$(VERSION)-$(CPU).deb
 
 rpi: CPU := armhf
