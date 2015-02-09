@@ -6,7 +6,7 @@ One of the most frustrating aspects of starting a new project is figuring out ho
 
 What's more, it's a problem that rarely needs to be solved more than once, and so many of the resources on the subject are few and far between, which makes it all the more frustrating.
 
-The goal of Packman is to create a language-agnostic, high-level integration tool that **does the work of you**, making your application fit for human consumption. It intends to support interoperability between:
+The goal of Packman is to create a language-agnostic, high-level integration tool that **does the work for you**, making your application fit for human consumption. It intends to support interoperability between:
 
 * Multiple version control systems
 * Many output formats (windows installer, mac bundle, pkg, tar, debian, rpm, apk, and so on and so forth).
