@@ -105,4 +105,4 @@ mac: clean_staging copy
 			$(DIR_STAGING)/$(TITLE).app \
 			$(TITLE) \
 			$(DIR_STAGING)/$(NAME)-$(VERSION)-$(CPU).dmg \
-			$(shell $(REPO) --gfx)
+			$(shell $(REPO) --gfx)/mac-dmg.png
