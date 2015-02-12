@@ -16,10 +16,9 @@ class Repo:
 
     def validate(self, dtdfile):
         dtd = etree.DTD(dtdfile)
-        print dtdfile
 
         if not dtd.validate(self.root):
-            print dtd.error_log.filter_from_errors()[0]
+            print >> sys.stderr, dtd.error_log.filter_from_errors()[0]
             sys.exit(1)
 
     def run_git(self, gitargs, repo):
