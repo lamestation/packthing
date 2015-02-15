@@ -1,4 +1,4 @@
-<!ELEMENT project (info,target?,gfx?,version?,repo+)>
+<!ELEMENT project (info,target?,gfx?,master?,repo+)>
 
 <!ELEMENT info EMPTY>
 <!ATTLIST info organization CDATA #REQUIRED>
@@ -24,12 +24,13 @@
 <!ELEMENT gfx EMPTY>
 <!ATTLIST gfx path      CDATA #REQUIRED>
 
-<!ELEMENT version EMPTY>
-<!ATTLIST version path  CDATA #REQUIRED>
+<!ELEMENT master EMPTY>
+<!ATTLIST master path   CDATA #REQUIRED>
 
 <!ELEMENT repo EMPTY>
 <!ATTLIST repo path     CDATA #REQUIRED>
 <!ATTLIST repo url      CDATA #REQUIRED>
+<!ATTLIST repo type     CDATA #REQUIRED>
 <!ATTLIST repo branch   CDATA #IMPLIED>
 <!ATTLIST repo tag      CDATA #IMPLIED>
 

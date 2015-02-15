@@ -1,0 +1,57 @@
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
+
+import importer
+import logging
+import util
+import repocontroller
+
+
+if __name__ == "__main__":
+    import argparse
+    parser = argparse.ArgumentParser(description='repo.py - make checking out your Git project more complicated\n\nNo parameters builds the project repository')
+    parser.add_argument('-r','--repo',      nargs=1, metavar='REPO',    help="Project repository config file (default: packman.xml)")
+    parser.add_argument('-d','--dtd',       nargs=1, metavar='DTD',     help="Use custom DTD (default: repo.dtd)")
+    parser.add_argument('-l','--log',       nargs=1, metavar="LEVEL",   help="Log level of debug output (DEBUG, INFO, WARNING, ERROR, CRITICAL)")
+    parser.add_argument('-a','--archive',   nargs=1, metavar="NAME",    help="Create tar archive from super-repository")
+    parser.add_argument('-v','--version',   action='store_true',        help="Get the project version")
+    parser.add_argument('-g','--gfx',       action='store_true',        help="Get the graphics path")
+    parser.add_argument('-f','--list-files',action='store_true',        help="List all files in super-repository")
+    parser.add_argument('-j','--jobs',      nargs=1, metavar="JOBS",    help="Number of jobs to pass to child builds")
+
+    args = parser.parse_args()
+
+    if args.log:
+        logging.basicConfig(level=args.log[0])
+
+    if not args.repo == None:
+        print "DURP",args.repo
+
+    repofile = '../repo.xml'
+    dtd = 'repo.dtd'
+    
+    config = repocontroller.RepoController(repofile, dtd)
+    
+    print util.table("Path", "Version", "URL")
+    print "-"*80
+    
+    vcs = importer.get_module("vcs",'git')
+    importer.require(vcs)
+    
+    filelist = []
+    
+    repos = []
+    
+    for a in config.build_tree():
+        repo = vcs.Repo(a['url'],a['path'])
+    #    repo.update()
+        filelist.extend(repo.list_files())
+        repos.append(repo)
+        print util.table(repo.path, repo.get_version(), repo.url)
+    
+    print 
+    
+    logging.debug(filelist)
+
+    if args.archive:
+        util.archive(args.archive[0],filelist)
