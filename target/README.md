@@ -10,7 +10,7 @@ The first step to creating your own target is redefining
 of the extension the file output will have. `self.DIR_OUT`
 is the root directory of the final target package.
 
-```
+```python
 self.EXT = 'deb'
 self.DIR_OUT = os.path.join(self.DIR_DEBIAN,'tmp')
 ```
@@ -20,7 +20,7 @@ There are several pre-defined locations to define; these
 are: `'bin'`, `'lib'`, and `'share'`. On a UNIX, these
 might be defined as:
 
-```
+```python
 self.OUT['bin'] = os.path.join('usr','bin')
 self.OUT['lib'] = os.path.join('usr','lib')
 self.OUT['share'] = os.path.join('usr','share','yourproject')
