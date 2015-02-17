@@ -1,15 +1,20 @@
-import util, sys
+import util, sys, os
 from lxml import etree
 
 class RepoController:
     def __init__(self, repofile, dtd='repo.dtd'):
         self.name = repofile
+
+        if not os.path.exists(self.name) or not os.path.isfile(self.name):
+            raise IOError("File "+self.name+" does not exist")
+
         self.root = etree.parse(self.name).getroot()
         self.validate(util.from_scriptroot(dtd))
 
         self.gfx  = self.root.find('gfx').attrib['path']
         self.info = self.root.find('info')
         self.master = self.root.find('master').attrib['path']
+        self.target = self.root.find('target')
         self.build_tree()
 
     def build_tree(self):

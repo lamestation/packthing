@@ -5,6 +5,7 @@ import logging
 from contextlib import contextmanager
 import string
 import errno
+import tarfile
 
 def warning(*objs):
     print("WARNING:", *objs, file=sys.stderr)
@@ -19,10 +20,11 @@ def pushd(newDir):
     yield
     os.chdir(previousDir)
 
-def command(args,strict=True):
+def command(args,strict=True,stdinput=None):
     logging.debug(["util.command", args, os.getcwd()])
-    process = subprocess.Popen(args, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-    out, err = process.communicate()
+    process = subprocess.Popen(args, stdout=subprocess.PIPE,
+            stdin=subprocess.PIPE, stderr=subprocess.PIPE)
+    out, err = process.communicate(input=stdinput)
     if strict:
         if process.returncode:
             logging.error(["util.command", args, out, err])
@@ -64,7 +66,6 @@ def mkdir(path):
         else: raise
 
 def archive(name, files):
-    import tarfile
     shortname = os.path.basename(name)
 
     tar = tarfile.open(name=name, mode='w:gz')
@@ -98,7 +99,7 @@ def get_template(template):
 #
 #You should have received a copy of the GNU General Public License
 #along with this program.  If not, see <http://www.gnu.org/licenses/>.
-
+#-----------------------------------------
 def ldd(filenames):
     libs = [] 
     for x in filenames:
@@ -115,6 +116,7 @@ def ldd(filenames):
             if len(s) == 2:
                 libs.append(s)
 	return libs
+#-----------------------------------------
 
 def extract_libs(files, libs):
     resultlibs = []

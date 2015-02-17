@@ -1,6 +1,17 @@
 import imp, sys
 
 import util
+import pkgutil
+
+def get_modulelist(packagename):
+    package_info = imp.find_module(packagename)
+    package = imp.load_module(packagename,*package_info)
+
+    packagelist = []
+    for p in pkgutil.walk_packages(package.__path__, package.__name__ + '.'):
+        packagelist.append(p[1].split('.')[1])
+
+    return packagelist
 
 def get_module(parentname, modulename):
     try:

@@ -1,16 +1,21 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-import os
+import os, sys
 import importer
 import logging
 import util
 import repocontroller
 
+import argparse
 
 class Packman:
     def __init__(self, repofile):
-        self.config = repocontroller.RepoController(repofile)
+        try:
+            self.config = repocontroller.RepoController(repofile)
+        except IOError:
+            print "'"+repofile+"' not found; please specify a valid packman file"
+            sys.exit(1)
 
     def checkout(self, refresh):
         vcs = importer.get_module('vcs','git')
@@ -66,6 +71,7 @@ class Packman:
                 files=self.buildout,
                 )
 
+        logging.debug('target = '+targetname)
         if targetname == 'clean':
             self.packager.clean()
         else:
@@ -73,18 +79,20 @@ class Packman:
     
 
 if __name__ == "__main__":
-    import argparse
-    parser = argparse.ArgumentParser(description='repo.py - make checking out your Git project more complicated\n\nNo parameters builds the project repository')
+
+    packagelist = importer.get_modulelist('target')
+    packagelist.remove('base')
+
+    parser = argparse.ArgumentParser(description=os.path.basename(__file__)+' - make working with your project more complicated')
     parser.add_argument('-r','--repo',      nargs=1, metavar='REPO',    default=['repo.xml'], help="Project repository config file (default: packman.xml)")
-    parser.add_argument('-c',               nargs=1, metavar='DIR',     help="Change to DIR before running packman")
+    parser.add_argument('-c',               nargs=1, metavar='DIR',     help="Change to DIR before running")
     parser.add_argument('-l','--log',       nargs=1, metavar='LEVEL',   help="Log level of debug output (DEBUG, INFO, WARNING, ERROR, CRITICAL)")
     parser.add_argument('-a','--archive',   nargs=1, metavar='NAME',    help="Create tar archive from super-repository")
-    parser.add_argument('-v','--version',   action='store_true',        help="Get the project version")
-    parser.add_argument('-g','--gfx',       action='store_true',        help="Get the graphics path")
-    parser.add_argument('-f','--list-files',action='store_true',        help="List all files in super-repository")
+    parser.add_argument('--list-src',       action='store_true',        help="List all files in super-repository")
+    parser.add_argument('--list-build',     action='store_true',        help="List all files to be included in package")
     parser.add_argument('-j','--jobs',      nargs=1, metavar='JOBS',    help="Number of jobs to pass to child builds")
     parser.add_argument('--refresh',        action='store_true',        help="Force update of all checkouts")
-    parser.add_argument('command',          nargs='?', metavar='COMMAND', help="Target platform to build")
+    parser.add_argument('target',           nargs='?', metavar='TARGET',help="Target platform to build ("+', '.join(packagelist)+")")
 
     args = parser.parse_args()
 
@@ -100,10 +108,12 @@ if __name__ == "__main__":
 
     pm.build()
 
-    if not args.command == None:
-        pm.package(args.command)
+    if not args.target == None:
+        pm.package(args.target)
 
-#    filelist = pm.filelist()
-#
-#    if args.archive:
-#        pm.archive(args.archive[0])
+    if args.list_src:
+        for l in pm.filelist():
+            print l
+
+    if args.archive:
+        pm.archive(args.archive[0])
