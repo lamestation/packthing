@@ -20,7 +20,7 @@ Say someone wrote an awesome Python app with Mercurial for version control, some
 
 Packman projects use version control, but exist outside of it, forming a *super repository* of smaller projects, defined by an XML file.
 
-```
+```xml
 <?xml version="1.0" encoding="UTF-8"?>
 <project>
   <info
