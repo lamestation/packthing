@@ -1,16 +1,16 @@
 import util
-import repo
+import base
 
 REQUIRE = ['git']
 
-class Repo(repo.Repo):
+class Repo(base.Repo):
 
     def set_version(self):
         try:
-            out, err = util.command_in_dir(['git','describe','--tags','--long'],self.path)
+            out, err = util.command_in_dir(['git','describe','--tags','--long'],self.path, strict=False)
         except OSError:
             self.update()
-            out, err = util.command_in_dir(['git','describe','--tags','--long'],self.path)
+            out, err = util.command_in_dir(['git','describe','--tags','--long'],self.path, strict=False)
 
         if not out == '':
             self.version = out.split('-')[0]
@@ -23,13 +23,14 @@ class Repo(repo.Repo):
         util.command(['git','clone',self.url,self.path])
     
     def pull(self):
+        util.command_in_dir(['git','remote','set-url','origin',self.url],self.path)
         util.command_in_dir(['git','pull'],self.path)
 
     def update_externals(self):
         util.command_in_dir(['git','submodule','init'], self.path)
-        util.command_in_dir(['git','submodule','update'], self.path)
+        util.command_in_dir(['git','submodule','update','--recursive'], self.path)
 
-    def checkout(self, ref):
+    def checkout(self, ref='master'):
         util.command_in_dir(['git','checkout',ref], self.path)
 
     def filelist(self):

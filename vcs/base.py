@@ -18,6 +18,7 @@ class Repo:
         else:
             self.clone()
 
+        self.checkout()
         self.update_externals()
 
     def list_files(self):

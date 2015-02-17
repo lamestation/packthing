@@ -11,7 +11,7 @@
 <!ATTLIST info tagline      CDATA #IMPLIED>
 <!ATTLIST info description  CDATA #IMPLIED>
 
-<!ELEMENT target (win?, mac?, linux?)>
+<!ELEMENT target (win?, mac?, deb?)>
 
 <!ELEMENT win EMPTY>
 <!ATTLIST win AppID     CDATA #IMPLIED>
@@ -19,7 +19,8 @@
 <!ELEMENT mac EMPTY>
 <!ATTLIST mac category  CDATA #IMPLIED>
 
-<!ELEMENT linux EMPTY>
+<!ELEMENT deb EMPTY>
+<!ATTLIST deb depends   CDATA #IMPLIED>
 
 <!ELEMENT gfx EMPTY>
 <!ATTLIST gfx path      CDATA #REQUIRED>

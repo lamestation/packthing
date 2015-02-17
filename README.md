@@ -8,6 +8,8 @@ What's more, it's a problem that rarely needs to be solved more than once, and s
 
 The goal of Packman is to create a language-agnostic, high-level integration tool that **does the work for you**, making your application fit for human consumption. It intends to support interoperability between:
 
+Famously described as a *glorified convenience wrapper*, **packman** is here to make your life easy.
+
 * Multiple version control systems
 * Many output formats (windows installer, mac bundle, pkg, tar, debian, rpm, apk, and so on and so forth).
 * Many build systems

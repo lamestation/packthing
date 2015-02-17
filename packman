@@ -1,57 +1,109 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
+import os
 import importer
 import logging
 import util
 import repocontroller
 
 
+class Packman:
+    def __init__(self, repofile):
+        self.config = repocontroller.RepoController(repofile)
+
+    def checkout(self, refresh):
+        vcs = importer.get_module('vcs','git')
+        importer.require(vcs)
+
+        if refresh:
+            self.config.print_info()
+            print util.table("Path", "Version", "URL")
+            print "-"*80
+
+        self.repos = {}
+        for a in self.config.repo:
+            repo = vcs.Repo(a['url'],a['path'])
+            self.repos[a['path']] = repo
+
+            if refresh:
+                repo.update()
+                print util.table(repo.path, repo.get_version(), repo.url)
+        
+        if refresh:
+            print 
+
+    def filelist(self):
+        fl = []
+        for r in self.repos.values():
+            fl.extend(r.list_files())
+
+#        logging.debug(fl)
+        return fl
+
+    def archive(self, archivename):
+        util.archive(archivename,self.filelist())
+
+
+    def build(self):
+        builder = importer.get_module('builder','qmake')
+        importer.require(builder)
+        self.buildout = {}
+        self.buildout['bin'] = []
+        self.buildout['bin'].extend(['/usr/bin/propelleride','/usr/bin/p1load','/usr/bin/openspin'])
+        #build = builder.Builder()
+
+    def package(self, targetname):
+        try:
+            self.target = importer.get_module('target',targetname)
+        except ImportError:
+            self.target = importer.get_module('target','base')
+
+        importer.require(self.target)
+
+        self.packager = self.target.Packager(self.config.info, 
+                self.repos[self.config.master].get_version(),
+                files=self.buildout,
+                )
+
+        if targetname == 'clean':
+            self.packager.clean()
+        else:
+            self.packager.make()
+    
+
 if __name__ == "__main__":
     import argparse
     parser = argparse.ArgumentParser(description='repo.py - make checking out your Git project more complicated\n\nNo parameters builds the project repository')
-    parser.add_argument('-r','--repo',      nargs=1, metavar='REPO',    help="Project repository config file (default: packman.xml)")
-    parser.add_argument('-d','--dtd',       nargs=1, metavar='DTD',     help="Use custom DTD (default: repo.dtd)")
-    parser.add_argument('-l','--log',       nargs=1, metavar="LEVEL",   help="Log level of debug output (DEBUG, INFO, WARNING, ERROR, CRITICAL)")
-    parser.add_argument('-a','--archive',   nargs=1, metavar="NAME",    help="Create tar archive from super-repository")
+    parser.add_argument('-r','--repo',      nargs=1, metavar='REPO',    default=['repo.xml'], help="Project repository config file (default: packman.xml)")
+    parser.add_argument('-c',               nargs=1, metavar='DIR',     help="Change to DIR before running packman")
+    parser.add_argument('-l','--log',       nargs=1, metavar='LEVEL',   help="Log level of debug output (DEBUG, INFO, WARNING, ERROR, CRITICAL)")
+    parser.add_argument('-a','--archive',   nargs=1, metavar='NAME',    help="Create tar archive from super-repository")
     parser.add_argument('-v','--version',   action='store_true',        help="Get the project version")
     parser.add_argument('-g','--gfx',       action='store_true',        help="Get the graphics path")
     parser.add_argument('-f','--list-files',action='store_true',        help="List all files in super-repository")
-    parser.add_argument('-j','--jobs',      nargs=1, metavar="JOBS",    help="Number of jobs to pass to child builds")
+    parser.add_argument('-j','--jobs',      nargs=1, metavar='JOBS',    help="Number of jobs to pass to child builds")
+    parser.add_argument('--refresh',        action='store_true',        help="Force update of all checkouts")
+    parser.add_argument('command',          nargs='?', metavar='COMMAND', help="Target platform to build")
 
     args = parser.parse_args()
 
     if args.log:
         logging.basicConfig(level=args.log[0])
 
-    if not args.repo == None:
-        print "DURP",args.repo
+    pm = Packman(args.repo[0])
 
-    repofile = '../repo.xml'
-    dtd = 'repo.dtd'
-    
-    config = repocontroller.RepoController(repofile, dtd)
-    
-    print util.table("Path", "Version", "URL")
-    print "-"*80
-    
-    vcs = importer.get_module("vcs",'git')
-    importer.require(vcs)
-    
-    filelist = []
-    
-    repos = []
-    
-    for a in config.build_tree():
-        repo = vcs.Repo(a['url'],a['path'])
-    #    repo.update()
-        filelist.extend(repo.list_files())
-        repos.append(repo)
-        print util.table(repo.path, repo.get_version(), repo.url)
-    
-    print 
-    
-    logging.debug(filelist)
+    if args.c:
+        os.chdir(args.c[0])
 
-    if args.archive:
-        util.archive(args.archive[0],filelist)
+    pm.checkout(args.refresh)
+
+    pm.build()
+
+    if not args.command == None:
+        pm.package(args.command)
+
+#    filelist = pm.filelist()
+#
+#    if args.archive:
+#        pm.archive(args.archive[0])

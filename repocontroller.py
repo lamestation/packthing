@@ -5,13 +5,12 @@ class RepoController:
     def __init__(self, repofile, dtd='repo.dtd'):
         self.name = repofile
         self.root = etree.parse(self.name).getroot()
-        self.validate('repo.dtd')
+        self.validate(util.from_scriptroot(dtd))
 
         self.gfx  = self.root.find('gfx').attrib['path']
         self.info = self.root.find('info')
         self.master = self.root.find('master').attrib['path']
         self.build_tree()
-        self.print_info()
 
     def build_tree(self):
         self.repo = []
@@ -41,3 +40,4 @@ class RepoController:
         print "%30s  %s" % ("Master project:",self.master)
         print "%30s  %s" % ("Graphics path:",self.gfx)
         print
+
