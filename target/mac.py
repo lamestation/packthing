@@ -13,6 +13,8 @@ class Packager(base.Packager):
         super(Packager,self).__init__(info, version, files)
 
         self.EXT = 'dmg'
+        self.EXT_BIN = ''
+        self.EXT_LIB = 'dylib'
         self.DIR_OUT = os.path.join(self.DIR_STAGING,self.NAME+'.app','Contents')
 
         self.OUT['bin'] = 'MacOS'

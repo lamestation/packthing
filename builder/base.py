@@ -6,3 +6,4 @@ class Builder(object):
         self.files = {}
         self.files['bin'] = []
         self.files['lib'] = []
+        self.files['share'] = []

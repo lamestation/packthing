@@ -32,6 +32,8 @@
 <!ATTLIST repo path     CDATA #REQUIRED>
 <!ATTLIST repo url      CDATA #REQUIRED>
 <!ATTLIST repo type     CDATA #REQUIRED>
+<!ATTLIST repo root     CDATA #IMPLIED>
 <!ATTLIST repo branch   CDATA #IMPLIED>
 <!ATTLIST repo tag      CDATA #IMPLIED>
+<!ATTLIST repo exclude  CDATA #IMPLIED>
 

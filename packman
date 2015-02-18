@@ -50,7 +50,7 @@ class Packman:
         util.archive(archivename,self.filelist())
 
 
-    def build(self):
+    def build(self,jobs='1'):
         packagelist = importer.get_modulelist('builder')
         packagelist.remove('base')
 
@@ -60,15 +60,25 @@ class Packman:
             self.builders[p] = importer.get_module('builder',p)
             importer.require(p)
 
-        for r in self.config.repo:
-            self.projects[r['path']] = self.builders[r['type']].Builder(r['path'],
-                    self.repos[r['path']].get_version())
+        self.files = {}
+        self.files['bin'] = []
+        self.files['lib'] = []
+        self.files['share'] = []
 
-#        print self.projects
-        self.buildout = {}
-        self.buildout['bin'] = []
-        self.buildout['bin'].extend(['/usr/bin/propelleride','/usr/bin/p1load','/usr/bin/openspin'])
-        #build = builder.Builder()
+        for r in self.config.repo:
+            if 'root' in r:
+                path = os.path.join(r['path'],r['root'])
+            else:
+                path = r['path']
+
+            print r['type']
+            self.projects[r['path']] = self.builders[r['type']].Builder(path,
+                    self.repos[r['path']].get_version())
+                 
+            outfiles = self.projects[r['path']].build(jobs, r['exclude'])
+            for f in self.files:
+                outfiles[f] = [x for x in outfiles[f] if x]
+                self.files[f].extend(outfiles[f])
 
     def package(self, targetname):
         try:
@@ -80,7 +90,7 @@ class Packman:
 
         self.packager = self.target.Packager(self.config.info, 
                 self.repos[self.config.master].get_version(),
-                files=self.buildout,
+                files=self.files,
                 )
 
         logging.debug('target = '+targetname)
@@ -117,7 +127,7 @@ if __name__ == "__main__":
         os.chdir(args.c[0])
 
     pm.checkout(args.refresh)
-    pm.build()
+    pm.build(args.jobs[0])
 
     if not args.target == None:
         pm.package(args.target)

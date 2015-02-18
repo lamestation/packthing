@@ -30,6 +30,14 @@ class RepoController:
             elif 'tag' in child.attrib:
                 r['ref'] = child.attrib['tag']
 
+            if 'root' in child.attrib:
+                r['root'] = child.attrib['root']
+
+            if 'exclude' in child.attrib:
+                r['exclude'] = child.attrib['exclude'].split()
+            else:
+                r['exclude'] = []
+
             self.repo.append(r)
 
         return self.repo

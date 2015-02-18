@@ -2,6 +2,7 @@ import imp, sys
 
 import util
 import pkgutil
+import logging
 
 def get_modulelist(packagename):
     package_info = imp.find_module(packagename)
@@ -14,6 +15,7 @@ def get_modulelist(packagename):
     return packagelist
 
 def get_module(parentname, modulename):
+    logging.debug("importer.get_module('"+parentname+"','"+modulename+"')")
     try:
         parent_info = imp.find_module(parentname)
         parent = imp.load_module(parentname,*parent_info)
@@ -21,7 +23,7 @@ def get_module(parentname, modulename):
     except ImportError, e:
         raise ImportError(parentname.capitalize()+" '"+modulename+"' does not exist")
 
-    return imp.load_module(parentname, f, filename, description)
+    return imp.load_module(parentname+'.'+modulename, f, filename, description)
 
 def require(module):
     try:

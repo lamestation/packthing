@@ -41,8 +41,19 @@ class Packager(object):
                 util.mkdir(OUTDIR)
 
                 for f in self.files[outdir]:
-                    shutil.copy(f, OUTDIR)
-                    logging.info('  '+f)
+                    if outdir == 'bin':
+                        f += self.EXT_BIN
+                    elif outdir == 'lib':
+                        f = os.path.join(os.path.dirname(f),'lib'+os.path.basename(f)+'.'+self.EXT_LIB)
+                        
+                    if outdir == 'share':
+                        outf = os.path.join(OUTDIR,f)
+                        util.mkdir(os.path.dirname(outf))
+                    else:
+                        outf = OUTDIR
+
+                    shutil.copy(f,outf)
+                    logging.info('  '+f+' => '+outf)
         except KeyError:
             raise KeyError("Target doesn't have self.OUT['"+outdir+"'] defined")
 
@@ -50,4 +61,3 @@ class Packager(object):
     def make(self):
         util.mkdir(self.DIR_STAGING)
         self.copy()
-        print self.files

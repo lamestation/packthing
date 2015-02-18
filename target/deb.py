@@ -23,12 +23,16 @@ class Packager(base.Packager):
         super(Packager,self).__init__(info, version, files)
 
         self.EXT = 'deb'
+        self.EXT_BIN = ''
+        self.EXT_LIB = 'so'
 
         self.DIR_DEBIAN = os.path.join(self.DIR_STAGING,'debian')
         self.DIR_DEBIAN2 = os.path.join(self.DIR_DEBIAN,self.NAME,'DEBIAN')
         self.DIR_OUT = os.path.join(self.DIR_DEBIAN,self.NAME)
 
         self.OUT['bin'] = os.path.join('usr','bin')
+        self.OUT['lib'] = os.path.join('usr','lib')
+        self.OUT['share'] = os.path.join('usr','share',self.NAME)
 
     def control(self):
         script = util.get_template(os.path.join('debian','control'))
@@ -67,7 +71,7 @@ class Packager(base.Packager):
 
             util.command(['help2man','--no-info',
                     os.path.join(OUTDIR,g),
-                    '-o',os.path.join(self.DIR_DEBIAN,g+'.1')])
+                    '-o',os.path.join(self.DIR_DEBIAN,g+'.1')],strict=False)
 
 
     def make(self):

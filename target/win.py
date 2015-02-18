@@ -14,6 +14,8 @@ class Packager(base.Packager):
         super(Packager,self).__init__(info, version, files)
 
         self.EXT = 'exe'
+        self.EXT_BIN = 'exe'
+        self.EXT_LIB = 'dll'
         self.DIR_OUT = os.path.join(self.DIR_STAGING,'tmp')
 
         self.OUT['bin'] = ''
