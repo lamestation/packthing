@@ -23,6 +23,7 @@ class RepoController:
             r = {}
             r['path'] = child.attrib['path']
             r['url'] = child.attrib['url']
+            r['type'] = child.attrib['type']
 
             if 'branch' in child.attrib:
                 r['ref'] = child.attrib['branch']

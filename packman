@@ -51,8 +51,20 @@ class Packman:
 
 
     def build(self):
-        builder = importer.get_module('builder','qmake')
-        importer.require(builder)
+        packagelist = importer.get_modulelist('builder')
+        packagelist.remove('base')
+
+        self.builders = {}
+        self.projects = {}
+        for p in packagelist:
+            self.builders[p] = importer.get_module('builder',p)
+            importer.require(p)
+
+        for r in self.config.repo:
+            self.projects[r['path']] = self.builders[r['type']].Builder(r['path'],
+                    self.repos[r['path']].get_version())
+
+#        print self.projects
         self.buildout = {}
         self.buildout['bin'] = []
         self.buildout['bin'].extend(['/usr/bin/propelleride','/usr/bin/p1load','/usr/bin/openspin'])
@@ -105,7 +117,6 @@ if __name__ == "__main__":
         os.chdir(args.c[0])
 
     pm.checkout(args.refresh)
-
     pm.build()
 
     if not args.target == None:
