@@ -16,11 +16,14 @@ class Packager(base.Packager):
         self.EXT = 'exe'
         self.EXT_BIN = 'exe'
         self.EXT_LIB = 'dll'
-        self.DIR_OUT = os.path.join(self.DIR_STAGING,'tmp')
+        self.DIR_OUT = os.path.join(self.DIR_STAGING,'win')
 
         self.OUT['bin'] = ''
         self.OUT['lib'] = ''
         self.OUT['share'] = ''
+
+    def get_path(self):
+        return self.DIR_OUT
 
     # Taken from innosetup module (https://pypi.python.org/pypi/innosetup/0.6.6)
     def AppID(self):
@@ -48,4 +51,7 @@ class Packager(base.Packager):
         with util.pushd(self.DIR_OUT):
             for f in self.files['bin']:
                 util.command(['windeployqt',f])
+
+    def finish(self):
+        with util.pushd(self.DIR_OUT):
             util.command(['iscc','-'],stdinput=self.iss())

@@ -7,6 +7,10 @@ import subprocess
 
 from . import base
 
+REQUIRE = [ 'qmake',
+            ]
+
+
 class ProjectNode(object):
     def __init__(self, path, values={}):
         self.values = values
@@ -119,3 +123,11 @@ class Builder(base.Builder):
         self.files['lib'] = self.collect_targets(self.root,'lib',exclude)
 
         return self.files
+
+    def mac(self,path):
+        util.command(['macdeployqt',path])
+
+    def win(self,path):
+        with util.pushd(path):
+            for f in self.files['bin']:
+                util.command(['windeployqt',f])

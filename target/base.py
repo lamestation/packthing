@@ -41,8 +41,8 @@ class Packager(object):
                 util.mkdir(OUTDIR)
 
                 for f in self.files[outdir]:
-                    if outdir == 'bin':
-                        f += self.EXT_BIN
+                    if outdir == 'bin' and self.EXT_BIN:
+                        f += '.'+self.EXT_BIN
                     elif outdir == 'lib':
                         f = os.path.join(os.path.dirname(f),'lib'+os.path.basename(f)+'.'+self.EXT_LIB)
                         

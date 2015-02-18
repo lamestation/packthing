@@ -15,11 +15,16 @@ class Packager(base.Packager):
         self.EXT = 'dmg'
         self.EXT_BIN = ''
         self.EXT_LIB = 'dylib'
-        self.DIR_OUT = os.path.join(self.DIR_STAGING,self.NAME+'.app','Contents')
+        self.DIR_PACKAGE = os.path.join(self.DIR_STAGING,'mac'))
+        self.DIR_BUNDLE = os.path.join(self.DIR_PACKAGE,self.NAME+'.app'))
+        self.DIR_OUT = os.path.join(self.DIR_BUNDLE,'Contents')
 
         self.OUT['bin'] = 'MacOS'
         self.OUT['lib'] = 'MacOS'
         self.OUT['share'] = 'Resources'
+
+    def get_path(self):
+        return self.DIR_BUNDLE
 
     def bundle_identifier(self):
         return 'com.'+self.info.attrib['organization'].lower()+self.info.attrib['application']
@@ -55,3 +60,6 @@ class Packager(base.Packager):
                     os.path.join(self.DIR_OUT,'Info.plist'))
             for f in self.files['bin']:
                 util.command(['macdeployqt',os.path.join(self.OUT['bin'],f)])
+
+    def finish(self):
+        pass

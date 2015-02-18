@@ -98,6 +98,15 @@ class Packman:
             self.packager.clean()
         else:
             self.packager.make()
+
+            for p in self.projects:
+                try:
+                    method = getattr(self.projects[p], targetname)
+                    method(self.packager.get_path())
+                except AttributeError:
+                    pass
+
+            self.packager.finish()
     
 
 if __name__ == "__main__":
@@ -112,7 +121,7 @@ if __name__ == "__main__":
     parser.add_argument('-a','--archive',   nargs=1, metavar='NAME',    help="Create tar archive from super-repository")
     parser.add_argument('--list-src',       action='store_true',        help="List all files in super-repository")
     parser.add_argument('--list-build',     action='store_true',        help="List all files to be included in package")
-    parser.add_argument('-j','--jobs',      nargs=1, metavar='JOBS',    help="Number of jobs to pass to child builds")
+    parser.add_argument('-j','--jobs',      nargs=1, metavar='JOBS',default='1',    help="Number of jobs to pass to child builds")
     parser.add_argument('--refresh',        action='store_true',        help="Force update of all checkouts")
     parser.add_argument('target',           nargs='?', metavar='TARGET',help="Target platform to build ("+', '.join(packagelist)+")")
 

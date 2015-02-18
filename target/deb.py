@@ -1,12 +1,13 @@
 import os
 
-from . import base
 import util
 import textwrap
 
 import datetime
 import time
 from email import utils
+
+from . import base
 
 REQUIRE = [ 'dpkg-deb',
             'dh_fixperms',
@@ -88,4 +89,7 @@ class Packager(base.Packager):
             util.command(['dpkg-shlibdeps','/usr/bin/propelleride'])
             util.command(['dh_installmanpages'])
             util.command(['fakeroot','dpkg-gencontrol','-v'+self.VERSION,'-P'+self.DIR_OUT])
+
+    def finish(self):
+        with util.pushd(self.DIR_STAGING):
             util.command(['dpkg-deb','-b',self.DIR_OUT,'.'])
