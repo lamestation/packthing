@@ -15,8 +15,8 @@ class Packager(base.Packager):
         self.EXT = 'dmg'
         self.EXT_BIN = ''
         self.EXT_LIB = 'dylib'
-        self.DIR_PACKAGE = os.path.join(self.DIR_STAGING,'mac'))
-        self.DIR_BUNDLE = os.path.join(self.DIR_PACKAGE,self.NAME+'.app'))
+        self.DIR_PACKAGE = os.path.join(self.DIR_STAGING,'mac')
+        self.DIR_BUNDLE = os.path.join(self.DIR_PACKAGE,self.NAME+'.app')
         self.DIR_OUT = os.path.join(self.DIR_BUNDLE,'Contents')
 
         self.OUT['bin'] = 'MacOS'
@@ -58,8 +58,6 @@ class Packager(base.Packager):
         with util.pushd(self.DIR_OUT):
             plistlib.writePlist(self.build_plist(self.info, None), 
                     os.path.join(self.DIR_OUT,'Info.plist'))
-            for f in self.files['bin']:
-                util.command(['macdeployqt',os.path.join(self.OUT['bin'],f)])
 
     def finish(self):
         pass
