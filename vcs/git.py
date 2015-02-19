@@ -24,6 +24,7 @@ class Repo(base.Repo):
     
     def pull(self):
         util.command_in_dir(['git','remote','set-url','origin',self.url],self.path)
+        self.checkout()
         util.command_in_dir(['git','pull'],self.path)
 
     def update_externals(self):

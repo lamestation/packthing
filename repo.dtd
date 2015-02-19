@@ -14,26 +14,29 @@
 <!ELEMENT target (win?, mac?, deb?)>
 
 <!ELEMENT win EMPTY>
-<!ATTLIST win AppID     CDATA #IMPLIED>
+<!ATTLIST win AppID         CDATA #IMPLIED>
 
 <!ELEMENT mac EMPTY>
-<!ATTLIST mac category  CDATA #IMPLIED>
+<!ATTLIST mac category      CDATA #IMPLIED>
 
 <!ELEMENT deb EMPTY>
-<!ATTLIST deb depends   CDATA #IMPLIED>
+<!ATTLIST deb depends       CDATA #IMPLIED>
+<!ATTLIST deb categories    CDATA #IMPLIED>
+<!ATTLIST deb section       CDATA #IMPLIED>
 
 <!ELEMENT gfx EMPTY>
-<!ATTLIST gfx path      CDATA #REQUIRED>
+<!ATTLIST gfx path          CDATA #REQUIRED>
 
 <!ELEMENT master EMPTY>
-<!ATTLIST master path   CDATA #REQUIRED>
+<!ATTLIST master path       CDATA #REQUIRED>
 
 <!ELEMENT repo EMPTY>
-<!ATTLIST repo path     CDATA #REQUIRED>
-<!ATTLIST repo url      CDATA #REQUIRED>
-<!ATTLIST repo type     CDATA #REQUIRED>
-<!ATTLIST repo root     CDATA #IMPLIED>
-<!ATTLIST repo branch   CDATA #IMPLIED>
-<!ATTLIST repo tag      CDATA #IMPLIED>
-<!ATTLIST repo exclude  CDATA #IMPLIED>
+<!ATTLIST repo path         CDATA #REQUIRED>
+<!ATTLIST repo url          CDATA #REQUIRED>
+<!ATTLIST repo type         CDATA #REQUIRED>
+<!ATTLIST repo root         CDATA #IMPLIED>
+<!ATTLIST repo branch       CDATA #IMPLIED>
+<!ATTLIST repo tag          CDATA #IMPLIED>
+<!ATTLIST repo exclude      CDATA #IMPLIED>
+<!ATTLIST repo icon         CDATA #IMPLIED>
 

@@ -94,19 +94,20 @@ class Packman:
                 )
 
         logging.debug('target = '+targetname)
-        if targetname == 'clean':
-            self.packager.clean()
-        else:
-            self.packager.make()
+        self.packager.clean()
+        self.packager.make()
+        self.packager.icons(
+                [os.path.join(self.config.master,
+                    self.config.info.attrib['application'].lower()+'.png')])
 
-            for p in self.projects:
-                try:
-                    method = getattr(self.projects[p], targetname)
-                    method(self.packager.get_path())
-                except AttributeError:
-                    pass
+        for p in self.projects:
+            try:
+                method = getattr(self.projects[p], targetname)
+                method(self.packager.get_path())
+            except AttributeError:
+                pass
 
-            self.packager.finish()
+        self.packager.finish()
     
 
 if __name__ == "__main__":

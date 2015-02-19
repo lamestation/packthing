@@ -134,3 +134,10 @@ def write(text, filename):
     f.seek(0)
     f.write(text)
     f.close()
+
+def create(text, filename):
+    mkdir(os.path.dirname(filename))
+    f = open(filename, 'w')
+    f.seek(0)
+    f.write(text)
+    f.close()

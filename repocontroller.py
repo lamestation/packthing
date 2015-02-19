@@ -38,6 +38,9 @@ class RepoController:
             else:
                 r['exclude'] = []
 
+            if 'icon' in child.attrib:
+                r['icon'] = child.attrib['icon']
+
             self.repo.append(r)
 
         return self.repo
