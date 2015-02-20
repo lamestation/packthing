@@ -27,7 +27,7 @@ class Packager(base.Packager):
 
     # Taken from innosetup module (https://pypi.python.org/pypi/innosetup/0.6.6)
     def AppID(self):
-        src = self.info.attrib['url']
+        src = self.info['url']
         appid = uuid.uuid5(uuid.NAMESPACE_URL, src).urn.rsplit(':', 1)[1]
         return '{{%s}' % appid
 
@@ -35,14 +35,14 @@ class Packager(base.Packager):
         script = util.get_template(os.path.join('win','installer.iss'))
         rendering = script.substitute(
                     APPID           = self.AppID(),
-                    ORGANIZATION    = self.info.attrib['organization'],
-                    NAME            = self.info.attrib['application'],
+                    ORGANIZATION    = self.info['org'],
+                    NAME            = self.info['name'],
                     PACKAGENAME     = self.packagename(),
-                    WEBSITE         = self.info.attrib['url'],
+                    WEBSITE         = self.info['url'],
                     VERSION         = self.VERSION,
                     GRAPHICSPATH    = 'gfx',
                     OUTDIR          = self.DIR_OUT,
-                    SHORTNAME       = self.NAME,
+                    SHORTNAME       = self.info['package'],
                 )
         return rendering
 

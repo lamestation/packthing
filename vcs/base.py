@@ -1,14 +1,18 @@
 import os
+import util
 
 class Repo:
+    @util.log
     def __init__(self, url, path):
         self.url = url
         self.path = path
         self.version = self.set_version()
 
+    @util.log
     def get_version(self):
         return self.version
 
+    @util.log
     def update(self):
         if os.path.exists(self.path):
             if self.path == '.':
@@ -21,6 +25,7 @@ class Repo:
         self.checkout()
         self.update_externals()
 
+    @util.log
     def list_files(self):
         out, err = self.filelist()
         out = out.split('\n')

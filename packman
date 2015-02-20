@@ -5,29 +5,43 @@ import os, sys
 import importer
 import logging
 import util
-import repocontroller
+import json
 
 import argparse
 
 class Packman:
     def __init__(self, repofile):
         try:
-            self.config = repocontroller.RepoController(repofile)
+            self.config = json.load(open(repofile))
         except IOError:
-            print "'"+repofile+"' not found; please specify a valid packman file"
+            util.error("'"+repofile+"' not found; please specify a valid packman file")
             sys.exit(1)
 
+        if not 'package' in self.config['info']:
+            self.config['info']['package'] = self.config['info']['name'].lower()
+
+        master = None
+        for r in self.config['repo']:
+            if u'master' in r:
+                master = r['path']
+
+        if master == None:
+            raise KeyError("No master repository defined!")
+
+        self.config['info'][u'master'] = master
+
+
+    @util.log
     def checkout(self, refresh):
         vcs = importer.get_module('vcs','git')
         importer.require(vcs)
 
         if refresh:
-            self.config.print_info()
             print util.table("Path", "Version", "URL")
             print "-"*80
 
         self.repos = {}
-        for a in self.config.repo:
+        for a in self.config['repo']:
             repo = vcs.Repo(a['url'],a['path'])
             self.repos[a['path']] = repo
 
@@ -38,6 +52,7 @@ class Packman:
         if refresh:
             print 
 
+    @util.log
     def filelist(self):
         fl = []
         for r in self.repos.values():
@@ -46,10 +61,12 @@ class Packman:
 #        logging.debug(fl)
         return fl
 
+    @util.log
     def archive(self, archivename):
         util.archive(archivename,self.filelist())
 
 
+    @util.log
     def build(self,jobs='1'):
         packagelist = importer.get_modulelist('builder')
         packagelist.remove('base')
@@ -65,21 +82,29 @@ class Packman:
         self.files['lib'] = []
         self.files['share'] = []
 
-        for r in self.config.repo:
+        for r in self.config['repo']:
             if 'root' in r:
                 path = os.path.join(r['path'],r['root'])
             else:
                 path = r['path']
 
-            print r['type']
-            self.projects[r['path']] = self.builders[r['type']].Builder(path,
-                    self.repos[r['path']].get_version())
-                 
-            outfiles = self.projects[r['path']].build(jobs, r['exclude'])
-            for f in self.files:
-                outfiles[f] = [x for x in outfiles[f] if x]
-                self.files[f].extend(outfiles[f])
+            if not 'exclude' in r:
+                r['exclude'] = []
 
+            if 'type' in r:
+                print r['type']
+                self.projects[r['path']] = self.builders[r['type']].Builder(path,
+                        self.repos[r['path']].get_version())
+
+                outfiles = self.projects[r['path']].build(jobs, r['exclude'])
+                for f in self.files:
+                    outfiles[f] = [x for x in outfiles[f] if x]
+                    self.files[f].extend(outfiles[f])
+
+            else:
+                util.warning("No type declared for",r['path'],"; skipping")
+
+                 
     def package(self, targetname):
         try:
             self.target = importer.get_module('target',targetname)
@@ -88,8 +113,12 @@ class Packman:
 
         importer.require(self.target)
 
-        self.packager = self.target.Packager(self.config.info, 
-                self.repos[self.config.master].get_version(),
+        if 'target' in self.config:
+            if targetname in self.config['target']:
+                self.config['info'].update(self.config['target'][targetname])
+
+        self.packager = self.target.Packager(self.config['info'], 
+                self.repos[self.config['info']['master']].get_version(),
                 files=self.files,
                 )
 
@@ -97,8 +126,8 @@ class Packman:
         self.packager.clean()
         self.packager.make()
         self.packager.icons(
-                [os.path.join(self.config.master,
-                    self.config.info.attrib['application'].lower()+'.png')])
+                [os.path.join(self.config['info']['master'],
+                    self.config['info']['name'].lower()+'.png')])
 
         for p in self.projects:
             try:
@@ -116,7 +145,8 @@ if __name__ == "__main__":
     packagelist.remove('base')
 
     parser = argparse.ArgumentParser(description=os.path.basename(__file__)+' - make working with your project more complicated')
-    parser.add_argument('-r','--repo',      nargs=1, metavar='REPO',    default=['repo.xml'], help="Project repository config file (default: packman.xml)")
+    defaultrepo = 'repo.json'
+    parser.add_argument('-r','--repo',      nargs=1, metavar='REPO',    default=[defaultrepo], help="Project repository config file (default: "+defaultrepo+")")
     parser.add_argument('-c',               nargs=1, metavar='DIR',     help="Change to DIR before running")
     parser.add_argument('-l','--log',       nargs=1, metavar='LEVEL',   help="Log level of debug output (DEBUG, INFO, WARNING, ERROR, CRITICAL)")
     parser.add_argument('-a','--archive',   nargs=1, metavar='NAME',    help="Create tar archive from super-repository")
@@ -131,10 +161,10 @@ if __name__ == "__main__":
     if args.log:
         logging.basicConfig(level=args.log[0])
 
-    pm = Packman(args.repo[0])
-
     if args.c:
         os.chdir(args.c[0])
+
+    pm = Packman(args.repo[0])
 
     pm.checkout(args.refresh)
     pm.build(args.jobs[0])

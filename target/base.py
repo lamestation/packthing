@@ -10,7 +10,6 @@ class Packager(object):
         if self.CPU == 'x86_64':
             self.CPU = 'amd64'
 
-        self.NAME        = self.info.attrib['application'].lower()
         self.DIR         = os.getcwd()
         self.DIR_STAGING = os.path.join(self.DIR, 'staging')
 
@@ -24,7 +23,7 @@ class Packager(object):
             shutil.rmtree(self.DIR_STAGING)
 
     def packagename(self):
-        n = self.NAME
+        n = self.info['package']
         n += '-'+self.VERSION
         n += '-'+self.CPU
         if hasattr(self, 'EXT'):

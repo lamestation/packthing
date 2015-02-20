@@ -30,28 +30,31 @@ class Packager(base.Packager):
         self.EXT_LIB = 'so'
 
         self.DIR_DEBIAN  = os.path.join(self.DIR_STAGING,'debian')
-        self.DIR_DEBIAN2 = os.path.join(self.DIR_DEBIAN,self.NAME,'DEBIAN')
-        self.DIR_OUT     = os.path.join(self.DIR_DEBIAN,self.NAME)
+        self.DIR_DEBIAN2 = os.path.join(self.DIR_DEBIAN,self.info['package'],'DEBIAN')
+        self.DIR_OUT     = os.path.join(self.DIR_DEBIAN,self.info['package'])
         self.DIR_MENU    = os.path.join(self.DIR_OUT,'usr','share','menu')
         self.DIR_DESKTOP = os.path.join(self.DIR_OUT,'usr','share','applications')
         self.DIR_PIXMAPS = os.path.join(self.DIR_OUT,'usr','share','pixmaps')
 
         self.OUT['bin'] = os.path.join('usr','bin')
         self.OUT['lib'] = os.path.join('usr','lib')
-        self.OUT['share'] = os.path.join('usr','share',self.NAME)
+        self.OUT['share'] = os.path.join('usr','share',self.info['package'])
 
     def control(self):
         script = util.get_template('deb/control')
+        depends     = "${shlibs:Depends}"
+        if 'depends' in self.info:
+            depends += ', '+self.info['depends']
         rendering = script.substitute(
-                        application = self.NAME,
-                        maintainer  = self.info.attrib['maintainer'],
-                        email       = self.info.attrib['email'],
+                        application = self.info['package'],
+                        maintainer  = self.info['maintainer'],
+                        email       = self.info['email'],
                         VERSION     = self.VERSION,
                         CPU         = self.CPU,
-                        tagline     = self.info.attrib['tagline'],
-                        description = textwrap.fill(self.info.attrib['description'], 
+                        tagline     = self.info['tagline'],
+                        description = textwrap.fill(self.info['description'], 
                                 60, subsequent_indent = ' '),
-                        depends     = "${shlibs:Depends}",
+                        depends     = depends,
                     )
         return rendering
 
@@ -62,9 +65,9 @@ class Packager(base.Packager):
         nowtimestamp = time.mktime(nowtuple)
         date = utils.formatdate(nowtimestamp)
         rendering = script.substitute(
-                        application = self.NAME,
-                        maintainer  = self.info.attrib['maintainer'],
-                        email       = self.info.attrib['email'],
+                        application = self.info['package'],
+                        maintainer  = self.info['maintainer'],
+                        email       = self.info['email'],
                         VERSION     = self.VERSION,
                         datetime    = date,  
                     )
@@ -81,22 +84,28 @@ class Packager(base.Packager):
 
     def menu(self):
         script = util.get_template('deb/menu')
+        section = ""
+        if 'section' in self.info:
+            section += self.info['section']
         rendering = script.substitute(
-                        NAME        = self.info.attrib['application'],
-                        APPLICATION = self.NAME,
-                        DESCRIPTION = self.info.attrib['description'],
+                        NAME        = self.info['name'],
+                        APPLICATION = self.info['package'],
+                        DESCRIPTION = self.info['description'],
                         SECTION     = "",
                     )
         return rendering
 
     def desktop(self):
         script = util.get_template('deb/desktop')
+        categories = ""
+        if 'categories' in self.info:
+            categories += self.info['categories']
         rendering = script.substitute(
-                        NAME        = self.info.attrib['application'],
-                        APPLICATION = self.NAME,
-                        DESCRIPTION = self.info.attrib['description'],
-                        TAGLINE     = self.info.attrib['tagline'],
-                        CATEGORIES= "",
+                        NAME        = self.info['name'],
+                        APPLICATION = self.info['package'],
+                        DESCRIPTION = self.info['description'],
+                        TAGLINE     = self.info['tagline'],
+                        CATEGORIES  = categories,
                     )
         return rendering
 
@@ -119,8 +128,8 @@ class Packager(base.Packager):
             util.create(self.control(),  os.path.join(self.DIR_DEBIAN,'control'))
             util.create(self.changelog(),os.path.join(self.DIR_DEBIAN,'changelog'))
             util.create('9',             os.path.join(self.DIR_DEBIAN,'compat'))
-            util.create(self.menu(),    os.path.join(self.DIR_MENU,self.NAME))
-            util.create(self.desktop(), os.path.join(self.DIR_DESKTOP,self.NAME+'.desktop'))
+            util.create(self.menu(),    os.path.join(self.DIR_MENU,self.info['package']))
+            util.create(self.desktop(), os.path.join(self.DIR_DESKTOP,self.info['package']+'.desktop'))
 
             util.command(['dpkg-shlibdeps','/usr/bin/propelleride'])
             util.command(['dh_installmanpages'])

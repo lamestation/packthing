@@ -13,6 +13,13 @@ def warning(*objs):
 def error(*objs):
     print("ERROR:", *objs, file=sys.stderr)
 
+def log(func):
+    def wrapper(*args, **kwargs):
+        res = func(*args, **kwargs)
+        logging.info(__name__+'.'+func.__name__+str(args)+str(kwargs))
+        return res
+    return wrapper
+
 @contextmanager
 def pushd(newDir):
     previousDir = os.getcwd()
@@ -20,8 +27,8 @@ def pushd(newDir):
     yield
     os.chdir(previousDir)
 
+@log
 def command(args,strict=True,stdinput=None):
-    logging.debug(["util.command", args, os.getcwd()])
     process = subprocess.Popen(args, stdout=subprocess.PIPE,
             stdin=subprocess.PIPE, stderr=subprocess.PIPE)
     out, err = process.communicate(input=stdinput)
@@ -31,14 +38,17 @@ def command(args,strict=True,stdinput=None):
             raise subprocess.CalledProcessError(process.returncode, args, err)
     return out, err
 
+@log
 def command_in_dir(args, newdir, strict=True):
     with pushd(newdir):
         out, err = command(args,strict=strict)
         return out, err
 
+@log
 def table(path, version, url):
     return "%30s  %10s  %s" % (path, version, url)
 
+@log
 def which(program):
     def is_exe(fpath):
         return os.path.isfile(fpath) and os.access(fpath, os.X_OK)
@@ -56,8 +66,8 @@ def which(program):
 
     return None
 
+@log
 def mkdir(path):
-    logging.debug(["util.mkdir", path])
     try:
         os.makedirs(path)
     except OSError as exc: # Python >2.5
@@ -65,6 +75,7 @@ def mkdir(path):
             pass
         else: raise
 
+@log
 def archive(name, files):
     shortname = os.path.basename(name)
 
@@ -73,10 +84,12 @@ def archive(name, files):
         tar.add(name=f, arcname=os.path.join(os.path.splitext(shortname)[0],f), recursive=False)
     tar.close()
 
+@log
 def from_scriptroot(filename):
     currentpath = os.path.dirname(os.path.abspath(__file__))
     return os.path.join(currentpath,filename)
 
+@log
 def get_template(template):
     template = os.path.join('template',template)
     template = from_scriptroot(template)
@@ -100,6 +113,7 @@ def get_template(template):
 #You should have received a copy of the GNU General Public License
 #along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #-----------------------------------------
+@log
 def ldd(filenames):
     libs = [] 
     for x in filenames:
@@ -118,6 +132,7 @@ def ldd(filenames):
 	return libs
 #-----------------------------------------
 
+@log
 def extract_libs(files, libs):
     resultlibs = []
     for f in files:
@@ -129,12 +144,14 @@ def extract_libs(files, libs):
                     resultlibs.append(l)
     return sorted(list(set(tuple(lib) for lib in resultlibs)))
 
+@log
 def write(text, filename):
     f = open(filename, 'w')
     f.seek(0)
     f.write(text)
     f.close()
 
+@log
 def create(text, filename):
     mkdir(os.path.dirname(filename))
     f = open(filename, 'w')

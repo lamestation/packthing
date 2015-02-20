@@ -16,7 +16,7 @@ class Packager(base.Packager):
         self.EXT_BIN = ''
         self.EXT_LIB = 'dylib'
         self.DIR_PACKAGE = os.path.join(self.DIR_STAGING,'mac')
-        self.DIR_BUNDLE = os.path.join(self.DIR_PACKAGE,self.NAME+'.app')
+        self.DIR_BUNDLE = os.path.join(self.DIR_PACKAGE,self.info['package']+'.app')
         self.DIR_OUT = os.path.join(self.DIR_BUNDLE,'Contents')
 
         self.OUT['bin'] = 'MacOS'
@@ -27,27 +27,27 @@ class Packager(base.Packager):
         return self.DIR_BUNDLE
 
     def bundle_identifier(self):
-        return 'com.'+self.info.attrib['organization'].lower()+self.info.attrib['application']
+        return 'com.'+self.info['org'].lower()+self.info['name']
 
     def build_plist(self, info, target):
         pl = dict(
             CFBundleDevelopmentRegion = "English",
-            CFBundleDisplayName = self.info.attrib['application'],
-            CFBundleExecutable = self.NAME,
+            CFBundleDisplayName = self.info['name'],
+            CFBundleExecutable = self.info['package'],
             CFBundleIconFile = "mac.icns",
             CFBundleIdentifier = self.bundle_identifier(),
             CFBundleInfoDictionaryVersion = "6.0",
-            CFBundleName = self.NAME,
+            CFBundleName = self.info['package'],
             CFBundlePackageType = "APPL",
             CFBundleShortVersionString = self.VERSION,
             CFBundleVersion = "1",
             LSApplicationCategoryType = 'public.app-category.developer-tools',
             LSMinimumSystemVersion = "10.7",
-            NSHumanReadableCopyright = u"Copyright © "+self.info.attrib['copyright']
-                    +", "+self.info.attrib['organization']+". "
-                    +self.info.attrib['application']
+            NSHumanReadableCopyright = u"Copyright © "+self.info['copyright']
+                    +", "+self.info['org']+". "
+                    +self.info['name']
                     +" is released under the "
-                    +self.info.attrib['license']+" license.",
+                    +self.info['license']+" license.",
             NSPrincipalClass = "NSApplication",
             NSSupportsSuddenTermination = "YES",
         )
