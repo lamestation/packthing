@@ -26,10 +26,4 @@ def get_module(parentname, modulename):
     return imp.load_module(parentname+'.'+modulename, f, filename, description)
 
 def require(module):
-    try:
-        for r in module.REQUIRE:
-            if util.which(r) == None:
-                raise OSError("Executable '"+r+"' not found; required by '"+module.__name__+"'")
-    except AttributeError: # Don't require external dependencies
-        pass
-
+    pass

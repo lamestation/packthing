@@ -115,9 +115,21 @@ class Builder(base.Builder):
 
         return files
 
+    def call_make(self,args):
+        args.insert(0,'make')
+        for m in ['make','mingw32-make']:
+            args[0] = m
+            failed = 0
+            try:
+                subprocess.check_call(args)
+            except WindowsError:
+                failed = 1
+            if not failed:
+                return
+    
     def build(self,jobs='1',exclude=None):
         with util.pushd(self.path):
-            subprocess.check_call(['make','-j'+jobs])
+            self.call_make(['-j'+jobs])
 
         self.files['bin'] = self.collect_targets(self.root,'app',exclude)
         self.files['lib'] = self.collect_targets(self.root,'lib',exclude)
