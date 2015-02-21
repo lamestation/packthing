@@ -85,37 +85,31 @@ class Packager(base.Packager):
     def menu(self):
         script = util.get_template('deb/menu')
         section = ""
-        if 'section' in self.info:
-            section += self.info['section']
         rendering = script.substitute(
                         NAME        = self.info['name'],
                         APPLICATION = self.info['package'],
                         DESCRIPTION = self.info['description'],
-                        SECTION     = "",
+                        SECTION     = self.info['section'],
                     )
         return rendering
 
     def desktop(self):
         script = util.get_template('deb/desktop')
-        categories = ""
-        if 'categories' in self.info:
-            categories += self.info['categories']
         rendering = script.substitute(
                         NAME        = self.info['name'],
                         APPLICATION = self.info['package'],
                         DESCRIPTION = self.info['description'],
                         TAGLINE     = self.info['tagline'],
-                        CATEGORIES  = categories,
+                        CATEGORIES  = self.info['categories'],
                     )
         return rendering
 
-    def icons(self,iconlist):
-        for i in iconlist:
-            if os.path.exists(i):
-                util.mkdir(self.DIR_PIXMAPS)
-                util.command(['convert',i,'-resize','32x32',
-                        os.path.join(self.DIR_PIXMAPS,
-                        os.path.splitext(os.path.basename(i))[0]+'.xpm')])
+    def icon(self,icon,target):
+        if os.path.exists(icon):
+            print "Generating icon",icon
+            util.mkdir(self.DIR_PIXMAPS)
+            util.command(['convert',icon,'-resize','32x32',
+                    os.path.join(self.DIR_PIXMAPS,target+'.xpm')])
 
     def make(self):
         super(Packager,self).make()
@@ -136,6 +130,6 @@ class Packager(base.Packager):
             util.command(['fakeroot','dpkg-gencontrol','-v'+self.VERSION,'-P'+self.DIR_OUT])
 
     def finish(self):
+        super(Packager,self).finish()
         with util.pushd(self.DIR_STAGING):
-            print self.packagename()
             util.command(['dpkg-deb','-b',self.DIR_OUT,self.packagename()])
