@@ -1,4 +1,4 @@
-import os
+import os, sys
 import util
 
 class Repo:
@@ -7,6 +7,7 @@ class Repo:
         self.url = url
         self.path = path
         self.version = self.set_version()
+        sys.stdout.write("  ( {:>10} ) {:<30} {}\n".format(self.version,self.path,self.url))
 
     @util.log
     def get_version(self):

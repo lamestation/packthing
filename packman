@@ -23,7 +23,10 @@ class Packman:
         master = None
         for r in self.config['repo']:
             if u'master' in r:
-                master = r['path']
+                if master == None:
+                    master = r['path']
+                else:
+                    raise KeyError("Master repository defined twice!")
 
         if master == None:
             raise KeyError("No master repository defined!")
@@ -31,14 +34,10 @@ class Packman:
         self.config['info'][u'master'] = master
 
 
-    @util.log
+    @util.headline
     def checkout(self, refresh):
         vcs = importer.get_module('vcs','git')
         importer.require(vcs)
-
-        if refresh:
-            print util.table("Path", "Version", "URL")
-            print "-"*80
 
         self.repos = {}
         for a in self.config['repo']:
@@ -47,12 +46,8 @@ class Packman:
 
             if refresh:
                 repo.update()
-                print util.table(repo.path, repo.get_version(), repo.url)
-        
-        if refresh:
-            print 
 
-    @util.log
+    @util.headline
     def filelist(self):
         fl = []
         for r in self.repos.values():
@@ -61,12 +56,12 @@ class Packman:
 #        logging.debug(fl)
         return fl
 
-    @util.log
+    @util.headline
     def archive(self, archivename):
         util.archive(archivename,self.filelist())
 
 
-    @util.log
+    @util.headline
     def build(self,jobs='1'):
         packagelist = importer.get_modulelist('builder')
         packagelist.remove('base')
@@ -105,6 +100,7 @@ class Packman:
                 util.warning("No type declared for",r['path'],"; skipping")
 
                  
+    @util.headline
     def package(self, targetname):
         try:
             self.target = importer.get_module('target',targetname)
@@ -125,9 +121,12 @@ class Packman:
         logging.debug('target = '+targetname)
         self.packager.clean()
         self.packager.make()
-        self.packager.icons(
-                [os.path.join(self.config['info']['master'],
-                    self.config['info']['name'].lower()+'.png')])
+
+        for r in self.config['repo']:
+            if 'icon' in r:
+                print r['icon']
+                self.packager.icon(os.path.join(r['path'],
+                            r['icon']),r['path'])
 
         for p in self.projects:
             try:

@@ -60,3 +60,6 @@ class Packager(object):
     def make(self):
         util.mkdir(self.DIR_STAGING)
         self.copy()
+
+    def finish(self):
+        print "Creating",self.packagename()

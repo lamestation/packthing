@@ -13,6 +13,14 @@ def warning(*objs):
 def error(*objs):
     print("ERROR:", *objs, file=sys.stderr)
 
+def headline(func):
+    def wrapper(*args, **kwargs):
+        line = (80-(len(func.__name__)+2))/2
+        print("-"*line,func.__name__.upper(),"-"*(line+(len(func.__name__) % 2)))
+        res = func(*args, **kwargs)
+        return res
+    return wrapper
+
 def log(func):
     def wrapper(*args, **kwargs):
         res = func(*args, **kwargs)

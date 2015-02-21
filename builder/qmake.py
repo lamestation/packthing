@@ -42,9 +42,12 @@ class Builder(base.Builder):
 
             valuelist = ['TEMPLATE','TARGET','DESTDIR','SUBDIRS','CONFIG']
             self.output_values(tmppro, valuelist)
-            self.insert_value(tmppro, 'CONFIG -= debug_and_release app_bundle')
+            self.insert_value(tmppro, r"""CONFIG -= debug_and_release app_bundle""")
+            self.insert_value(tmppro, r"""isEmpty(VERSION_ARG):VERSION_ARG = 0.0.0""")
+            self.insert_value(tmppro, r"""VERSION_ARG = '\\"$${VERSION_ARG}\\"'""")
+            self.insert_value(tmppro, r"""DEFINES += VERSION=\"$${VERSION_ARG}\"""")
 
-            output = util.command(['qmake',tmppro])[1]
+            output = util.command(['qmake','VERSION_ARG='+self.VERSION,tmppro])[1]
 
             values = self.get_values(output, valuelist)
             values['FILE'] = p
