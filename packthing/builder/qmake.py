@@ -125,7 +125,7 @@ class Builder(base.Builder):
             failed = 0
             try:
                 subprocess.check_call(args)
-            except WindowsError:
+            except:
                 failed = 1
             if not failed:
                 return
