@@ -1,4 +1,7 @@
-from setuptools import setup
+from setuptools import setup, find_packages
+
+with open('README.rst') as f:
+        long_description = f.read()
 
 setup(
         name = "packthing",
@@ -6,10 +9,11 @@ setup(
         author = "LameStation",
         author_email = "contact@lamestation.com",
         description = "Write once, package everywhere",
+        long_description = long_description,
         license = "GPLv3",
         url = "https://github.com/lamestation/packthing",
         keywords = "packaging qt qmake building distribution",
-        packages=['packthing', 'test'],
+        packages=find_packages(),
         entry_points={
             'console_scripts': [
                 'packthing = packthing.main:console',
