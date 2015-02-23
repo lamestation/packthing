@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
-import os, util
+import os
+from .. import util
 import plistlib
 
 from . import base
@@ -58,6 +59,13 @@ class Packager(base.Packager):
         with util.pushd(self.DIR_OUT):
             plistlib.writePlist(self.build_plist(self.info, None), 
                     os.path.join(self.DIR_OUT,'Info.plist'))
+
+        util.command(['dmg','/usr/bin/propelleride'])
+	    $(DIR_DIST)/dmg.sh \
+			$(DIR_STAGING)/$(TITLE).app \
+			$(TITLE) \
+			$(DIR_STAGING)/$(NAME)-$(VERSION)-$(CPU).dmg \
+			$(shell $(REPO) --gfx)/mac-dmg.png
 
     def finish(self):
         pass

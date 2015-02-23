@@ -1,5 +1,6 @@
 import os
-import util, shutil
+import shutil
+from .. import util
 import glob
 import subprocess
 

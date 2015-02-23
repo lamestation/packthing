@@ -1,5 +1,5 @@
-import util
-import base
+from . import base
+from .. import util
 
 REQUIRE = ['git']
 

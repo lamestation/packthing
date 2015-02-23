@@ -1,4 +1,4 @@
-# packman - *write once, package everywhere*
+# packup - *write once, package everywhere*
 
 ### Why another packaging thing?
 
@@ -12,7 +12,7 @@ The goal of Packman is to create a language-agnostic, high-level integration too
 * Many output formats (windows installer, mac bundle, pkg, tar, debian, rpm, apk, and so on and so forth).
 * Many build systems
 
-Famously described as a *glorified convenience wrapper*, **packman** is here to make your life easy.
+Famously described as a *glorified convenience wrapper*, **packup** is here to make your life easy.
 
 ### It's a super project!
 
@@ -56,7 +56,7 @@ Packman then fetchs the dependencies and auto-populates all the needed informati
 
 #### Multiple package formats
 
-Build your application into a windows installer, mac bundle, pkg, tar, Debian RPM, APK, and many more. `packman` provides a generic abstraction between the build system and the packaging system, so you can all but forget what the final project layout actually looks like.
+Build your application into a windows installer, mac bundle, pkg, tar, Debian RPM, APK, and many more. `packup` provides a generic abstraction between the build system and the packaging system, so you can all but forget what the final project layout actually looks like.
 
 ## Future
 
@@ -68,28 +68,28 @@ At present, the focus has been on supporting Qt applications, but there are othe
 
 Packman does not attempt to support every possible configurations all of the time. Rather, it's goal is to do a good enough job for more common use cases first, with the possibility of finer-grained controls in the future.
 
-So use packman because you want to get the thing out the door. **Now, please!**
+So use packup because you want to get the thing out the door. **Now, please!**
 
 **NOTE: Packman is in the early stages of development. Currently only triplets including Git and Qt are supported.**
 
 ## Usage
 
-### Setting up your project to use `packman`
+### Setting up your project to use `packup`
 
-First, write up a config file for your project, and save as `packman.json`. This file should be checked in to your project but does not depend on your project. You should be able to download the config file separately to use `packman`.
+First, write up a config file for your project, and save as `packup.json`. This file should be checked in to your project but does not depend on your project. You should be able to download the config file separately to use `packup`.
 
-This config will include a single project repository. `packman` is useful for both single- and multi-repository projects!
+This config will include a single project repository. `packup` is useful for both single- and multi-repository projects!
 
 ### Building a package
 
-Type `packman -h` or `packman --help` to get a nice pretty help output.
+Type `packup -h` or `packup --help` to get a nice pretty help output.
 
 ```
-usage: packman [-h] [-r REPO] [-c DIR] [-l LEVEL] [-a NAME] [--list-src]
+usage: packup [-h] [-r REPO] [-c DIR] [-l LEVEL] [-a NAME] [--list-src]
                [--list-build] [-j JOBS] [--refresh]
                [TARGET]
 
-packman - make working with your project more complicated
+packup - make working with your project more complicated
 
 ...
 ```

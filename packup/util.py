@@ -42,7 +42,6 @@ def command(args,strict=True,stdinput=None):
     out, err = process.communicate(input=stdinput)
     if strict:
         if process.returncode:
-            logging.error(["util.command", args, out, err])
             raise subprocess.CalledProcessError(process.returncode, args, err)
     return out, err
 

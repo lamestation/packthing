@@ -1,5 +1,6 @@
 import os, platform
-import util, shutil
+from .. import util
+import shutil
 import logging
 
 class Packager(object):
@@ -59,6 +60,7 @@ class Packager(object):
 
     def make(self):
         util.mkdir(self.DIR_STAGING)
+        util.mkdir(self.DIR_OUT)
         self.copy()
 
     def finish(self):

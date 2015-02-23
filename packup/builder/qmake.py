@@ -1,6 +1,6 @@
 import os
 import glob
-import util
+from .. import util
 import shutil
 import logging
 import subprocess

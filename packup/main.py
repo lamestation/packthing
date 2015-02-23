@@ -6,6 +6,8 @@ import importer
 import logging
 import util
 import json
+import pkgutil, importlib
+import target, vcs, builder
 
 import argparse
 
@@ -36,12 +38,12 @@ class Packman:
 
     @util.headline
     def checkout(self, refresh):
-        vcs = importer.get_module('vcs','git')
-        importer.require(vcs)
+        v = importer.get_module(vcs, 'git')
+        importer.require(v)
 
         self.repos = {}
         for a in self.config['repo']:
-            repo = vcs.Repo(a['url'],a['path'])
+            repo = v.Repo(a['url'],a['path'])
             self.repos[a['path']] = repo
 
             if refresh:
@@ -53,7 +55,6 @@ class Packman:
         for r in self.repos.values():
             fl.extend(r.list_files())
 
-#        logging.debug(fl)
         return fl
 
     @util.headline
@@ -63,13 +64,13 @@ class Packman:
 
     @util.headline
     def build(self,jobs='1'):
-        packagelist = importer.get_modulelist('builder')
+        packagelist = importer.get_modulelist(builder)
         packagelist.remove('base')
 
         self.builders = {}
         self.projects = {}
         for p in packagelist:
-            self.builders[p] = importer.get_module('builder',p)
+            self.builders[p] = importer.get_module(builder,p)
             importer.require(p)
 
         self.files = {}
@@ -103,9 +104,9 @@ class Packman:
     @util.headline
     def package(self, targetname):
         try:
-            self.target = importer.get_module('target',targetname)
+            self.target = importer.get_module(target,targetname)
         except ImportError:
-            self.target = importer.get_module('target','base')
+            self.target = importer.get_module(target,'base')
 
         importer.require(self.target)
 
@@ -138,10 +139,16 @@ class Packman:
         self.packager.finish()
     
 
-if __name__ == "__main__":
+def console():
 
-    packagelist = importer.get_modulelist('target')
-    packagelist.remove('base')
+    packagelist = []
+    print target, vcs, builder
+    print importer.get_modulelist(target)
+    print importer.get_modulelist(vcs)
+    print importer.get_modulelist(target)
+
+#    if 'base' in packagelist:
+#        packagelist.remove('base')
 
     parser = argparse.ArgumentParser(description=os.path.basename(__file__)+' - make working with your project more complicated')
     defaultrepo = 'packman.json'

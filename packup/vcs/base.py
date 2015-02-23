@@ -1,5 +1,5 @@
 import os, sys
-import util
+from .. import util
 
 class Repo:
     @util.log

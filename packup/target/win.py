@@ -1,5 +1,5 @@
 import os
-import util
+from .. import util
 import uuid, subprocess
 
 from . import base
