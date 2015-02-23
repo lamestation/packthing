@@ -2,7 +2,7 @@ from setuptools import setup
 
 setup(
         name = "packthing",
-        version = "0.1",
+        version = "0.1.1",
         author = "LameStation",
         author_email = "contact@lamestation.com",
         description = "Write once, package everywhere",
