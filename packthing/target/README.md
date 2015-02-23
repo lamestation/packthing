@@ -56,7 +56,7 @@ self.OUT['share'] = os.path.join('usr','share','yourproject')
 
 ### `make()` and `finish()`
 
-These functions are called by `packman`.
+These functions are called by `packthing`.
 
 ### The icons() function
 

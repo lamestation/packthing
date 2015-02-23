@@ -11,7 +11,7 @@ import target, vcs, builder
 
 import argparse
 
-class Packman:
+class Packthing:
     def __init__(self, repofile):
         try:
             self.config = json.load(open(repofile))
@@ -142,16 +142,16 @@ class Packman:
 def console():
 
     packagelist = []
-    print target, vcs, builder
-    print importer.get_modulelist(target)
-    print importer.get_modulelist(vcs)
-    print importer.get_modulelist(target)
+#    print target, vcs, builder
+#    print importer.get_modulelist(target)
+#    print importer.get_modulelist(vcs)
+#    print importer.get_modulelist(target)
 
 #    if 'base' in packagelist:
 #        packagelist.remove('base')
 
     parser = argparse.ArgumentParser(description=os.path.basename(__file__)+' - make working with your project more complicated')
-    defaultrepo = 'packman.json'
+    defaultrepo = 'packthing.json'
     parser.add_argument('-r','--repo',      nargs=1, metavar='REPO',    default=[defaultrepo], help="Project repository config file (default: "+defaultrepo+")")
     parser.add_argument('-c',               nargs=1, metavar='DIR',     help="Change to DIR before running")
     parser.add_argument('-l','--log',       nargs=1, metavar='LEVEL',   help="Log level of debug output (DEBUG, INFO, WARNING, ERROR, CRITICAL)")
@@ -170,7 +170,7 @@ def console():
     if args.c:
         os.chdir(args.c[0])
 
-    pm = Packman(args.repo[0])
+    pm = Packthing(args.repo[0])
 
     pm.checkout(args.refresh)
     pm.build(args.jobs[0])

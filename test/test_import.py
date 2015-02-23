@@ -1,6 +1,6 @@
 import unittest
-from packup import importer
-from packup import target, vcs, builder
+from packthing import importer
+from packthing import target, vcs, builder
 
 from types import ModuleType
 

@@ -3,12 +3,12 @@ from setuptools import setup
 import platform
 
 setup(
-        name = "packup",
+        name = "packthing",
         version = "0.1",
         description = "Write once, package everywhere",
         entry_points={
             'console_scripts': [
-                'packup = packup.main:console',
+                'packthing = packthing.main:console',
                 ],
             },
         test_suite="test",
