@@ -1,9 +1,4 @@
-import sys, os
 from setuptools import setup
-import platform
-
-def read(fname):
-    return open(os.path.join(os.path.dirname(__file__), fname)).read()
 
 setup(
         name = "packthing",
@@ -14,7 +9,6 @@ setup(
         license = "GPLv3",
         url = "https://github.com/lamestation/packthing",
         keywords = "packaging qt qmake building distribution",
-        long_description = read('README.md'),
         packages=['packthing', 'test'],
         entry_points={
             'console_scripts': [
