@@ -14,6 +14,7 @@ setup(
         url = "https://github.com/lamestation/packthing",
         keywords = "packaging qt qmake building distribution",
         packages=find_packages(exclude=['test']),
+        include_package_data=True,
         entry_points={
             'console_scripts': [
                 'packthing = packthing.main:console',
