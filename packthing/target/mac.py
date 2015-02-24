@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-import os
+import os, re
 from .. import util
 import plistlib
 
@@ -17,7 +17,7 @@ class Packager(base.Packager):
         self.EXT_BIN = ''
         self.EXT_LIB = 'dylib'
         self.DIR_PACKAGE = os.path.join(self.DIR_STAGING,'mac')
-        self.DIR_BUNDLE = os.path.join(self.DIR_PACKAGE,self.info['package']+'.app')
+        self.DIR_BUNDLE = os.path.join(self.DIR_PACKAGE,self.info['name']+'.app')
         self.DIR_OUT = os.path.join(self.DIR_BUNDLE,'Contents')
 
         self.OUT['bin'] = 'MacOS'
@@ -54,18 +54,58 @@ class Packager(base.Packager):
         )
         return pl
 
+    def infofile(self):
+        script = util.get_template('deb/desktop')
+        rendering = script.substitute(
+                        title = self.info['name'],
+                        background = 'icons/mac-dmg.png',
+                        applicationName = os.path.basename(self.DIR_BUNDLE)
+                    )
+        return rendering
+
+
     def make(self):
         super(Packager,self).make()
         with util.pushd(self.DIR_OUT):
             plistlib.writePlist(self.build_plist(self.info, None), 
                     os.path.join(self.DIR_OUT,'Info.plist'))
 
-        util.command(['dmg','/usr/bin/propelleride'])
-	    $(DIR_DIST)/dmg.sh \
-			$(DIR_STAGING)/$(TITLE).app \
-			$(TITLE) \
-			$(DIR_STAGING)/$(NAME)-$(VERSION)-$(CPU).dmg \
-			$(shell $(REPO) --gfx)/mac-dmg.png
+#	util.command(['macdeployqt',self.DIR_BUNDLE])
+
+        source = self.DIR_BUNDLE
+        title = self.info['name']
+        target = os.path.join(self.DIR_STAGING, self.packagename())
+        background = 'icons/mac-dmg.png'
+
+        size = util.command(['du','-s',self.DIR_BUNDLE])[0].split()[0]
+        size = str(int(size)+1000)
+        print size
+        tmpdevice = os.path.join(self.DIR_PACKAGE, 'pack.temp.dmg')
+
+        util.command(['hdiutil','create','-srcfolder',self.DIR_BUNDLE,'-volname',
+                self.info['name'],'-fs','HFS+','-fsargs','"-c c=64,a=16,e=16"',
+                '-format','UDRW','-size',size+'k',tmpdevice])
+
+        devices = util.command(['hdiutil','attach','-readwrite','-noverify','-noautoopen',
+            tmpdevice])[0].splitlines()
+
+        r = re.compile('^/dev/')
+        devices = filter(r.match, devices)
+        device = devices[0].split()[0]
+
+        DIR_VOLUME = os.path.join(os.sep,'Volumes',self.info['name'],'.background')
+        util.mkdir(DIR_VOLUME)
+        shutil.copyfile(background, DIR_VOLUME)
+
+        util.command(['osascript','-'],stdinput=self.infofile())
+
+        util.command(['chmod','-Rf','go-w',os.path.dirname(DIR_VOLUME)])
+        util.command(['sync'])
+        util.command(['sync'])
+        util.command(['hdiutil','detach',device])
+        util.command(['hdiutil','convert',tmpdevice,'-format','UDZO',
+            '-imagekey','zlib-level=9','-o',target])
+        os.remove(tmpdevice)
 
     def finish(self):
         pass
