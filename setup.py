@@ -3,12 +3,12 @@ from setuptools import setup, find_packages
 with open('README.rst') as f:
         long_description = f.read()
 
-import subprocess
-version = subprocess.check_output(['git','describe','--tags']).strip()
-
+#import subprocess
+#version = subprocess.check_output(['git','describe','--tags']).strip()
+#
 setup(
         name = "packthing",
-        version = version,
+        version = '0.1.5',
         author = "LameStation",
         author_email = "contact@lamestation.com",
         description = "Write once, package everywhere",
