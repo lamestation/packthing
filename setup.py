@@ -3,9 +3,12 @@ from setuptools import setup, find_packages
 with open('README.rst') as f:
         long_description = f.read()
 
+import subprocess
+version = subprocess.check_output(['git','describe','--tags']).strip()
+
 setup(
         name = "packthing",
-        version = "0.1.3",
+        version = version,
         author = "LameStation",
         author_email = "contact@lamestation.com",
         description = "Write once, package everywhere",
@@ -14,6 +17,7 @@ setup(
         url = "https://github.com/lamestation/packthing",
         keywords = "packaging qt qmake building distribution",
         packages=find_packages(exclude=['test']),
+        include_package_data=True,
         entry_points={
             'console_scripts': [
                 'packthing = packthing.main:console',
