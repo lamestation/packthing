@@ -1,0 +1,9 @@
+Source: ${application}
+Maintainer: ${maintainer} <${email}>
+
+Package: ${application}
+Priority: optional
+Architecture: ${CPU}
+Depends: ${depends}
+Description: ${tagline}
+ ${description}

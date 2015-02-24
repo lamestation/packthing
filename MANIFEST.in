@@ -1,0 +1,2 @@
+recursive-include packthing/template *
+recursive-include packthing/scripts *

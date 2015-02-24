@@ -1,0 +1,3 @@
+${application} (${VERSION}) unstable; urgency=low
+  * placeholder changelog to satisfy dpkg-gencontrol
+ -- ${maintainer} <${email}>  ${datetime}
