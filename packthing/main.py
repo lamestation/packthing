@@ -16,7 +16,7 @@ class Packthing:
         try:
             self.config = json.load(open(repofile))
         except IOError:
-            util.error("'"+repofile+"' not found; please specify a valid packman file")
+            util.error("'"+repofile+"' not found; please specify a valid packthing file")
             sys.exit(1)
 
         if not 'package' in self.config['info']:
