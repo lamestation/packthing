@@ -123,11 +123,20 @@ class Packthing:
         self.packager.clean()
         self.packager.make()
 
+        self.buildtypes = []
         for r in self.config['repo']:
+            if not r['type'] in self.buildtypes:
+                self.buildtypes.append(r['type'])
+
             if 'icon' in r:
                 print r['icon']
-                self.packager.icon(os.path.join(r['path'],
-                            r['icon']),r['path'])
+                try:
+                    method = getattr(self.packager, 'icon')
+                    method(os.path.join(r['path'],r['icon']),r['path'])
+                except AttributeError:
+                    pass
+
+        print self.buildtypes
 
         for p in self.projects:
             try:
@@ -141,14 +150,9 @@ class Packthing:
 
 def console():
 
-    packagelist = []
-#    print target, vcs, builder
-#    print importer.get_modulelist(target)
-#    print importer.get_modulelist(vcs)
-#    print importer.get_modulelist(target)
-
-#    if 'base' in packagelist:
-#        packagelist.remove('base')
+    packagelist = importer.get_modulelist(target)
+    if 'base' in packagelist:
+        packagelist.remove('base')
 
     parser = argparse.ArgumentParser(description='make working with your project more complicated')
     defaultrepo = 'packthing.json'
