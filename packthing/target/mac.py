@@ -40,7 +40,7 @@ class Packager(base.Packager):
             CFBundleIconFile = "mac.icns",
             CFBundleIdentifier = self.bundle_identifier(),
             CFBundleInfoDictionaryVersion = "6.0",
-            CFBundleName = self.info['package'],
+            CFBundleName = self.info['name'],
             CFBundlePackageType = "APPL",
             CFBundleShortVersionString = self.VERSION,
             CFBundleVersion = "1",

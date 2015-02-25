@@ -150,7 +150,7 @@ def console():
 #    if 'base' in packagelist:
 #        packagelist.remove('base')
 
-    parser = argparse.ArgumentParser(description=os.path.basename(__file__)+' - make working with your project more complicated')
+    parser = argparse.ArgumentParser(description='make working with your project more complicated')
     defaultrepo = 'packthing.json'
     parser.add_argument('-r','--repo',      nargs=1, metavar='REPO',    default=[defaultrepo], help="Project repository config file (default: "+defaultrepo+")")
     parser.add_argument('-c',               nargs=1, metavar='DIR',     help="Change to DIR before running")
