@@ -72,12 +72,41 @@ class Packager(base.Packager):
             plistlib.writePlist(self.build_plist(self.info, None), 
                     os.path.join(self.DIR_OUT,'Info.plist'))
 
+    def generate_icon(self,icon,size,targetdir,addition=False):
+        iconname = 'icon_'
+        if addition == True:
+            iconname += str(int(size)/2)+'x'+str(int(size)/2)
+            iconname += '@2x'
+        else:
+            iconname += size+'x'+size
+        iconname += '.png'
+        subprocess.check_call(['sips','-z',size,size,icon,
+                '--out',os.path.join(targetdir,iconname)])
+
+    def icon(self,icon,target):
+        if os.path.exists(icon):
+            DIR_ICNS = os.path.join(self.DIR_STAGING,'mac.iconset')
+            util.mkdir(DIR_ICNS)
+            self.generate_icon(icon,'16',DIR_ICNS,False)
+            self.generate_icon(icon,'32',DIR_ICNS,True)
+            self.generate_icon(icon,'32',DIR_ICNS,False)
+            self.generate_icon(icon,'64',DIR_ICNS,True)
+            self.generate_icon(icon,'64',DIR_ICNS,False)
+            self.generate_icon(icon,'128',DIR_ICNS,False)
+            self.generate_icon(icon,'256',DIR_ICNS,True)
+            self.generate_icon(icon,'256',DIR_ICNS,False)
+            self.generate_icon(icon,'512',DIR_ICNS,True)
+            self.generate_icon(icon,'512',DIR_ICNS,False)
+            subprocess.check_call(['iconutil','-c','icns',
+                '--output',os.path.join(self.DIR_OUT,self.OUT['share'],'mac.icns'),DIR_ICNS])
+            shutil.rmtree(DIR_ICNS)
+
     def finish(self):
         target = os.path.join(self.DIR_STAGING, self.packagename())
         self.background = 'icons/mac-dmg.png'
 
-        size = util.command(['du','-s',self.DIR_BUNDLE])[0].split()[0]
-        size = str(int(size)+10000)
+        size = subprocess.check_output(['du','-s',self.DIR_BUNDLE]).split()[0]
+        size = str(int(size)+1000)
         print size
         tmpdevice = os.path.join(self.DIR_PACKAGE, 'pack.temp.dmg')
 
