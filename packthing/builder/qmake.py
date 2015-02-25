@@ -123,9 +123,16 @@ class Builder(base.Builder):
         for m in ['make','mingw32-make']:
             args[0] = m
             failed = 0
+
+            # a horrible horrible hack, I hate WindowsError
+            try:
+                WindowsError
+            except:
+                WindowsError = None
+
             try:
                 subprocess.check_call(args)
-            except:
+            except WindowsError:
                 failed = 1
             if not failed:
                 return
@@ -140,9 +147,9 @@ class Builder(base.Builder):
         return self.files
 
     def mac(self,path):
-        util.command(['macdeployqt',path])
+        subprocess.check_call(['macdeployqt',path])
 
     def win(self,path):
         with util.pushd(path):
             for f in self.files['bin']:
-                util.command(['windeployqt',f])
+                subprocess.check_call(['windeployqt',f])
