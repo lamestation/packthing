@@ -1,5 +1,6 @@
 from . import base
 from .. import util
+import subprocess
 
 REQUIRE = ['git']
 
@@ -22,22 +23,26 @@ class Repo(base.Repo):
 
     @util.log
     def clone(self):
-        util.command(['git','clone',self.url,self.path])
+        subprocess.check_call(['git','clone',self.url,self.path])
     
     @util.log
     def pull(self):
-        util.command_in_dir(['git','remote','set-url','origin',self.url],self.path)
+        with util.pushd(self.path):
+            subprocess.check_call(['git','remote','set-url','origin',self.url])
         self.checkout()
-        util.command_in_dir(['git','pull'],self.path)
+        with util.pushd(self.path):
+            subprocess.check_call(['git','pull'])
 
     @util.log
     def update_externals(self):
-        util.command_in_dir(['git','submodule','init'], self.path)
-        util.command_in_dir(['git','submodule','update','--recursive'], self.path)
+        with util.pushd(self.path):
+            subprocess.check_call(['git','submodule','init'])
+            subprocess.check_call(['git','submodule','update','--recursive'])
 
     @util.log
     def checkout(self, ref='master'):
-        util.command_in_dir(['git','checkout',ref], self.path)
+        with util.pushd(self.path):
+            subprocess.check_call(['git','checkout',ref])
 
     @util.log
     def filelist(self):
