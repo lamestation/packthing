@@ -16,7 +16,7 @@ class Packthing:
         try:
             self.config = json.load(open(repofile))
         except IOError:
-            util.error("'"+repofile+"' not found; please specify a valid packman file")
+            util.error("'"+repofile+"' not found; please specify a valid packthing file")
             sys.exit(1)
 
         if not 'package' in self.config['info']:
@@ -123,11 +123,20 @@ class Packthing:
         self.packager.clean()
         self.packager.make()
 
+        self.buildtypes = []
         for r in self.config['repo']:
+            if not r['type'] in self.buildtypes:
+                self.buildtypes.append(r['type'])
+
             if 'icon' in r:
                 print r['icon']
-                self.packager.icon(os.path.join(r['path'],
-                            r['icon']),r['path'])
+                try:
+                    method = getattr(self.packager, 'icon')
+                    method(os.path.join(r['path'],r['icon']),r['path'])
+                except AttributeError:
+                    pass
+
+        print self.buildtypes
 
         for p in self.projects:
             try:
@@ -141,16 +150,11 @@ class Packthing:
 
 def console():
 
-    packagelist = []
-#    print target, vcs, builder
-#    print importer.get_modulelist(target)
-#    print importer.get_modulelist(vcs)
-#    print importer.get_modulelist(target)
+    packagelist = importer.get_modulelist(target)
+    if 'base' in packagelist:
+        packagelist.remove('base')
 
-#    if 'base' in packagelist:
-#        packagelist.remove('base')
-
-    parser = argparse.ArgumentParser(description=os.path.basename(__file__)+' - make working with your project more complicated')
+    parser = argparse.ArgumentParser(description='make working with your project more complicated')
     defaultrepo = 'packthing.json'
     parser.add_argument('-r','--repo',      nargs=1, metavar='REPO',    default=[defaultrepo], help="Project repository config file (default: "+defaultrepo+")")
     parser.add_argument('-c',               nargs=1, metavar='DIR',     help="Change to DIR before running")
