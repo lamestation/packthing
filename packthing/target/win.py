@@ -6,6 +6,8 @@ import uuid, subprocess
 
 from . import base
 
+from PIL import Image
+
 REQUIRE = [ 'iscc',
             'windeployqt',
             ]
@@ -49,6 +51,15 @@ class Packager(base.Packager):
                     SHORTNAME       = self.info['package'],
                 )
         return rendering
+
+    def icon(self,icon,target):
+        if os.path.exists(icon):
+            print "Generating icon",icon
+            img = Image.open(icon)
+            img.thumbnail((256,256),Image.ANTIALIAS)
+            img.save(os.path.join(self.DIR_OUT,'win.ico'))
+#            img.save(os.path.join(self.DIR_OUT,
+#                os.path.splitext(os.path.basename(icon))[0]+'.ico'), 'PNG')
 
     def make(self):
         super(Packager,self).make()

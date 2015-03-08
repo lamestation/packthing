@@ -149,6 +149,7 @@ class Builder(base.Builder):
                 subprocess.check_call([
                     'windeployqt',
                     '--dir',path,
+                    '--no-translations',
                     f+'.exe',
                     ])
             except subprocess.CalledProcessError:
