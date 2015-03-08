@@ -1,3 +1,5 @@
+# -*- coding: utf-8 -*-
+
 import os, platform
 from .. import util
 import shutil
@@ -13,6 +15,7 @@ class Packager(object):
 
         self.DIR         = os.getcwd()
         self.DIR_STAGING = os.path.join(self.DIR, 'staging')
+        self.PREFIX      = 'lib'
 
         self.DIR_OUT     = self.DIR_STAGING
         self.OUT = {}
@@ -31,6 +34,14 @@ class Packager(object):
             n += '.'+self.EXT
         return n
 
+
+    def library(self, target):
+        f = self.PREFIX+os.path.basename(target)+'.'+self.EXT_LIB
+        return os.path.join(os.path.dirname(target),f)
+
+    def executable(self, target):
+        return target+'.'+self.EXT_BIN
+
     def copy(self):
         try:
             for outdir in self.files:
@@ -42,9 +53,9 @@ class Packager(object):
 
                 for f in self.files[outdir]:
                     if outdir == 'bin' and self.EXT_BIN:
-                        f += '.'+self.EXT_BIN
+                        f = self.executable(f)
                     elif outdir == 'lib':
-                        f = os.path.join(os.path.dirname(f),'lib'+os.path.basename(f)+'.'+self.EXT_LIB)
+                        f = self.library(f)
                         
                     if outdir == 'share':
                         outf = os.path.join(OUTDIR,f)

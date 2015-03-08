@@ -1,4 +1,3 @@
-#!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
 import os, sys
@@ -125,8 +124,9 @@ class Packthing:
 
         self.buildtypes = []
         for r in self.config['repo']:
-            if not r['type'] in self.buildtypes:
-                self.buildtypes.append(r['type'])
+            if 'type' in r:
+                if not r['type'] in self.buildtypes:
+                    self.buildtypes.append(r['type'])
 
             if 'icon' in r:
                 print r['icon']
