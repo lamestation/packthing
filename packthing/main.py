@@ -176,15 +176,17 @@ def console():
 
     pm = Packthing(args.repo[0])
 
-    pm.checkout(args.refresh)
-    pm.build(args.jobs[0])
+    util.mkdir('build')
+    with util.pushd('build'):
+        pm.checkout(args.refresh)
+        pm.build(args.jobs[0])
 
-    if not args.target == None:
-        pm.package(args.target)
+        if not args.target == None:
+            pm.package(args.target)
 
-    if args.list_src:
-        for l in pm.filelist():
-            print l
+        if args.list_src:
+            for l in pm.filelist():
+                print l
 
-    if args.archive:
-        pm.archive(args.archive[0])
+        if args.archive:
+            pm.archive(args.archive[0])
