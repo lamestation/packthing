@@ -103,7 +103,9 @@ class Packager(base.Packager):
 
     def finish(self):
         target = os.path.join(self.DIR_STAGING, self.packagename())
-        self.background = 'icons/mac-dmg.png'
+
+        # this is hacky and needs to be changed
+        self.background = '../icons/mac-dmg.png'
 
         size = subprocess.check_output(['du','-s',self.DIR_BUNDLE]).split()[0]
         size = str(int(size)+1000)
