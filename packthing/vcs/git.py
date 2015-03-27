@@ -36,8 +36,7 @@ class Repo(base.Repo):
     @util.log
     def update_externals(self):
         with util.pushd(self.path):
-            subprocess.check_call(['git','submodule','init'])
-            subprocess.check_call(['git','submodule','update','--recursive'])
+            subprocess.check_call(['git','submodule','update','--init','--recursive'])
 
     @util.log
     def checkout(self, ref='master'):
