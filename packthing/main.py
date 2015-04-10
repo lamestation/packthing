@@ -1,4 +1,3 @@
-#!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
 import os, sys
@@ -44,6 +43,15 @@ class Packthing:
         self.repos = {}
         for a in self.config['repo']:
             repo = v.Repo(a['url'],a['path'])
+
+            ref = None
+            if 'branch' in a:
+                ref = a['branch']
+            if 'tag' in a:
+                ref = a['tag']
+
+            repo = v.Repo(a['url'],a['path'], ref)
+
             self.repos[a['path']] = repo
 
             if refresh:
@@ -125,8 +133,9 @@ class Packthing:
 
         self.buildtypes = []
         for r in self.config['repo']:
-            if not r['type'] in self.buildtypes:
-                self.buildtypes.append(r['type'])
+            if 'type' in r:
+                if not r['type'] in self.buildtypes:
+                    self.buildtypes.append(r['type'])
 
             if 'icon' in r:
                 print r['icon']
@@ -176,15 +185,17 @@ def console():
 
     pm = Packthing(args.repo[0])
 
-    pm.checkout(args.refresh)
-    pm.build(args.jobs[0])
+    util.mkdir('build')
+    with util.pushd('build'):
+        pm.checkout(args.refresh)
+        pm.build(args.jobs[0])
 
-    if not args.target == None:
-        pm.package(args.target)
+        if not args.target == None:
+            pm.package(args.target)
 
-    if args.list_src:
-        for l in pm.filelist():
-            print l
+        if args.list_src:
+            for l in pm.filelist():
+                print l
 
-    if args.archive:
-        pm.archive(args.archive[0])
+        if args.archive:
+            pm.archive(args.archive[0])

@@ -1,3 +1,5 @@
+# -*- coding: utf-8 -*-
+
 import os
 import glob
 from .. import util
@@ -124,16 +126,11 @@ class Builder(base.Builder):
             args[0] = m
             failed = 0
 
-            # a horrible horrible hack, I hate WindowsError
-            try:
-                WindowsError
-            except:
-                WindowsError = None
-
             try:
                 subprocess.check_call(args)
-            except WindowsError:
+            except OSError:
                 failed = 1
+
             if not failed:
                 return
     
@@ -146,10 +143,17 @@ class Builder(base.Builder):
 
         return self.files
 
-    def win(self,path):
-        with util.pushd(path):
-            for f in self.files['bin']:
-                subprocess.check_call(['windeployqt',f])
+    def win(self, path):
+        for f in self.files['bin']:
+            try:
+                subprocess.check_call([
+                    'windeployqt',
+                    '--dir',path,
+                    '--no-translations',
+                    f+'.exe',
+                    ])
+            except subprocess.CalledProcessError:
+                pass
 
     def _mac(path):
         for f in self.files['bin']:
