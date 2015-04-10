@@ -2,15 +2,17 @@ import os, sys
 from .. import util
 
 class Repo:
+
     @util.log
     def __init__(self, url, path, ref=None):
         self.url = url
         self.path = path
-        self.version = self.set_version()
-        self.ref = ref
+        self.ref = 'master'
 
-        if self.ref == None:
-            self.ref = self.default_ref
+        if not ref == None:
+            self.ref = ref
+
+        self.version = self.set_version()
 
         sys.stdout.write("  ( {:>10} ) {:<30} {}\n".format(self.version,self.path,self.url))
 
@@ -28,7 +30,7 @@ class Repo:
         else:
             self.clone()
 
-        self.checkout(ref=self.ref)
+        self.checkout(self.ref)
         self.update_externals()
 
     @util.log
