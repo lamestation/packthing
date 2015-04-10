@@ -6,6 +6,8 @@ REQUIRE = ['git']
 
 class Repo(base.Repo):
 
+    default_ref = "master"
+
     @util.log
     def set_version(self):
         try:

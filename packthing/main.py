@@ -43,6 +43,15 @@ class Packthing:
         self.repos = {}
         for a in self.config['repo']:
             repo = v.Repo(a['url'],a['path'])
+
+            ref = None
+            if 'branch' in a:
+                ref = a['branch']
+            if 'tag' in a:
+                ref = a['tag']
+
+            repo = v.Repo(a['url'],a['path'], ref)
+
             self.repos[a['path']] = repo
 
             if refresh:

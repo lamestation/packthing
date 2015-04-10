@@ -3,10 +3,15 @@ from .. import util
 
 class Repo:
     @util.log
-    def __init__(self, url, path):
+    def __init__(self, url, path, ref=None):
         self.url = url
         self.path = path
         self.version = self.set_version()
+        self.ref = ref
+
+        if self.ref == None:
+            self.ref = self.default_ref
+
         sys.stdout.write("  ( {:>10} ) {:<30} {}\n".format(self.version,self.path,self.url))
 
     @util.log
@@ -23,7 +28,7 @@ class Repo:
         else:
             self.clone()
 
-        self.checkout()
+        self.checkout(ref=self.ref)
         self.update_externals()
 
     @util.log
