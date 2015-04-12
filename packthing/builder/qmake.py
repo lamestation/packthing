@@ -156,7 +156,5 @@ class Builder(base.Builder):
                 pass
 
     def mac(self, path):
-        print self.files['bin']
-        for f in self.files['bin']:
-            subprocess.check_call(['macdeployqt',path,'-executable='+f,'-always-overwrite'])
+        subprocess.check_call(['macdeployqt',path])
 
