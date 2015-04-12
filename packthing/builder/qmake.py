@@ -158,5 +158,10 @@ class Builder(base.Builder):
     def mac(self, path):
         print self.files['bin']
         for f in self.files['bin']:
-            subprocess.check_call(['macdeployqt',path,'-executable='+f,'-always-overwrite'])
+            fn = os.path.basename(f)
+            subprocess.check_call([
+                'macdeployqt',
+                path,
+                '-executable='+os.path.join(path,"Contents","MacOS",fn)
+                ])
 
