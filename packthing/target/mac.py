@@ -132,10 +132,14 @@ class Packager(base.Packager):
         print device
 
         DIR_VOLUME = os.path.join(os.sep,'Volumes',self.info['name'],'.background')
+
+        print "Copying",self.background,"to",DIR_VOLUME
         util.mkdir(DIR_VOLUME)
         shutil.copy(self.background, DIR_VOLUME)
 
         p = subprocess.Popen(['osascript','-'], stdin=subprocess.PIPE)
+
+        print self.mac_installer()
         p.communicate(input=self.mac_installer())
 
         subprocess.check_call(['chmod','-Rf','go-w',DIR_VOLUME])
