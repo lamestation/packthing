@@ -58,8 +58,6 @@ class Packager(base.Packager):
             img = Image.open(icon)
             img.thumbnail((256,256),Image.ANTIALIAS)
             img.save(os.path.join(self.DIR_OUT,'win.ico'))
-#            img.save(os.path.join(self.DIR_OUT,
-#                os.path.splitext(os.path.basename(icon))[0]+'.ico'), 'PNG')
 
     def make(self):
         super(Packager,self).make()
@@ -67,4 +65,5 @@ class Packager(base.Packager):
     def finish(self):
         with util.pushd(self.DIR_STAGING):
             util.write(self.iss(), 'installer.iss')
-            util.command(['iscc','-'],stdinput=self.iss())
+            print "Running iscc"
+            subprocess.check_call(['iscc','installer.iss'])
