@@ -150,6 +150,7 @@ class Builder(base.Builder):
                     'windeployqt',
                     '--dir',path,
                     '--no-translations',
+                    '--release',
                     f+'.exe',
                     ])
             except subprocess.CalledProcessError:

@@ -21,7 +21,7 @@ UsePreviousUserInfo=no
 DisableDirPage=yes
 DisableProgramGroupPage=yes
 DisableReadyPage=no
-;WizardImageFile="${GRAPHICSPATH}/win-banner.bmp"
+WizardImageFile="${BANNER}"
 
 [Languages]
 Name: "english"; MessagesFile: "compiler:Default.isl"

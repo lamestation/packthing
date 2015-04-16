@@ -38,6 +38,7 @@ class Packager(base.Packager):
 
     def iss(self):
         script = util.get_template(os.path.join('win','installer.iss'))
+        banner = os.path.join(self.DIR_STAGING,'..\\..\\icons\\win-banner.bmp')
         rendering = script.substitute(
                     APPID           = self.AppID(),
                     ORGANIZATION    = self.info['org'],
@@ -45,7 +46,7 @@ class Packager(base.Packager):
                     PACKAGENAME     = self.packagename(),
                     WEBSITE         = self.info['url'],
                     VERSION         = self.VERSION,
-                    GRAPHICSPATH    = 'gfx',
+                    BANNER          = banner,
                     SOURCEDIR       = self.DIR_OUT,
                     OUTDIR          = self.DIR_STAGING,
                     SHORTNAME       = self.info['package'],
