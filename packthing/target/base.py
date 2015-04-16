@@ -30,9 +30,7 @@ class Packager(object):
         n = self.info['package']
         n += '-'+self.VERSION
         n += '-'+self.CPU
-        if hasattr(self, 'EXT'):
-            n += '.'+self.EXT
-        return n
+        return n.lower()
 
 
     def library(self, target):
