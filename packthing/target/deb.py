@@ -124,7 +124,15 @@ class Packager(base.Packager):
             util.create(self.menu(),    os.path.join(self.DIR_MENU,self.info['package']))
             util.create(self.desktop(), os.path.join(self.DIR_DESKTOP,self.info['package']+'.desktop'))
 
-            util.command(['dpkg-shlibdeps','/usr/bin/propelleride'])
+            deps = []
+            for f in self.files['bin']:
+                OUTDIR = os.path.join(self.DIR_OUT,self.OUT['bin'])
+                outf = os.path.join(OUTDIR,f)
+                deps.append(outf)
+
+            deps.insert(0,'dpkg-shlibdeps')
+            util.command(deps)
+
             util.command(['dh_installmanpages'])
             util.command(['fakeroot','dpkg-gencontrol','-v'+self.VERSION,'-P'+self.DIR_OUT])
 
