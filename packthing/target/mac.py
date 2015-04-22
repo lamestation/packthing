@@ -102,7 +102,7 @@ class Packager(base.Packager):
             shutil.rmtree(DIR_ICNS)
 
     def finish(self):
-        target = os.path.join(self.DIR_STAGING, self.packagename())
+        target = os.path.join(self.DIR_STAGING, self.packagename()+'.dmg')
 
         # this is hacky and needs to be changed
         self.background = '../icons/mac-dmg.png'

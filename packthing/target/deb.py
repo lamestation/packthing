@@ -139,4 +139,4 @@ class Packager(base.Packager):
     def finish(self):
         super(Packager,self).finish()
         with util.pushd(self.DIR_STAGING):
-            util.command(['dpkg-deb','-b',self.DIR_OUT,self.packagename()])
+            util.command(['dpkg-deb','-b',self.DIR_OUT,self.packagename()+'.deb'])

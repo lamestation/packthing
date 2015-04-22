@@ -17,7 +17,7 @@ class Packager(base.Packager):
     def __init__(self, info, version, files):
         super(Packager,self).__init__(info, version, files)
 
-        self.EXT = 'exe'
+        #self.EXT = 'exe'
         self.EXT_BIN = 'exe'
         self.EXT_LIB = 'dll'
         self.PREFIX = ''
