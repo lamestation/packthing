@@ -69,5 +69,9 @@ class Packager(base.Packager):
     def finish(self):
         with util.pushd(self.DIR_STAGING):
             util.write(self.iss(), 'installer.iss')
+            print "Current directory:",os.getcwd()
+            files = [f for f in os.listdir('.') if os.path.isfile(f)]
+            for f in files:
+                print "File",f
             print "Running iscc"
             subprocess.check_call(['iscc','installer.iss'])
