@@ -6,7 +6,10 @@ import uuid, subprocess
 
 from . import base
 
-from PIL import Image
+try:
+    from PIL import Image
+except:
+    raise(Exception,"Failed to import Python Imaging Library; is it installed?")
 
 REQUIRE = [ 'iscc',
             'windeployqt',

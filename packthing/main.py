@@ -110,10 +110,7 @@ class Packthing:
                  
     @util.headline
     def package(self, targetname):
-        try:
-            self.target = importer.get_module(target,targetname)
-        except ImportError:
-            self.target = importer.get_module(target,'base')
+        self.target = importer.get_module(target,targetname)
 
         importer.require(self.target)
 
