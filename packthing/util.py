@@ -17,6 +17,7 @@ def headline(func):
     def wrapper(*args, **kwargs):
         line = (80-(len(func.__name__)+2))/2
         print("-"*line,func.__name__.upper(),"-"*(line+(len(func.__name__) % 2)))
+	sys.stdout.flush()
         res = func(*args, **kwargs)
         return res
     return wrapper
