@@ -44,8 +44,6 @@ def command(args,verbose=True, strict=True, stdinput=None):
                 stdin=subprocess.PIPE, stderr=subprocess.PIPE)
     except OSError as e:
         error("Command '"+args[0]+"' not found; exiting.")
-    except:
-        raise OSError
 
     out, err = process.communicate(input=stdinput)
     if strict:

@@ -18,8 +18,8 @@ REQUIRE = [ 'dpkg-deb',
             'convert',
             ]
 
-#if os.geteuid() != 0:
-#        exit("Debian packaging requires root privileges; exiting!")
+if os.geteuid() != 0:
+        exit("Debian packaging requires root privileges; exiting!")
 
 class Packager(base.Packager):
 
