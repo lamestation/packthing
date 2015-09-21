@@ -95,7 +95,8 @@ class Packthing:
                 r['exclude'] = []
 
             if 'type' in r:
-                print r['type']
+                util.subtitle(r['path']+" ("+r['type']+")")
+
                 self.projects[r['path']] = self.builders[r['type']].Builder(path,
                         self.repos[r['path']].get_version())
 
@@ -105,7 +106,7 @@ class Packthing:
                     self.files[f].extend(outfiles[f])
 
             else:
-                util.warning("No type declared for",r['path'],"; skipping")
+                util.error("No type declared for",r['path'],"; skipping")
 
                  
     @util.headline

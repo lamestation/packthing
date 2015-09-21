@@ -1,7 +1,6 @@
 from __future__ import print_function
 import os, sys
 import subprocess
-import logging
 from contextlib import contextmanager
 import string
 import errno
@@ -11,21 +10,22 @@ def warning(*objs):
     print("WARNING:", *objs, file=sys.stderr)
 
 def error(*objs):
-    print("ERROR:", *objs, file=sys.stderr)
+    print("\nERROR:", *objs, file=sys.stderr)
+    print()
+    sys.exit(1)
+
+def subtitle(text):
+    line = (80-(len(text)+2))/2
+    print("-"*line,text,"-"*(line+(len(text) % 2)))
+
+def title(text):
+    line = (80-(len(text)+2))/2
+    print("="*line,text.upper(),"="*(line+(len(text) % 2)))
 
 def headline(func):
     def wrapper(*args, **kwargs):
-        line = (80-(len(func.__name__)+2))/2
-        print("-"*line,func.__name__.upper(),"-"*(line+(len(func.__name__) % 2)))
-	sys.stdout.flush()
+        title(func.__name__)
         res = func(*args, **kwargs)
-        return res
-    return wrapper
-
-def log(func):
-    def wrapper(*args, **kwargs):
-        res = func(*args, **kwargs)
-        logging.info(__name__+'.'+func.__name__+str(args)+str(kwargs))
         return res
     return wrapper
 
@@ -36,30 +36,32 @@ def pushd(newDir):
     yield
     os.chdir(previousDir)
 
-@log
 def command(args,verbose=True, strict=True, stdinput=None):
     if verbose:
         print("-",' '.join(args))
-    process = subprocess.Popen(args, stdout=subprocess.PIPE,
-            stdin=subprocess.PIPE, stderr=subprocess.PIPE)
+    try:
+        process = subprocess.Popen(args, stdout=subprocess.PIPE,
+                stdin=subprocess.PIPE, stderr=subprocess.PIPE)
+    except OSError as e:
+        error("Command '"+args[0]+"' not found; exiting.")
+    except:
+        raise OSError
+
     out, err = process.communicate(input=stdinput)
     if strict:
         if process.returncode:
-            error(err)
+            print(err)
             raise subprocess.CalledProcessError(process.returncode, args, err)
     return out, err
 
-@log
 def command_in_dir(args, newdir, verbose=True, strict=True, stdinput=None):
     with pushd(newdir):
         out, err = command(args,verbose=verbose, strict=strict)
         return out, err
 
-@log
 def table(path, version, url):
     return "%30s  %10s  %s" % (path, version, url)
 
-@log
 def which(program):
     def is_exe(fpath):
         return os.path.isfile(fpath) and os.access(fpath, os.X_OK)
@@ -77,7 +79,6 @@ def which(program):
 
     return None
 
-@log
 def mkdir(path):
     try:
         os.makedirs(path)
@@ -86,7 +87,6 @@ def mkdir(path):
             pass
         else: raise
 
-@log
 def archive(name, files):
     shortname = os.path.basename(name)
 
@@ -95,12 +95,10 @@ def archive(name, files):
         tar.add(name=f, arcname=os.path.join(os.path.splitext(shortname)[0],f), recursive=False)
     tar.close()
 
-@log
 def from_scriptroot(filename):
     currentpath = os.path.dirname(os.path.abspath(__file__))
     return os.path.join(currentpath,filename)
 
-@log
 def get_template(template, substitute=dict()):
     template = os.path.join('template',template)
     template = from_scriptroot(template)
@@ -124,7 +122,6 @@ def get_template(template, substitute=dict()):
 #You should have received a copy of the GNU General Public License
 #along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #-----------------------------------------
-@log
 def ldd(filenames):
     libs = [] 
     for x in filenames:
@@ -143,7 +140,6 @@ def ldd(filenames):
 	return libs
 #-----------------------------------------
 
-@log
 def extract_libs(files, libs):
     resultlibs = []
     for f in files:
@@ -155,14 +151,12 @@ def extract_libs(files, libs):
                     resultlibs.append(l)
     return sorted(list(set(tuple(lib) for lib in resultlibs)))
 
-@log
 def write(text, filename):
     f = open(filename, 'w')
     f.seek(0)
     f.write(text)
     f.close()
 
-@log
 def create(text, filename):
     print("Create",filename)
     mkdir(os.path.dirname(filename))
