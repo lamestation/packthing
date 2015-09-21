@@ -134,14 +134,11 @@ class Packthing:
                     self.buildtypes.append(r['type'])
 
             if 'icon' in r:
-                print r['icon']
                 try:
                     method = getattr(self.packager, 'icon')
                     method(os.path.join(r['path'],r['icon']),r['path'])
                 except AttributeError:
                     pass
-
-        print self.buildtypes
 
         for p in self.projects:
             try:

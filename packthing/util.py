@@ -37,19 +37,22 @@ def pushd(newDir):
     os.chdir(previousDir)
 
 @log
-def command(args,strict=True,stdinput=None):
+def command(args,verbose=True, strict=True, stdinput=None):
+    if verbose:
+        print("-",' '.join(args))
     process = subprocess.Popen(args, stdout=subprocess.PIPE,
             stdin=subprocess.PIPE, stderr=subprocess.PIPE)
     out, err = process.communicate(input=stdinput)
     if strict:
         if process.returncode:
+            error(err)
             raise subprocess.CalledProcessError(process.returncode, args, err)
     return out, err
 
 @log
-def command_in_dir(args, newdir, strict=True):
+def command_in_dir(args, newdir, verbose=True, strict=True, stdinput=None):
     with pushd(newdir):
-        out, err = command(args,strict=strict)
+        out, err = command(args,verbose=verbose, strict=strict)
         return out, err
 
 @log
@@ -98,7 +101,7 @@ def from_scriptroot(filename):
     return os.path.join(currentpath,filename)
 
 @log
-def get_template(template):
+def get_template(template, substitute=dict()):
     template = os.path.join('template',template)
     template = from_scriptroot(template)
     return string.Template(open(template,'r').read())
@@ -161,6 +164,7 @@ def write(text, filename):
 
 @log
 def create(text, filename):
+    print("Create",filename)
     mkdir(os.path.dirname(filename))
     f = open(filename, 'w')
     f.seek(0)

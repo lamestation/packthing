@@ -4,6 +4,7 @@ import os, platform
 from .. import util
 import shutil
 import logging
+import subprocess
 
 class Packager(object):
     def __init__(self, info, version, files):
@@ -41,31 +42,64 @@ class Packager(object):
         return target+'.'+self.EXT_BIN
 
     def copy(self):
-        try:
-            for outdir in self.files:
-                OUTDIR = os.path.join(self.DIR_OUT,self.OUT[outdir])
+        for outdir in self.files:
+            OUTDIR = os.path.join(self.DIR_OUT,self.OUT[outdir])
 
-                logging.info("OUT['"+outdir+"']:"+self.OUT[outdir])
+            logging.info("OUT['"+outdir+"']:"+self.OUT[outdir])
 
-                util.mkdir(OUTDIR)
+            util.mkdir(OUTDIR)
 
-                for f in self.files[outdir]:
-                    if outdir == 'bin' and self.EXT_BIN:
-                        f = self.executable(f)
-                    elif outdir == 'lib':
-                        f = self.library(f)
-                        
-                    if outdir == 'share':
-                        outf = os.path.join(OUTDIR,f)
-                        util.mkdir(os.path.dirname(outf))
-                    else:
-                        outf = OUTDIR
+            for f in self.files[outdir]:
+                if outdir == 'bin' and self.EXT_BIN:
+                    f = self.executable(f)
+                elif outdir == 'lib':
+                    f = self.library(f)
+                    
+                if outdir == 'share':
+                    outf = os.path.join(OUTDIR,f)
+                    util.mkdir(os.path.dirname(outf))
+                else:
+                    outf = OUTDIR
 
-                    shutil.copy(f,outf)
-                    logging.info('  '+f+' => '+outf)
-        except KeyError:
-            raise KeyError("Target doesn't have self.OUT['"+outdir+"'] defined")
+                shutil.copy(f,outf)
+                logging.info('  '+f+' => '+outf)
 
+    def install(self):
+        for outdir in self.files:
+            OUTDIR = os.path.join(self.DIR_OUT,self.OUT[outdir])
+
+            logging.info("OUT['"+outdir+"']:"+self.OUT[outdir])
+
+            util.mkdir(OUTDIR)
+
+            for f in self.files[outdir]:
+                if outdir == 'bin' and self.EXT_BIN:
+                    f = self.executable(f)
+                elif outdir == 'lib':
+                    f = self.library(f)
+                    
+                if outdir == 'share':
+                    outf = os.path.join(OUTDIR,f)
+                    util.mkdir(os.path.dirname(outf))
+                else:
+                    outf = OUTDIR
+
+                perm  = '644'
+                if outdir == 'bin':
+                    perm = '755'
+
+                if outdir == 'bin' or outdir == 'lib':
+                    try:
+                        util.command(['install','-m',perm,'-s',f,outf])
+                    except subprocess.CalledProcessError as e:
+                        util.command(['install','-m',perm,f,outf])
+                    except subprocess.CalledProcessError as e:
+                        raise Exception
+                else:
+                    try:
+                        util.command(['install','-m',perm,f,outf])
+                    except subprocess.CalledProcessError as e:
+                        raise Exception
 
     def make(self):
         util.mkdir(self.DIR_STAGING)
@@ -73,4 +107,4 @@ class Packager(object):
         self.copy()
 
     def finish(self):
-        print "Creating",self.packagename()
+        print "Creating",self.packagename()+'.'+self.EXT

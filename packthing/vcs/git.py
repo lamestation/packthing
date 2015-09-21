@@ -11,10 +11,10 @@ class Repo(base.Repo):
     @util.log
     def set_version(self):
         try:
-            out, err = util.command_in_dir(['git','describe','--tags','--long'],self.path, strict=False)
+            out, err = util.command_in_dir(['git','describe','--tags','--long'],self.path, verbose=False, strict=False)
         except OSError:
             self.update()
-            out, err = util.command_in_dir(['git','describe','--tags','--long'],self.path, strict=False)
+            out, err = util.command_in_dir(['git','describe','--tags','--long'],self.path, verbose=False, strict=False)
 
         if not out == '':
             self.version = out.split('-')[0]

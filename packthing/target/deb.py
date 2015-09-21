@@ -19,6 +19,9 @@ REQUIRE = [ 'dpkg-deb',
             'convert',
             ]
 
+if os.geteuid() != 0:
+        exit("Debian packaging requires root privileges; exiting!")
+
 class Packager(base.Packager):
 
     def __init__(self, info, version, files):
@@ -39,6 +42,10 @@ class Packager(base.Packager):
         self.OUT['lib'] = os.path.join('usr','lib')
         self.OUT['share'] = os.path.join('usr','share',self.info['package'])
 
+    def postinst(self):
+        return util.get_template('deb/postinst').substitute(dict())
+        
+
     def control(self):
         script = util.get_template('deb/control')
         depends     = "${shlibs:Depends}"
@@ -58,19 +65,19 @@ class Packager(base.Packager):
         return rendering
 
     def changelog(self):
-        script = util.get_template('deb/changelog')
         nowdt = datetime.datetime.now()
         nowtuple = nowdt.timetuple()
         nowtimestamp = time.mktime(nowtuple)
         date = utils.formatdate(nowtimestamp)
-        rendering = script.substitute(
-                        application = self.info['package'],
-                        maintainer  = self.info['maintainer'],
-                        email       = self.info['email'],
-                        VERSION     = self.VERSION,
-                        datetime    = date,  
-                    )
-        return rendering
+
+        d = {
+            'application' : self.info['package'],
+            'maintainer'  : self.info['maintainer'],
+            'email'       : self.info['email'],
+            'VERSION'     : self.VERSION,
+            'datetime'    : date,  
+        }
+        return util.get_template('deb/changelog').substitute(d)
 
     def manpages(self):
         for f in self.files['bin']:
@@ -82,45 +89,42 @@ class Packager(base.Packager):
                     '-o',os.path.join(self.DIR_DEBIAN,g+'.1')],strict=False)
 
     def menu(self):
-        script = util.get_template('deb/menu')
-        section = ""
-        rendering = script.substitute(
-                        NAME        = self.info['name'],
-                        APPLICATION = self.info['package'],
-                        DESCRIPTION = self.info['description'],
-                        SECTION     = self.info['section'],
-                    )
-        return rendering
+        d = {
+            'NAME'        : self.info['name'],
+            'APPLICATION' : self.info['package'],
+            'DESCRIPTION' : self.info['description'],
+            'SECTION'     : self.info['section'],
+        }
+        return util.get_template('deb/menu').substitute(d)
 
     def desktop(self):
-        script = util.get_template('deb/desktop')
-        rendering = script.substitute(
-                        NAME        = self.info['name'],
-                        APPLICATION = self.info['package'],
-                        DESCRIPTION = self.info['description'],
-                        TAGLINE     = self.info['tagline'],
-                        CATEGORIES  = self.info['categories'],
-                    )
-        return rendering
+        d = {
+            'NAME'        : self.info['name'],
+            'APPLICATION' : self.info['package'],
+            'DESCRIPTION' : self.info['description'],
+            'TAGLINE'     : self.info['tagline'],
+            'CATEGORIES'  : self.info['categories'],
+        }
+        return util.get_template('deb/desktop').substitute(d)
 
     def icon(self,icon,target):
         if os.path.exists(icon):
-            print "Generating icon",icon
             util.mkdir(self.DIR_PIXMAPS)
             util.command(['convert',icon,'-resize','32x32',
                     os.path.join(self.DIR_PIXMAPS,target+'.xpm')])
 
     def make(self):
-        super(Packager,self).make()
         util.mkdir(self.DIR_DEBIAN)
         util.mkdir(self.DIR_DEBIAN2)
-        self.copy()
+        self.install()
 #        self.manpages()
 
         with util.pushd(self.DIR_STAGING):
             util.create(self.control(),  os.path.join(self.DIR_DEBIAN,'control'))
             util.create(self.changelog(),os.path.join(self.DIR_DEBIAN,'changelog'))
             util.create('9',             os.path.join(self.DIR_DEBIAN,'compat'))
+            util.create(self.postinst(), os.path.join(self.DIR_DEBIAN,'postinst'))
+
             util.create(self.menu(),    os.path.join(self.DIR_MENU,self.info['package']))
             util.create(self.desktop(), os.path.join(self.DIR_DESKTOP,self.info['package']+'.desktop'))
 
@@ -133,7 +137,8 @@ class Packager(base.Packager):
             util.command(deps)
 
             util.command(['dh_installmanpages'])
-            util.command(['fakeroot','dpkg-gencontrol','-v'+self.VERSION,'-P'+self.DIR_OUT])
+            util.command(['dpkg-gencontrol','-v'+self.VERSION,'-P'+self.DIR_OUT])
+            util.command(['dh_fixperms'])
 
     def finish(self):
         super(Packager,self).finish()
