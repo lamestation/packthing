@@ -3,6 +3,7 @@ import sys
 import util
 import pkgutil, importlib
 import inspect
+import platform
 
 def get_modulelist(package):
     packagelist = []
@@ -23,6 +24,9 @@ def get_module(parent, modulename):
     return module
 
 def require(module):
+    if platform.system() == 'Windows': # REQUIRE DOESN'T WORK ON WINDOWS
+        return
+
     clsmembers = inspect.getmembers(module, inspect.isclass)
     parenttree = list(clsmembers[0][1].__bases__)
 
