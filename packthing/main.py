@@ -2,9 +2,8 @@
 
 import os, sys
 import importer
-import logging
 import util
-import json
+import yaml
 import pkgutil, importlib
 import target, vcs, builder
 
@@ -13,13 +12,13 @@ import argparse
 class Packthing:
     def __init__(self, repofile):
         try:
-            self.config = json.load(open(repofile))
+            self.config = yaml.load(open(repofile))
         except IOError:
             util.error("'"+repofile+"' not found; please specify a valid packthing file")
             sys.exit(1)
 
-        if not 'package' in self.config['info']:
-            self.config['info']['package'] = self.config['info']['name'].lower()
+        if not 'package' in self.config:
+            self.config['package'] = self.config['name'].lower()
 
         master = None
         for r in self.config['repo']:
@@ -32,7 +31,7 @@ class Packthing:
         if master == None:
             raise KeyError("No master repository defined!")
 
-        self.config['info'][u'master'] = master
+        self.config[u'master'] = master
 
 
     @util.headline
@@ -117,14 +116,13 @@ class Packthing:
 
         if 'target' in self.config:
             if targetname in self.config['target']:
-                self.config['info'].update(self.config['target'][targetname])
+                self.config.update(self.config['target'][targetname])
 
-        self.packager = self.target.Packager(self.config['info'], 
-                self.repos[self.config['info']['master']].get_version(),
+        self.packager = self.target.Packager(self.config, 
+                self.repos[self.config['master']].get_version(),
                 files=self.files,
                 )
 
-        logging.debug('target = '+targetname)
         self.packager.clean()
         self.packager.make()
 
@@ -158,21 +156,16 @@ def console():
         packagelist.remove('base')
 
     parser = argparse.ArgumentParser(description='make working with your project more complicated')
-    defaultrepo = 'packthing.json'
+    defaultrepo = 'packthing.yml'
     parser.add_argument('-r','--repo',      nargs=1, metavar='REPO',    default=[defaultrepo], help="Project repository config file (default: "+defaultrepo+")")
     parser.add_argument('-c',               nargs=1, metavar='DIR',     help="Change to DIR before running")
-    parser.add_argument('-l','--log',       nargs=1, metavar='LEVEL',   help="Log level of debug output (DEBUG, INFO, WARNING, ERROR, CRITICAL)")
     parser.add_argument('-a','--archive',   nargs=1, metavar='NAME',    help="Create tar archive from super-repository")
     parser.add_argument('--list-src',       action='store_true',        help="List all files in super-repository")
-    parser.add_argument('--list-build',     action='store_true',        help="List all files to be included in package")
     parser.add_argument('-j','--jobs',      nargs=1, metavar='JOBS',default='1',    help="Number of jobs to pass to child builds")
     parser.add_argument('--refresh',        action='store_true',        help="Force update of all checkouts")
     parser.add_argument('target',           nargs='?', metavar='TARGET',help="Target platform to build ("+', '.join(packagelist)+")")
 
     args = parser.parse_args()
-
-    if args.log:
-        logging.basicConfig(level=args.log[0])
 
     if args.c:
         os.chdir(args.c[0])
@@ -182,14 +175,19 @@ def console():
     util.mkdir('build')
     with util.pushd('build'):
         pm.checkout(args.refresh)
+
+        if args.list_src:
+            for l in pm.filelist():
+                print l
+            sys.exit(0)
+
+        if args.archive:
+            pm.archive(args.archive[0])
+            sys.exit(0)
+
         pm.build(args.jobs[0])
 
         if not args.target == None:
             pm.package(args.target)
 
-        if args.list_src:
-            for l in pm.filelist():
-                print l
 
-        if args.archive:
-            pm.archive(args.archive[0])
