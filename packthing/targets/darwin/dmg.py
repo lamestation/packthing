@@ -1,11 +1,11 @@
 # -*- coding: utf-8 -*-
 import os, re
-from .. import util
 import plistlib
 import subprocess
 import shutil
 
-from . import base
+import packthing.util as util
+from .. import base
 
 REQUIRE = [ 'macdeployqt',
             ]

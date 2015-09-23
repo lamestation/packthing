@@ -1,13 +1,13 @@
 import os
 import shutil
-from .. import util
 import textwrap
 
 import datetime
 import time
 from email import utils
 
-from . import base
+import packthing.util as util
+from .. import base
 
 REQUIRE = [ 'dpkg-deb',
             'dh_fixperms',

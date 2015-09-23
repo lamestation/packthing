@@ -1,10 +1,10 @@
 # -*- coding: utf-8 -*-
 
 import os
-from .. import util
 import uuid, subprocess
 
-from . import base
+import packthing.util as util
+from .. import base
 
 try:
     from PIL import Image

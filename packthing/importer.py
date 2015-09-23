@@ -7,8 +7,12 @@ import platform
 
 def get_modulelist(package):
     packagelist = []
-    for p in pkgutil.walk_packages(package.__path__, package.__name__ + '.'):
+
+    for p in pkgutil.iter_modules(package.__path__, package.__name__+'.'):
         packagelist.append(p[1])
+
+#    for p in pkgutil.walk_packages(package.__path__, package.__name__ + '.'):
+#        packagelist.append(p[1])
 
     for i in range(len(packagelist)):
         packagelist[i] = packagelist[i].split('.')[-1]
@@ -16,12 +20,7 @@ def get_modulelist(package):
     return packagelist
 
 def get_module(parent, modulename):
-    try:
-        module = importlib.import_module(parent.__name__+'.'+modulename)
-    except ImportError as e:
-        raise ImportError(parent.__name__+" '"+modulename+"' does not exist")
-
-    return module
+    return importlib.import_module(parent.__name__+'.'+modulename)
 
 def require(module):
     if platform.system() == 'Windows': # REQUIRE DOESN'T WORK ON WINDOWS

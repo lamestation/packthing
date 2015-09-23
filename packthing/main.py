@@ -1,13 +1,30 @@
 # -*- coding: utf-8 -*-
 
 import os, sys
+import platform
 import importer
 import util
 import yaml
 import pkgutil, importlib
-import target, vcs, builder
+import targets, vcs, builders
 
 import argparse
+
+
+# get available platforms
+platforms = importer.get_modulelist(targets)
+if 'base' in platforms:
+    platforms.remove('base')
+
+# detect platform
+_platform = platform.system().lower()
+try:
+    target = importer.get_module(targets, _platform)
+except ImportError:
+    util.error("Packthing has no install targets for the '"+_platform+"' operating system.",
+               "\n       Supported systems:",', '.join(platforms))
+
+packagelist = importer.get_modulelist(target)
 
 class Packthing:
     def __init__(self, repofile):
@@ -35,7 +52,7 @@ class Packthing:
 
 
     @util.headline
-    def checkout(self, refresh):
+    def checkout(self, refresh=False):
         v = importer.get_module(vcs, 'git')
         importer.require(v)
 
@@ -70,13 +87,13 @@ class Packthing:
 
     @util.headline
     def build(self,jobs='1'):
-        packagelist = importer.get_modulelist(builder)
+        packagelist = importer.get_modulelist(builders)
         packagelist.remove('base')
 
         self.builders = {}
         self.projects = {}
         for p in packagelist:
-            self.builders[p] = importer.get_module(builder,p)
+            self.builders[p] = importer.get_module(builders,p)
             importer.require(p)
 
         self.files = {}
@@ -150,44 +167,29 @@ class Packthing:
     
 
 def console():
-
-    packagelist = importer.get_modulelist(target)
-    if 'base' in packagelist:
-        packagelist.remove('base')
-
-    parser = argparse.ArgumentParser(description='make working with your project more complicated')
+    parser = argparse.ArgumentParser(description='write once, package everywhere')
     defaultrepo = 'packthing.yml'
-    parser.add_argument('-r','--repo',      nargs=1, metavar='REPO',    default=[defaultrepo], help="Project repository config file (default: "+defaultrepo+")")
-    parser.add_argument('-c',               nargs=1, metavar='DIR',     help="Change to DIR before running")
-    parser.add_argument('-a','--archive',   nargs=1, metavar='NAME',    help="Create tar archive from super-repository")
-    parser.add_argument('--list-src',       action='store_true',        help="List all files in super-repository")
-    parser.add_argument('-j','--jobs',      nargs=1, metavar='JOBS',default='1',    help="Number of jobs to pass to child builds")
-    parser.add_argument('--refresh',        action='store_true',        help="Force update of all checkouts")
-    parser.add_argument('target',           nargs='?', metavar='TARGET',help="Target platform to build ("+', '.join(packagelist)+")")
+    parser.add_argument('-f',               nargs=1, metavar='REPO',default=[defaultrepo],  help="packthing.yml file name (default: "+defaultrepo+")")
+    parser.add_argument('-C',               nargs=1, metavar='DIR',                         help="Change to DIR before running")
+    parser.add_argument('-a','--archive',   nargs=1, metavar='NAME',                        help="Create tar archive from super-repository")
+    parser.add_argument('-j','--jobs',      nargs=1, metavar='JOBS',default='1',            help="Number of jobs to pass to child builds")
+    parser.add_argument('-r','--refresh',   action='store_true',                            help="Refresh the repository checkout")
+    parser.add_argument('target',           nargs=1, metavar='TARGET',                      help="Target platform to build ("+', '.join(packagelist)+")")
 
     args = parser.parse_args()
 
-    if args.c:
+    if args.C:
         os.chdir(args.c[0])
 
-    pm = Packthing(args.repo[0])
+    pm = Packthing(args.f[0])
 
     util.mkdir('build')
     with util.pushd('build'):
         pm.checkout(args.refresh)
-
-        if args.list_src:
-            for l in pm.filelist():
-                print l
-            sys.exit(0)
 
         if args.archive:
             pm.archive(args.archive[0])
             sys.exit(0)
 
         pm.build(args.jobs[0])
-
-        if not args.target == None:
-            pm.package(args.target)
-
-
+        pm.package(args.target[0])
