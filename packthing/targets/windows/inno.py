@@ -23,7 +23,7 @@ class Packager(base.Packager):
         #self.EXT = 'exe'
         self.EXT_BIN = 'exe'
         self.EXT_LIB = 'dll'
-        self.PREFIX = ''
+        self.LIB_PREFIX = ''
         self.DIR_OUT = os.path.join(self.DIR_STAGING,'win')
 
         self.OUT['bin'] = ''

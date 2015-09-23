@@ -9,13 +9,20 @@ class Packager(object):
     def __init__(self, info, version, files):
         self.info = info
         self.VERSION = version
+        self.SYSTEM = platform.system().lower()
         self.CPU = platform.machine()
         if self.CPU == 'x86_64':
             self.CPU = 'amd64'
 
+        self.PREFIX = ''
+
+        self.EXT = ''
+        self.EXT_BIN = ''
+        self.EXT_LIB = ''
+        self.LIB_PREFIX = 'lib'
+
         self.DIR         = os.getcwd()
         self.DIR_STAGING = os.path.join(self.DIR, 'staging')
-        self.PREFIX      = 'lib'
 
         self.DIR_OUT     = self.DIR_STAGING
         self.OUT = {}
@@ -34,7 +41,7 @@ class Packager(object):
 
 
     def library(self, target):
-        f = self.PREFIX+os.path.basename(target)+'.'+self.EXT_LIB
+        f = self.LIB_PREFIX+os.path.basename(target)+'.'+self.EXT_LIB
         return os.path.join(os.path.dirname(target),f)
 
     def executable(self, target):
@@ -101,4 +108,7 @@ class Packager(object):
         self.copy()
 
     def finish(self):
-        print "Creating",self.packagename()+'.'+self.EXT
+        text = self.packagename()
+        if not self.EXT == '':
+            text += "."+self.EXT
+        print "Creating",text

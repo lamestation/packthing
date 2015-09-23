@@ -169,3 +169,4 @@ def create(text, filename):
     f.seek(0)
     f.write(text)
     f.close()
+    os.chmod(filename, 0644)

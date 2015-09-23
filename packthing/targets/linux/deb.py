@@ -9,7 +9,7 @@ import time
 from email import utils
 
 import packthing.util as util
-from . import base
+from . import build
 
 REQUIRE = [ 'dpkg-deb',
             'dh_fixperms',
@@ -23,21 +23,25 @@ REQUIRE = [ 'dpkg-deb',
 if os.geteuid() != 0:
     util.error("Debian packaging requires root privileges!")
 
-class Packager(base.Packager):
+class Packager(build.Packager):
 
     def __init__(self, info, version, files):
         super(Packager,self).__init__(info, version, files)
 
+        self.PREFIX = 'usr'
+        self.EXT = 'deb'
+
         self.DIR_DEBIAN  = os.path.join(self.DIR_STAGING,'debian')
         self.DIR_DEBIAN2 = os.path.join(self.DIR_DEBIAN,self.info['package'],'DEBIAN')
         self.DIR_OUT     = os.path.join(self.DIR_DEBIAN,self.info['package'])
+
+        self.OUT['bin']   = os.path.join('usr','bin')
+        self.OUT['lib']   = os.path.join('usr','lib')
+        self.OUT['share'] = os.path.join('usr','share',self.info['package'])
+
         self.DIR_MENU    = os.path.join(self.DIR_OUT,'usr','share','menu')
         self.DIR_DESKTOP = os.path.join(self.DIR_OUT,'usr','share','applications')
         self.DIR_PIXMAPS = os.path.join(self.DIR_OUT,'usr','share','pixmaps')
-
-        self.OUT['bin'] = os.path.join('usr','bin')
-        self.OUT['lib'] = os.path.join('usr','lib')
-        self.OUT['share'] = os.path.join('usr','share',self.info['package'])
 
     def postinst(self):
         return util.get_template('deb/postinst').substitute(dict())
