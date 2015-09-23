@@ -1,3 +1,5 @@
+# -*- coding: utf-8 -*-
+
 import os
 import shutil
 import textwrap
@@ -7,7 +9,7 @@ import time
 from email import utils
 
 import packthing.util as util
-from .. import base
+from . import base
 
 REQUIRE = [ 'dpkg-deb',
             'dh_fixperms',
@@ -25,10 +27,6 @@ class Packager(base.Packager):
 
     def __init__(self, info, version, files):
         super(Packager,self).__init__(info, version, files)
-
-        self.EXT = 'deb'
-        self.EXT_BIN = ''
-        self.EXT_LIB = 'so'
 
         self.DIR_DEBIAN  = os.path.join(self.DIR_STAGING,'debian')
         self.DIR_DEBIAN2 = os.path.join(self.DIR_DEBIAN,self.info['package'],'DEBIAN')
@@ -64,10 +62,8 @@ class Packager(base.Packager):
         return rendering
 
     def changelog(self):
-        nowdt = datetime.datetime.now()
-        nowtuple = nowdt.timetuple()
-        nowtimestamp = time.mktime(nowtuple)
-        date = utils.formatdate(nowtimestamp)
+        now = datetime.datetime.now().timetuple()
+        date = utils.formatdate(time.mktime(now))
 
         d = {
             'application' : self.info['package'],

@@ -3,7 +3,6 @@
 import os, platform
 from .. import util
 import shutil
-import logging
 import subprocess
 
 class Packager(object):
@@ -45,8 +44,6 @@ class Packager(object):
         for outdir in self.files:
             OUTDIR = os.path.join(self.DIR_OUT,self.OUT[outdir])
 
-            logging.info("OUT['"+outdir+"']:"+self.OUT[outdir])
-
             util.mkdir(OUTDIR)
 
             for f in self.files[outdir]:
@@ -62,13 +59,10 @@ class Packager(object):
                     outf = OUTDIR
 
                 shutil.copy(f,outf)
-                logging.info('  '+f+' => '+outf)
 
     def install(self):
         for outdir in self.files:
             OUTDIR = os.path.join(self.DIR_OUT,self.OUT[outdir])
-
-            logging.info("OUT['"+outdir+"']:"+self.OUT[outdir])
 
             util.mkdir(OUTDIR)
 

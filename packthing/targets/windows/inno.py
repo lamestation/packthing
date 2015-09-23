@@ -9,7 +9,7 @@ from .. import base
 try:
     from PIL import Image
 except:
-    raise(Exception,"Failed to import Python Imaging Library; is it installed?")
+    util.error("Failed to import Python Imaging Library; is it installed?")
 
 REQUIRE = [ 'iscc',
             'windeployqt',
@@ -40,21 +40,21 @@ class Packager(base.Packager):
         return '{{%s}' % appid
 
     def iss(self):
-        script = util.get_template(os.path.join('win','installer.iss'))
         banner = os.path.join(self.DIR_STAGING,'..\\..\\icons\\win-banner.bmp')
         rendering = script.substitute(
-                    APPID           = self.AppID(),
-                    ORGANIZATION    = self.info['org'],
-                    NAME            = self.info['name'],
-                    PACKAGENAME     = self.packagename(),
-                    WEBSITE         = self.info['url'],
-                    VERSION         = self.VERSION,
-                    BANNER          = banner,
-                    SOURCEDIR       = self.DIR_OUT,
-                    OUTDIR          = self.DIR_STAGING,
-                    SHORTNAME       = self.info['package'],
-                )
-        return rendering
+        d = {
+            "APPID"           : self.AppID(),
+            "ORGANIZATION"    : self.info['org'],
+            "NAME"            : self.info['name'],
+            "PACKAGENAME"     : self.packagename(),
+            "WEBSITE"         : self.info['url'],
+            "VERSION"         : self.VERSION,
+            "BANNER"          : banner,
+            "SOURCEDIR"       : self.DIR_OUT,
+            "OUTDIR"          : self.DIR_STAGING,
+            "SHORTNAME"       : self.info['package'],
+        }
+        return util.get_template(os.path.join('win','installer.iss')).substitute(d)
 
     def icon(self,icon,target):
         if os.path.exists(icon):

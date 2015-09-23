@@ -17,6 +17,10 @@ def get_modulelist(package):
     for i in range(len(packagelist)):
         packagelist[i] = packagelist[i].split('.')[-1]
 
+
+    if 'base' in packagelist:
+        packagelist.remove('base')
+
     return packagelist
 
 def get_module(parent, modulename):

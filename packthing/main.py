@@ -10,11 +10,7 @@ import targets, vcs, builders
 
 import argparse
 
-
-# get available platforms
 _platforms = importer.get_modulelist(targets)
-if 'base' in _platforms:
-    _platforms.remove('base')
 
 # detect platform
 _platform = platform.system().lower()
@@ -88,7 +84,6 @@ class Packthing:
     @util.headline
     def build(self,jobs='1'):
         packagelist = importer.get_modulelist(builders)
-        packagelist.remove('base')
 
         self.builders = {}
         self.projects = {}
