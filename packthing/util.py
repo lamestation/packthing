@@ -10,7 +10,14 @@ def warning(*objs):
     print("WARNING:", *objs, file=sys.stderr)
 
 def error(*objs):
-    print("\nERROR:", *objs, file=sys.stderr)
+    blocks = []
+    for b in ' '.join(objs).split('\n'):
+        if len(blocks) > 0:
+            blocks.append("       "+b)
+        else:
+            blocks.append(b)
+
+    print("\nERROR:", "\n".join(blocks), file=sys.stderr)
     print()
     sys.exit(1)
 

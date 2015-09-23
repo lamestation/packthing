@@ -19,7 +19,7 @@ REQUIRE = [ 'dpkg-deb',
             ]
 
 if os.geteuid() != 0:
-        exit("Debian packaging requires root privileges; exiting!")
+    util.error("Debian packaging requires root privileges!")
 
 class Packager(base.Packager):
 

@@ -12,9 +12,9 @@ import argparse
 
 
 # get available platforms
-platforms = importer.get_modulelist(targets)
-if 'base' in platforms:
-    platforms.remove('base')
+_platforms = importer.get_modulelist(targets)
+if 'base' in _platforms:
+    _platforms.remove('base')
 
 # detect platform
 _platform = platform.system().lower()
@@ -22,7 +22,7 @@ try:
     target = importer.get_module(targets, _platform)
 except ImportError:
     util.error("Packthing has no install targets for the '"+_platform+"' operating system.",
-               "\n       Supported systems:",', '.join(platforms))
+               "\nSupported systems:",', '.join(_platforms))
 
 packagelist = importer.get_modulelist(target)
 
@@ -174,12 +174,21 @@ def console():
     parser.add_argument('-a','--archive',   nargs=1, metavar='NAME',                        help="Create tar archive from super-repository")
     parser.add_argument('-j','--jobs',      nargs=1, metavar='JOBS',default='1',            help="Number of jobs to pass to child builds")
     parser.add_argument('-r','--refresh',   action='store_true',                            help="Refresh the repository checkout")
-    parser.add_argument('target',           nargs=1, metavar='TARGET',                      help="Target platform to build ("+', '.join(packagelist)+")")
+    parser.add_argument('target',           nargs='?', metavar='TARGET',                    help="Target platform to build ("+', '.join(packagelist)+")")
 
     args = parser.parse_args()
 
     if args.C:
         os.chdir(args.c[0])
+
+    if not args.target:
+        util.error("Must pass a target to packthing.",
+                    "\nAvailable",_platform.capitalize(),"targets:",', '.join(packagelist))
+    else:
+        if not args.target in packagelist:
+            util.error("'"+args.target+"' does not exist on this platform.",
+                    "\nAvailable",_platform.capitalize(),"targets:",', '.join(packagelist))
+
 
     pm = Packthing(args.f[0])
 
@@ -192,4 +201,4 @@ def console():
             sys.exit(0)
 
         pm.build(args.jobs[0])
-        pm.package(args.target[0])
+        pm.package(args.target)
