@@ -21,6 +21,7 @@ except ImportError:
                "\nSupported systems:",', '.join(_platforms))
 
 packagelist = importer.get_modulelist(target)
+packagelist.append("src")
 
 class Packthing:
     def __init__(self, repofile):
@@ -28,7 +29,6 @@ class Packthing:
             self.config = yaml.load(open(repofile))
         except IOError:
             util.error("'"+repofile+"' not found; please specify a valid packthing file")
-            sys.exit(1)
 
         if not 'package' in self.config:
             self.config['package'] = self.config['name'].lower()
@@ -68,7 +68,6 @@ class Packthing:
             if refresh:
                 repo.update()
 
-    @util.headline
     def filelist(self):
         fl = []
         for r in self.repos.values():
@@ -77,8 +76,14 @@ class Packthing:
         return fl
 
     @util.headline
-    def archive(self, archivename):
-        util.archive(archivename,self.filelist())
+    def archive(self):
+        version = self.repos[self.config['master']].get_version()
+        archivename = self.config['name']+"-"+version
+
+        if _platform == "windows":
+            util.zip_archive(archivename,self.filelist())
+        else:
+            util.tar_archive(archivename,self.filelist())
 
 
     @util.headline
@@ -166,7 +171,6 @@ def console():
     defaultrepo = 'packthing.yml'
     parser.add_argument('-f',               nargs=1, metavar='REPO',default=[defaultrepo],  help="packthing.yml file name (default: "+defaultrepo+")")
     parser.add_argument('-C',               nargs=1, metavar='DIR',                         help="Change to DIR before running")
-    parser.add_argument('-a','--archive',   nargs=1, metavar='NAME',                        help="Create tar archive from super-repository")
     parser.add_argument('-j','--jobs',      nargs=1, metavar='JOBS',default='1',            help="Number of jobs to pass to child builds")
     parser.add_argument('-r','--refresh',   action='store_true',                            help="Refresh the repository checkout")
     parser.add_argument('target',           nargs='?', metavar='TARGET',                    help="Target platform to build ("+', '.join(packagelist)+")")
@@ -191,8 +195,8 @@ def console():
     with util.pushd('build'):
         pm.checkout(args.refresh)
 
-        if args.archive:
-            pm.archive(args.archive[0])
+        if args.target == "src":
+            pm.archive()
             sys.exit(0)
 
         pm.build(args.jobs[0])

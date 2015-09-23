@@ -4,7 +4,7 @@ import subprocess
 from contextlib import contextmanager
 import string
 import errno
-import tarfile
+import tarfile, zipfile
 
 def warning(*objs):
     print("WARNING:", *objs, file=sys.stderr)
@@ -60,6 +60,9 @@ def command(args,verbose=True, strict=True, stdinput=None):
     return out, err
 
 def command_in_dir(args, newdir, verbose=True, strict=True, stdinput=None):
+    if verbose:
+        print("DIR:",newdir)
+
     with pushd(newdir):
         out, err = command(args,verbose=verbose, strict=strict)
         return out, err
@@ -92,13 +95,28 @@ def mkdir(path):
             pass
         else: raise
 
-def archive(name, files):
+def tar_archive(name, files):
     shortname = os.path.basename(name)
+    name += ".tgz"
 
-    tar = tarfile.open(name=name, mode='w:gz')
+    archive = tarfile.open(name=name, mode='w:gz')
     for f in files:
-        tar.add(name=f, arcname=os.path.join(os.path.splitext(shortname)[0],f), recursive=False)
-    tar.close()
+        archive.add(name=f,
+                    arcname=os.path.join(shortname,f),
+                    recursive=False)
+    archive.close()
+
+def zip_archive(name, files):
+    shortname = os.path.basename(name)
+    name += ".zip"
+
+    archive = zipfile.ZipFile(name, 'w')
+    for f in files:
+        archive.write(filename=f,
+                    arcname=os.path.join(shortname,f),
+                    compress_type=zipfile.ZIP_DEFLATED)
+    archive.close()
+
 
 def from_scriptroot(filename):
     currentpath = os.path.dirname(os.path.abspath(__file__))
