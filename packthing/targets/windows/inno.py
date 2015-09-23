@@ -41,7 +41,6 @@ class Packager(base.Packager):
 
     def iss(self):
         banner = os.path.join(self.DIR_STAGING,'..\\..\\icons\\win-banner.bmp')
-        rendering = script.substitute(
         d = {
             "APPID"           : self.AppID(),
             "ORGANIZATION"    : self.info['org'],
