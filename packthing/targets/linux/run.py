@@ -19,14 +19,14 @@ class Packager(build.Packager):
             'VERSION'     : self.VERSION,
             'DEFAULT_DIR' : '/opt/',
         }
-        return util.get_template('build/setup.sh').safe_substitute(d)
+        return util.get_template('run/setup.sh').safe_substitute(d)
 
     def self_extracting(self):
         d = {
             'PACKAGENAME' : self.packagename(),
             'SETUP_SCRIPT': 'setup.sh',
         }
-        return util.get_template('build/self_extracting.sh').safe_substitute(d)
+        return util.get_template('run/self_extracting.sh').safe_substitute(d)
 
     def make(self):
         self.install()
