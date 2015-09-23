@@ -1,9 +1,7 @@
 # -*- coding: utf-8 -*-
 
 import os
-import shutil
 
-import packthing.util as util
 from . import base
 
 class Packager(base.Packager):

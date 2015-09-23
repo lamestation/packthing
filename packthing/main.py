@@ -3,7 +3,7 @@
 import os, sys
 import platform
 import importer
-import util
+import util, shutil
 import yaml
 import pkgutil, importlib
 import targets, vcs, builders
@@ -22,6 +22,7 @@ except ImportError:
 
 packagelist = importer.get_modulelist(target)
 packagelist.append("src")
+packagelist.append("clean")
 
 class Packthing:
     def __init__(self, repofile):
@@ -193,6 +194,14 @@ def console():
 
     util.mkdir('build')
     with util.pushd('build'):
+        if args.target == "clean":
+            try:
+                shutil.rmtree('staging')
+            except OSError:
+                pass
+            print("Staging area deleted.")
+            sys.exit(0)
+
         pm.checkout(args.refresh)
 
         if args.target == "src":

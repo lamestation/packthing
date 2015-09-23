@@ -180,11 +180,14 @@ def write(text, filename):
     f.write(text)
     f.close()
 
-def create(text, filename):
+def create(text, filename, executable=False):
     print("Create",filename)
     mkdir(os.path.dirname(filename))
     f = open(filename, 'w')
     f.seek(0)
     f.write(text)
     f.close()
-    os.chmod(filename, 0644)
+    if executable:
+        os.chmod(filename, 0755)
+    else:
+        os.chmod(filename, 0644)
