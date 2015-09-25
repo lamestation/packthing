@@ -143,7 +143,7 @@ class Builder(base.Builder):
 
         return self.files
 
-    def win(self, path):
+    def inno(self, path):
         for f in self.files['bin']:
             try:
                 subprocess.check_call([
@@ -156,7 +156,7 @@ class Builder(base.Builder):
             except subprocess.CalledProcessError:
                 pass
 
-    def mac(self, path):
+    def dmg(self, path):
         print self.files['bin']
         for f in self.files['bin']:
             fn = os.path.basename(f)
