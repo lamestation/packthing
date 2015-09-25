@@ -1,5 +1,6 @@
 from __future__ import print_function
 import os, sys
+import shutil
 import subprocess
 from contextlib import contextmanager
 import string
@@ -42,6 +43,14 @@ def pushd(newDir):
     os.chdir(newDir)
     yield
     os.chdir(previousDir)
+
+def copy(src, dest, verbose=True, permissions=0644):
+    destfile = os.path.join(dest,os.path.basename(src))
+    if verbose:
+        print("Copy",src,"to dir",dest)
+    os.mkdir(dest)
+    shutil.copy(src, destfile)
+    os.chmod(destfile, permissions)
 
 def command(args,verbose=True, strict=True, stdinput=None):
     if verbose:

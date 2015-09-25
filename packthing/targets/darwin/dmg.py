@@ -1,8 +1,9 @@
 # -*- coding: utf-8 -*-
-import os, re
+import os, re, sys
 import plistlib
 import subprocess
 import shutil
+import glob
 
 import packthing.util as util
 from .. import base
@@ -14,6 +15,8 @@ class Packager(base.Packager):
 
     def __init__(self, info, version, files):
         super(Packager,self).__init__(info, version, files)
+
+        self.volumename = self.packagename()
 
         self.EXT = 'dmg'
         self.EXT_BIN = ''
@@ -59,7 +62,7 @@ class Packager(base.Packager):
     def mac_installer(self):
         script = util.get_template('mac/installer.AppleScript')
         rendering = script.substitute(
-                        title = self.info['name'],
+                        title = self.volumename,
                         background = os.path.basename(self.background),
                         applicationName = os.path.basename(self.DIR_BUNDLE)
                     )
@@ -80,7 +83,7 @@ class Packager(base.Packager):
         else:
             iconname += size+'x'+size
         iconname += '.png'
-        subprocess.check_call(['sips','-z',size,size,icon,
+        util.command(['sips','-z',size,size,icon,
                 '--out',os.path.join(targetdir,iconname)])
 
     def icon(self,icon,target):
@@ -97,9 +100,11 @@ class Packager(base.Packager):
             self.generate_icon(icon,'256',DIR_ICNS,False)
             self.generate_icon(icon,'512',DIR_ICNS,True)
             self.generate_icon(icon,'512',DIR_ICNS,False)
-            subprocess.check_call(['iconutil','-c','icns',
+            util.command(['iconutil','-c','icns',
                 '--output',os.path.join(self.DIR_OUT,self.OUT['share'],'mac.icns'),DIR_ICNS])
             shutil.rmtree(DIR_ICNS)
+
+#    def build_volume(self, name):
 
     def finish(self):
         target = os.path.join(self.DIR_STAGING, self.packagename()+'.dmg')
@@ -107,51 +112,49 @@ class Packager(base.Packager):
         # this is hacky and needs to be changed
         self.background = '../icons/mac-dmg.png'
 
-        size = subprocess.check_output(['du','-s',self.DIR_BUNDLE]).split()[0]
+        size = util.command(['du','-s',self.DIR_BUNDLE])[0].split()[0]
         size = str(int(size)+1000)
-        print size
         tmpdevice = os.path.join(self.DIR_PACKAGE, 'pack.temp.dmg')
 
-        subprocess.check_call(['hdiutil','create',
+        existingdevices = glob.glob("/Volumes/"+self.volumename+"*")
+        for d in existingdevices:
+            try:
+                util.command(['hdiutil','detach',d])
+            except subprocess.CalledProcessError as e:
+                util.error("Couldn't unmount "+d+"; close all programs using this Volume and try again.")
+
+        util.command(['hdiutil','create',
             '-format','UDRW',
             '-srcfolder',self.DIR_BUNDLE,
-            '-volname',self.info['name'],
+            '-volname',self.volumename,
             '-size',size+'k',
             tmpdevice])
 
-        devices = subprocess.check_output(['hdiutil','attach',
+        devices = util.command(['hdiutil','attach',
             '-readwrite',
-            tmpdevice]).splitlines()
-        
-        print devices
+            tmpdevice])
 
-        r = re.compile('^/dev/')
-        devices = filter(r.match, devices)
-        device = devices[0].split()[0]
-        
-        print device
+        device = glob.glob("/Volumes/"+self.volumename+"*")[0]
 
-        DIR_VOLUME = os.path.join(os.sep,'Volumes',self.info['name'],'.background')
+        DIR_VOLUME = os.path.join(os.sep,'Volumes',self.volumename,'.background')
+        util.copy(self.background, DIR_VOLUME)
 
-        print "Copying",self.background,"to",DIR_VOLUME
-        util.mkdir(DIR_VOLUME)
-        shutil.copy(self.background, DIR_VOLUME)
-
-        p = subprocess.Popen(['osascript','-'], stdin=subprocess.PIPE)
+        util.command(['sync'])
 
         print self.mac_installer()
-        p.communicate(input=self.mac_installer())
+        util.command(['osascript'], stdinput=self.mac_installer())
 
-        subprocess.check_call(['chmod','-Rf','go-w',DIR_VOLUME])
-        subprocess.check_call(['chmod','-Rf','go-w',
-            os.path.join(os.path.dirname(DIR_VOLUME),
-                self.info['name']+'.app')])
-        subprocess.check_call(['chmod','-Rf','go-w',
-            os.path.join(os.path.dirname(DIR_VOLUME),
-                'Applications')])
-        subprocess.check_call(['sync'])
-        subprocess.check_call(['sync'])
-        subprocess.check_call(['hdiutil','detach',device])
-        subprocess.check_call(['hdiutil','convert',tmpdevice,'-format','UDZO',
+        util.command(['chmod','-Rf','go-w',DIR_VOLUME])
+        util.command(['chmod','-Rf','go-w',
+                        os.path.join(os.path.dirname(DIR_VOLUME),
+                        self.info['name']+'.app')])
+        util.command(['chmod','-Rf','go-w',
+                        os.path.join(os.path.dirname(DIR_VOLUME),
+                        'Applications')])
+
+        util.command(['sync'])
+        util.command(['hdiutil','detach',device])
+        util.command(['hdiutil','convert',tmpdevice,'-format','UDZO',
             '-imagekey','zlib-level=9','-o',target])
+
         os.remove(tmpdevice)
