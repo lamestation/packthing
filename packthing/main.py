@@ -156,12 +156,15 @@ class Packthing:
                     method(os.path.join(r['path'],r['icon']),r['path'])
                 except AttributeError:
                     pass
+            else:
+                print "No icon for ",r['path']
 
         for p in self.projects:
             try:
                 method = getattr(self.projects[p], targetname)
                 method(self.packager.get_path())
             except AttributeError:
+                print "No build specific targets found for",targetname,"in",p
                 pass
 
         self.packager.finish()
