@@ -1,23 +1,18 @@
-packthing - write once, package everywhere
-============================================
-
-.. image:: gfx/packthing-tree.png
+.. image:: gfx/packthing-logo.png
 
 packthing is a high-level integration tool that makes packaging and
-distributing your application dirt simple.
+distributing your application simple.
 
-- **One project, many formats** - packthing allows you to quickly produce
-a versioned distribution for any project type that it supports.
-- **Configuration is simple** -  set up your project by following a few
-instructions; no headache required.
-- **Not an expert? Not a problem** - packaging is a complex problem that
-has to be solved over and over again. packthing saves you from having to
-become an OS guru on every operating system your application runs on.
+- **One project, many formats** - quickly produce a versioned distribution for any project type that's supported.
+- **Configuration is simple** - prepare your project for deployment in just a few steps.
+- **Not an expert? Not a problem** - save yourself hundreds of hours learning operating system details; get it done and get on with your life.
+
+.. image:: gfx/packthing-tree.png
 
 Configuration with ``packthing.yml``
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-packthing configuration may be saved permanently inside a packthing.json
+packthing configuration may be saved permanently inside a packthing.yml
 file. Run packthing in the same directory as the file to build the project.
 
 .. code:: yaml
