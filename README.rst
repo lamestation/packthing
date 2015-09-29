@@ -1,6 +1,8 @@
 packthing - write once, package everywhere
 ============================================
 
+.. image:: gfx/packthing-tree.png
+
 packthing is a high-level integration tool that makes packaging and
 distributing your application dirt simple.
 
@@ -18,7 +20,7 @@ Configuration with ``packthing.yml``
 packthing configuration may be saved permanently inside a packthing.json
 file. Run packthing in the same directory as the file to build the project.
 
-.. code:: json
+.. code:: yaml
 
     org: "bazzbar industries"
     name: "Frobnicator"
