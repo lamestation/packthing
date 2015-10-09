@@ -9,6 +9,7 @@ import pkgutil, importlib
 import packagers, vcs, builders
 
 import argparse
+import pprint
 
 _platforms = importer.get_modulelist(packagers)
 
@@ -26,26 +27,37 @@ packagelist.append("clean")
 
 class Packthing:
     def __init__(self, repofile):
+        self.configure(repofile)
+
+
+    @util.headline
+    def configure(self, repofile):
         try:
             self.config = yaml.load(open(repofile))
         except IOError:
             util.error("'"+repofile+"' not found; please specify a valid packthing file")
 
+        # name
+        if not 'name' in self.config:
+            util.error("No 'name' key provided in",repofile)
+
+        # package
         if not 'package' in self.config:
             self.config['package'] = self.config['name'].lower()
 
-        master = None
-        for r in self.config['repo']:
-            if u'master' in r:
-                if master == None:
-                    master = r['path']
-                else:
-                    raise KeyError("Master repository defined twice!")
+        # master
+        if not 'master' in self.config:
+            for r in self.config['repo']:
+                if r['path'] == self.config['name'] or r['path'] == self.config['package']:
+                    self.config['master'] = r['path']
+                    print "Using",self.config['master'],"as master project."
+                    break
 
-        if master == None:
-            raise KeyError("No master repository defined!")
+            if not 'master' in self.config:
+                util.error("No master repository defined in",repofile)
 
-        self.config[u'master'] = master
+        pp = pprint.PrettyPrinter(indent=4)
+        pp.pprint(self.config)
 
 
     @util.headline
@@ -172,7 +184,6 @@ class Packthing:
     
 
 def console():
-    print "Packthing! Write once, package everywhere!"
     parser = argparse.ArgumentParser(description='write once, package everywhere')
     defaultrepo = 'packthing.yml'
     parser.add_argument('-f',               nargs=1, metavar='FILE',default=[defaultrepo],  help="packthing.yml file name (default: "+defaultrepo+")")
