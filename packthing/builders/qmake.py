@@ -9,7 +9,8 @@ import subprocess
 
 from . import base
 
-REQUIRE = [ 'qmake',
+REQUIRE = [ 
+            'qmake',
             ]
 
 

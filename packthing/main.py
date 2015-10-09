@@ -6,18 +6,18 @@ import importer
 import util, shutil
 import yaml
 import pkgutil, importlib
-import targets, vcs, builders
+import packagers, vcs, builders
 
 import argparse
 
-_platforms = importer.get_modulelist(targets)
+_platforms = importer.get_modulelist(packagers)
 
 # detect platform
 _platform = platform.system().lower()
 try:
-    target = importer.get_module(targets, _platform)
+    target = importer.get_module(packagers, _platform)
 except ImportError:
-    util.error("Packthing has no install targets for the '"+_platform+"' operating system.",
+    util.error("Packthing has no package targets for the '"+_platform+"' operating system.",
                "\nSupported systems:",', '.join(_platforms))
 
 packagelist = importer.get_modulelist(target)
@@ -130,8 +130,6 @@ class Packthing:
     def package(self, targetname):
         self.target = importer.get_module(target,targetname)
 
-        importer.require(self.target)
-
         if 'target' in self.config:
             if targetname in self.config['target']:
                 self.config.update(self.config['target'][targetname])
@@ -146,37 +144,45 @@ class Packthing:
 
         self.buildtypes = []
         for r in self.config['repo']:
+
+            # get list of build types
             if 'type' in r:
                 if not r['type'] in self.buildtypes:
                     self.buildtypes.append(r['type'])
 
+            # check if icon and build, don't care if it fails
             if 'icon' in r:
                 try:
                     method = getattr(self.packager, 'icon')
                     method(os.path.join(r['path'],r['icon']),r['path'])
                 except AttributeError:
-                    pass
+                    util.warning("Icon not supported for current platform")
             else:
-                print "No icon for ",r['path']
+                util.warning("No icon for ",r['path'])
 
         for p in self.projects:
             try:
                 method = getattr(self.projects[p], targetname)
                 method(self.packager.get_path())
             except AttributeError:
-                print "No build specific targets found for",targetname,"in",p
+                util.warning("No build specific targets found for",targetname,"in",p)
                 pass
 
         self.packager.finish()
     
 
 def console():
+    print "Packthing! Write once, package everywhere!"
     parser = argparse.ArgumentParser(description='write once, package everywhere')
     defaultrepo = 'packthing.yml'
-    parser.add_argument('-f',               nargs=1, metavar='REPO',default=[defaultrepo],  help="packthing.yml file name (default: "+defaultrepo+")")
+    parser.add_argument('-f',               nargs=1, metavar='FILE',default=[defaultrepo],  help="packthing.yml file name (default: "+defaultrepo+")")
     parser.add_argument('-C',               nargs=1, metavar='DIR',                         help="Change to DIR before running")
     parser.add_argument('-j','--jobs',      nargs=1, metavar='JOBS',default='1',            help="Number of jobs to pass to child builds")
     parser.add_argument('-r','--refresh',   action='store_true',                            help="Refresh the repository checkout")
+
+    overrides = parser.add_argument_group('overrides', 'manually override settings in the packthing config')
+    overrides.add_argument('--platform',    nargs=1, metavar='PLATFORM',                    help="Use this platform configuration")
+
     parser.add_argument('target',           nargs='?', metavar='TARGET',                    help="Target platform to build ("+', '.join(packagelist)+")")
 
     args = parser.parse_args()
@@ -186,11 +192,11 @@ def console():
 
     if not args.target:
         util.error("Must pass a target to packthing.",
-                    "\nAvailable",_platform.capitalize(),"targets:",', '.join(packagelist))
+                    "\nAvailable",_platform.capitalize(),"packagers:",', '.join(packagelist))
     else:
         if not args.target in packagelist:
             util.error("'"+args.target+"' does not exist on this platform.",
-                    "\nAvailable",_platform.capitalize(),"targets:",', '.join(packagelist))
+                    "\nAvailable",_platform.capitalize(),"packagers:",', '.join(packagelist))
 
 
     pm = Packthing(args.f[0])
@@ -204,6 +210,8 @@ def console():
                 pass
             print("Staging area deleted.")
             sys.exit(0)
+
+        importer.require(importer.get_module(target,args.target))
 
         pm.checkout(args.refresh)
 

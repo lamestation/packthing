@@ -111,6 +111,8 @@ class Packager(build.Packager):
             util.mkdir(self.DIR_PIXMAPS)
             util.command(['convert',icon,'-resize','32x32',
                     os.path.join(self.DIR_PIXMAPS,target+'.xpm')])
+        else:
+            util.error("Icon does not exist:",os.path.join(os.getcwd(),icon))
 
     def make(self):
         util.mkdir(self.DIR_DEBIAN)
@@ -127,6 +129,10 @@ class Packager(build.Packager):
             util.create(self.menu(),    os.path.join(self.DIR_MENU,self.info['package']))
             util.create(self.desktop(), os.path.join(self.DIR_DESKTOP,self.info['package']+'.desktop'))
 
+
+
+    def finish(self):
+        with util.pushd(self.DIR_STAGING):
             deps = ['dpkg-shlibdeps','--ignore-missing-info']
             for f in self.files['bin']:
                 OUTDIR = os.path.join(self.DIR_OUT,self.OUT['bin'])
@@ -134,12 +140,8 @@ class Packager(build.Packager):
                 deps.append(outf)
 
             util.command(deps)
-
             util.command(['dh_installmanpages'])
             util.command(['dpkg-gencontrol','-v'+self.VERSION,'-P'+self.DIR_OUT])
             util.command(['dh_fixperms'])
-
-    def finish(self):
-        super(Packager,self).finish()
-        with util.pushd(self.DIR_STAGING):
             util.command(['dpkg-deb','-b',self.DIR_OUT,self.packagename()+'.deb'])
+        super(Packager,self).finish()
