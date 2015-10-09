@@ -5,6 +5,19 @@ from .. import util
 import shutil
 import subprocess
 
+KEYS = [
+        'name',
+        'package',
+        'org',
+        'url',
+        'maintainer',
+        'email',
+        'copyright',
+        'license',
+        'tagline',
+        'description',
+        ]
+
 class Packager(object):
     def __init__(self, info, version, files):
         self.info = info

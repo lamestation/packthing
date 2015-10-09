@@ -26,19 +26,23 @@ def get_modulelist(package):
 def get_module(parent, modulename):
     return importlib.import_module(parent.__name__+'.'+modulename)
 
-def require(module):
-    if platform.system() == 'Windows': # REQUIRE DOESN'T WORK ON WINDOWS
-        return
-
+def build_module_hierarchy(module):
     clsmembers = inspect.getmembers(module, inspect.isclass)
-    parenttree = list(clsmembers[0][1].__bases__)
+    parenttree = inspect.getmro(clsmembers[0][1])
 
     modulelist = []
     for p in parenttree:
         modulelist.append(importlib.import_module(p.__module__))
     modulelist.append(module)
 
-    for m in modulelist:
+    return modulelist
+
+
+def require(module):
+    if platform.system() == 'Windows': # REQUIRE DOESN'T WORK ON WINDOWS
+        return
+
+    for m in build_module_hierarchy(module):
         try:
             m.REQUIRE
         except AttributeError as e:
@@ -49,4 +53,11 @@ def require(module):
             if not found:
                 util.error("Required program '"+r+"' not available")
 
-#            print("Using",found)
+def required_keys(module):
+    keylist = []
+    for m in build_module_hierarchy(module):
+        try:
+            keylist.extend(m.KEYS)
+        except AttributeError as e:
+            continue
+    return list(set(keylist))

@@ -11,39 +11,50 @@ import packagers, vcs, builders
 import argparse
 import pprint
 
+
+# intercept CTRL+C
+import signal
+def signal_handler(signal, frame):
+    sys.exit(0)
+signal.signal(signal.SIGINT, signal_handler)
+
+
+
 _platforms = importer.get_modulelist(packagers)
 
 # detect platform
 _platform = platform.system().lower()
 try:
-    target = importer.get_module(packagers, _platform)
+    targets = importer.get_module(packagers, _platform)
 except ImportError:
     util.error("Packthing has no package targets for the '"+_platform+"' operating system.",
                "\nSupported systems:",', '.join(_platforms))
 
-packagelist = importer.get_modulelist(target)
+packagelist = importer.get_modulelist(targets)
 packagelist.append("src")
 packagelist.append("clean")
 
 class Packthing:
-    def __init__(self, repofile):
-        self.configure(repofile)
+    def __init__(self, repofile, targetname):
+        self.configure(repofile, targetname)
 
 
     @util.headline
-    def configure(self, repofile):
-        try:
-            self.config = yaml.load(open(repofile))
-        except IOError:
-            util.error("'"+repofile+"' not found; please specify a valid packthing file")
+    def configure(self, repofile, targetname):
+        self.repofile = repofile
+        self.targetname = targetname
+        self.config = dict()
 
-        # name
-        if not 'name' in self.config:
-            util.error("No 'name' key provided in",repofile)
+        try:
+            config = yaml.load(open(self.repofile))
+        except IOError:
+            util.error("'"+self.repofile+"' not found; please specify a valid packthing file")
+
+        self.build_config(config)
 
         # package
         if not 'package' in self.config:
-            self.config['package'] = self.config['name'].lower()
+            self.config['package'] = config['name'].lower()
 
         # master
         if not 'master' in self.config:
@@ -56,8 +67,38 @@ class Packthing:
             if not 'master' in self.config:
                 util.error("No master repository defined in",repofile)
 
-        pp = pprint.PrettyPrinter(indent=4)
-        pp.pprint(self.config)
+        self.target = importer.get_module(targets,self.targetname)
+        importer.require(self.target)
+
+        for k in importer.required_keys(self.target):
+            self.add_value(self.config, k)
+            print "%20s: %s" % (k,self.config[k])
+
+#        pp = pprint.PrettyPrinter(indent=4)
+#        pp.pprint(self.config)
+
+
+    def build_config(self, config):
+        try:
+            config.keys()
+        except AttributeError as e:
+            return
+            
+        for key in config.keys():
+            if key == 'target':
+                if self.targetname in config['target']:
+                    self.build_config(config['target'][self.targetname])
+            else:
+                self.add_value(config, key)
+
+
+    def add_value(self, config, key):
+        if key in config:
+            self.config[key] = config[key]
+            if self.config[key] is None:
+                self.config[key] = ""
+        else:
+            util.error("This build requires the '"+key+"' key; see docs for details.")
 
 
     @util.headline
@@ -139,12 +180,8 @@ class Packthing:
 
                  
     @util.headline
-    def package(self, targetname):
-        self.target = importer.get_module(target,targetname)
+    def package(self):
 
-        if 'target' in self.config:
-            if targetname in self.config['target']:
-                self.config.update(self.config['target'][targetname])
 
         self.packager = self.target.Packager(self.config, 
                 self.repos[self.config['master']].get_version(),
@@ -174,10 +211,10 @@ class Packthing:
 
         for p in self.projects:
             try:
-                method = getattr(self.projects[p], targetname)
+                method = getattr(self.projects[p], self.targetname)
                 method(self.packager.get_path())
             except AttributeError:
-                util.warning("No build specific targets found for",targetname,"in",p)
+                util.warning("No build specific targets found for",self.targetname,"in",p)
                 pass
 
         self.packager.finish()
@@ -190,6 +227,7 @@ def console():
     parser.add_argument('-C',               nargs=1, metavar='DIR',                         help="Change to DIR before running")
     parser.add_argument('-j','--jobs',      nargs=1, metavar='JOBS',default='1',            help="Number of jobs to pass to child builds")
     parser.add_argument('-r','--refresh',   action='store_true',                            help="Refresh the repository checkout")
+    parser.add_argument('--no-build',       action='store_true',                            help="Don't build project; just show configuration.")
 
     overrides = parser.add_argument_group('overrides', 'manually override settings in the packthing config')
     overrides.add_argument('--platform',    nargs=1, metavar='PLATFORM',                    help="Use this platform configuration")
@@ -210,7 +248,10 @@ def console():
                     "\nAvailable",_platform.capitalize(),"packagers:",', '.join(packagelist))
 
 
-    pm = Packthing(args.f[0])
+    pm = Packthing(args.f[0], args.target)
+
+    if args.no_build:
+        sys.exit(0)
 
     util.mkdir('build')
     with util.pushd('build'):
@@ -222,7 +263,6 @@ def console():
             print("Staging area deleted.")
             sys.exit(0)
 
-        importer.require(importer.get_module(target,args.target))
 
         pm.checkout(args.refresh)
 
@@ -231,4 +271,6 @@ def console():
             sys.exit(0)
 
         pm.build(args.jobs[0])
-        pm.package(args.target)
+        pm.package()
+
+

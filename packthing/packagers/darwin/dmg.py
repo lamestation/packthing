@@ -8,8 +8,9 @@ import glob
 import packthing.util as util
 from .. import base
 
-REQUIRE = [ 'macdeployqt',
-            ]
+REQUIRE = [ 'macdeployqt' ]
+
+KEYS = [ 'category' ]
 
 class Packager(base.Packager):
 
@@ -47,7 +48,7 @@ class Packager(base.Packager):
             CFBundlePackageType = "APPL",
             CFBundleShortVersionString = self.VERSION,
             CFBundleVersion = "1",
-            LSApplicationCategoryType = 'public.app-category.developer-tools',
+            LSApplicationCategoryType = self.info['category'],
             LSMinimumSystemVersion = "10.7",
             NSHumanReadableCopyright = u"Copyright © "+self.info['copyright']
                     +", "+self.info['org']+". "

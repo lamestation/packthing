@@ -15,10 +15,12 @@ REQUIRE = [ 'dpkg-deb',
             'dh_fixperms',
             'dpkg-shlibdeps',
             'dpkg-gencontrol',
-            'help2man',
+#            'help2man',
             'dh_installmanpages',
             'convert',
             ]
+
+KEYS = [ 'section', 'categories', 'depends' ]
 
 if os.geteuid() != 0:
     util.error("Debian packaging requires root privileges!")
