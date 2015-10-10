@@ -131,6 +131,8 @@ class Builder(base.Builder):
                 subprocess.check_call(args)
             except OSError:
                 failed = 1
+            except subprocess.CalledProcessError as e:
+                util.error("Failed to build project '"+self.path+"'")
 
             if not failed:
                 return
