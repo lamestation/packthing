@@ -267,7 +267,7 @@ def console():
 
         pm.checkout(args.refresh)
 
-        if args.configure_only:
+        if args.checkout_only:
             sys.exit(0)
 
         if args.target == "src":
