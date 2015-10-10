@@ -227,7 +227,8 @@ def console():
     parser.add_argument('-C',               nargs=1, metavar='DIR',                         help="Change to DIR before running")
     parser.add_argument('-j','--jobs',      nargs=1, metavar='JOBS',default='1',            help="Number of jobs to pass to child builds")
     parser.add_argument('-r','--refresh',   action='store_true',                            help="Refresh the repository checkout")
-    parser.add_argument('--no-build',       action='store_true',                            help="Don't build project; just show configuration.")
+    parser.add_argument('--configure-only', action='store_true',                            help="Show configuration only")
+    parser.add_argument('--checkout-only',  action='store_true',                            help="Configure and checkout only")
 
     overrides = parser.add_argument_group('overrides', 'manually override settings in the packthing config')
     overrides.add_argument('--platform',    nargs=1, metavar='PLATFORM',                    help="Use this platform configuration")
@@ -250,7 +251,7 @@ def console():
 
     pm = Packthing(args.f[0], args.target)
 
-    if args.no_build:
+    if args.configure_only:
         sys.exit(0)
 
     util.mkdir('build')
@@ -265,6 +266,9 @@ def console():
 
 
         pm.checkout(args.refresh)
+
+        if args.configure_only:
+            sys.exit(0)
 
         if args.target == "src":
             pm.archive()
