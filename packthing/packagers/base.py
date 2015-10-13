@@ -80,7 +80,7 @@ class Packager(object):
 
                 shutil.copy(f,outf)
 
-    def install(self):
+    def install_files(self):
         for outdir in self.files:
             OUTDIR = os.path.join(self.DIR_OUT,self.OUT[outdir])
 

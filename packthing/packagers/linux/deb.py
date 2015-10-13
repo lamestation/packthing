@@ -15,15 +15,12 @@ REQUIRE = [ 'dpkg-deb',
             'dh_fixperms',
             'dpkg-shlibdeps',
             'dpkg-gencontrol',
-#            'help2man',
+            'help2man',
             'dh_installmanpages',
             'convert',
             ]
 
-KEYS = [ 'section', 'categories', 'depends' ]
-
-if os.geteuid() != 0:
-    util.error("Debian packaging requires root privileges!")
+util.root()
 
 class Packager(build.Packager):
 
@@ -119,7 +116,7 @@ class Packager(build.Packager):
     def make(self):
         util.mkdir(self.DIR_DEBIAN)
         util.mkdir(self.DIR_DEBIAN2)
-        self.install()
+        self.install_files()
 #        self.manpages()
 
         with util.pushd(self.DIR_STAGING):
@@ -147,3 +144,7 @@ class Packager(build.Packager):
             util.command(['dh_fixperms'])
             util.command(['dpkg-deb','-b',self.DIR_OUT,self.packagename()+'.deb'])
         super(Packager,self).finish()
+
+    def install(self):
+        with util.pushd(self.DIR_STAGING):
+            util.command(['dpkg','-i',self.packagename()+'.deb'])

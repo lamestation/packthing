@@ -16,7 +16,7 @@ class Packager(base.Packager):
         self.DIR_OUT = os.path.join(self.DIR_OUT,self.packagename())
 
     def make(self):
-        self.install()
+        self.install_files()
 
     def finish(self):
         super(Packager,self).finish()

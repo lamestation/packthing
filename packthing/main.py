@@ -182,7 +182,6 @@ class Packthing:
     @util.headline
     def package(self):
 
-
         self.packager = self.target.Packager(self.config, 
                 self.repos[self.config['master']].get_version(),
                 files=self.files,
@@ -218,20 +217,34 @@ class Packthing:
                 pass
 
         self.packager.finish()
+
+
+    @util.headline
+    def install(self):
+        try:
+            self.packager.install()
+        except:
+            util.warning("Not installing: No install method defined for this platform")
     
 
 def console():
     parser = argparse.ArgumentParser(description='write once, package everywhere')
     defaultrepo = 'packthing.yml'
     parser.add_argument('-f',               nargs=1, metavar='FILE',default=[defaultrepo],  help="packthing.yml file name (default: "+defaultrepo+")")
-    parser.add_argument('-C',               nargs=1, metavar='DIR',                         help="Change to DIR before running")
-    parser.add_argument('-j','--jobs',      nargs=1, metavar='JOBS',default='1',            help="Number of jobs to pass to child builds")
-    parser.add_argument('-r','--refresh',   action='store_true',                            help="Refresh the repository checkout")
-    parser.add_argument('--configure-only', action='store_true',                            help="Show configuration only")
-    parser.add_argument('--checkout-only',  action='store_true',                            help="Configure and checkout only")
+    parser.add_argument('-C',               nargs=1, metavar='DIR',                         help="change to DIR before running")
+    parser.add_argument('-j','--jobs',      nargs=1, metavar='JOBS',default='1',            help="number of jobs to pass to child builds")
+    parser.add_argument('-r','--refresh',   action='store_true',                            help="refresh the repository checkout")
 
-    overrides = parser.add_argument_group('overrides', 'manually override settings in the packthing config')
-    overrides.add_argument('--platform',    nargs=1, metavar='PLATFORM',                    help="Use this platform configuration")
+
+    stages = parser.add_mutually_exclusive_group()
+    stages.add_argument('--configure',      action='store_true', help="stop packthing at configure stage")
+    stages.add_argument('--checkout',       action='store_true', help="stop packthing at checkout stage")
+    stages.add_argument('--build',          action='store_true', help="stop packthing at build stage")
+    stages.add_argument('--install',        action='store_true', help="install newly built package to OS")
+
+    overrides = parser.add_argument_group('overrides', 'manually override settings in the packthing config (advanced users!)')
+    overrides.add_argument('--platform',    nargs=1, metavar='PLATFORM',    help="Override platform configuration")
+    overrides.add_argument('--arch',        nargs=1, metavar='ARCH',        help="Override CPU architecture")
 
     parser.add_argument('target',           nargs='?', metavar='TARGET',                    help="Target platform to build ("+', '.join(packagelist)+")")
 
@@ -241,40 +254,52 @@ def console():
         os.chdir(args.c[0])
 
     if not args.target:
-        util.error("Must pass a target to packthing.",
-                    "\nAvailable",_platform.capitalize(),"packagers:",', '.join(packagelist))
+        if not args.checkout and not args.configure and not args.build:
+            util.error("Must pass a target to packthing.",
+                        "\nAvailable",_platform.capitalize(),"packagers:",', '.join(packagelist))
+        else:
+            args.target = 'base'
     else:
         if not args.target in packagelist:
             util.error("'"+args.target+"' does not exist on this platform.",
                     "\nAvailable",_platform.capitalize(),"packagers:",', '.join(packagelist))
 
+    if args.target == "clean":
+        try:
+            shutil.rmtree('build')
+        except OSError as e:
+            if e.errno == 2:
+                pass
+            elif e.errno == 13:
+                util.error("You don't have permissions to delete '"+e.filename+"'; try running as root?")
+            else:
+                util.error(e.strerror+":","'"+e.filename+"'")
+
+        print("Staging area deleted.")
+        sys.exit(0)
+
 
     pm = Packthing(args.f[0], args.target)
 
-    if args.configure_only:
-        sys.exit(0)
+    if args.configure: sys.exit(0)
 
     util.mkdir('build')
     with util.pushd('build'):
-        if args.target == "clean":
-            try:
-                shutil.rmtree('staging')
-            except OSError:
-                pass
-            print("Staging area deleted.")
-            sys.exit(0)
-
 
         pm.checkout(args.refresh)
 
-        if args.checkout_only:
-            sys.exit(0)
+        if args.checkout: sys.exit(0)
 
         if args.target == "src":
             pm.archive()
             sys.exit(0)
 
         pm.build(args.jobs[0])
+
+        if args.build: sys.exit(0)
+
         pm.package()
 
+        if args.install:
+            pm.install()
 

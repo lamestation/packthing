@@ -200,3 +200,8 @@ def create(text, filename, executable=False):
         os.chmod(filename, 0755)
     else:
         os.chmod(filename, 0644)
+
+def root():
+    if os.geteuid() != 0:
+        error("This configuration requires root privileges!")
+

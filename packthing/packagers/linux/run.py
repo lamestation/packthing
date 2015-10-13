@@ -29,7 +29,7 @@ class Packager(build.Packager):
         return util.get_template('run/self_extracting.sh').safe_substitute(d)
 
     def make(self):
-        self.install()
+        self.install_files()
         extract_script = os.path.join(self.DIR_STAGING,self.packagename()+'.'+self.EXT)
         util.create(self.setup_script(), os.path.join(self.DIR_OUT,'setup.sh'), executable=True)
         util.create(self.self_extracting(), extract_script)
