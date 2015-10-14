@@ -24,13 +24,13 @@ _platforms = importer.get_modulelist(packagers)
 
 # detect platform
 _platform = platform.system().lower()
-try:
-    targets = importer.get_module(packagers, _platform)
-except ImportError:
-    util.error("Packthing has no package targets for the '"+_platform+"' operating system.",
-               "\nSupported systems:",', '.join(_platforms))
+#try:
+#    targets = importer.get_module(packagers, _platform)
+#except ImportError:
+#    util.error("Packthing has no package targets for the '"+_platform+"' operating system.",
+#               "\nSupported systems:",', '.join(_platforms))
 
-packagelist = importer.get_modulelist(targets)
+packagelist = importer.get_modulelist(packagers)
 packagelist.append("src")
 packagelist.append("clean")
 
@@ -51,7 +51,7 @@ class Packthing:
             util.error("'"+self.repofile+"' not found; please specify a valid packthing file")
 
         # build tree of included targets
-        self.target = importer.get_module(targets,self.targetname)
+        self.target = importer.get_module(packagers,self.targetname)
         self.targetnames = []
         for t in importer.list_module_hierarchy(self.target):
             self.targetnames.append(t.__module__.split('.')[-1])
