@@ -128,8 +128,6 @@ class Packager(build.Packager):
             util.create(self.menu(),    os.path.join(self.DIR_MENU,self.info['package']))
             util.create(self.desktop(), os.path.join(self.DIR_DESKTOP,self.info['package']+'.desktop'))
 
-
-
     def finish(self):
         with util.pushd(self.DIR_STAGING):
             deps = ['dpkg-shlibdeps','--ignore-missing-info']
@@ -147,4 +145,7 @@ class Packager(build.Packager):
 
     def install(self):
         with util.pushd(self.DIR_STAGING):
-            util.command(['dpkg','-i',self.packagename()+'.deb'])
+            try:
+                util.command(['dpkg','-i',self.packagename()+'.deb'])
+            except:
+                util.error("Installation failed! Oh, well.")

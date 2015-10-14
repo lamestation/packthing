@@ -58,9 +58,11 @@ class Packthing:
 
         # master
         if not 'master' in self.config:
-            for r in self.config['repo']:
-                if r['path'] == self.config['name'] or r['path'] == self.config['package']:
-                    self.config['master'] = r['path']
+            for path in self.config['repo'].keys():
+                r = self.config['repo'][path]
+
+                if path == self.config['name'] or path == self.config['package']:
+                    self.config['master'] = path
                     print "Using",self.config['master'],"as master project."
                     break
 
@@ -107,7 +109,8 @@ class Packthing:
         importer.require(v)
 
         self.repos = {}
-        for a in self.config['repo']:
+        for path in self.config['repo'].keys():
+            a = self.config['repo'][path]
 
             ref = None
             if 'branch' in a:
@@ -115,9 +118,9 @@ class Packthing:
             if 'tag' in a:
                 ref = a['tag']
 
-            repo = v.Repo(a['url'],a['path'], ref)
+            repo = v.Repo(a['url'],path, ref)
 
-            self.repos[a['path']] = repo
+            self.repos[path] = repo
 
             if refresh:
                 repo.update()
@@ -155,28 +158,30 @@ class Packthing:
         self.files['lib'] = []
         self.files['share'] = []
 
-        for r in self.config['repo']:
+        for path in self.config['repo'].keys():
+            r = self.config['repo'][path]
+
             if 'root' in r:
-                path = os.path.join(r['path'],r['root'])
+                root = os.path.join(path,r['root'])
             else:
-                path = r['path']
+                root = path
 
             if not 'exclude' in r:
                 r['exclude'] = []
 
             if 'type' in r:
-                util.subtitle(r['path']+" ("+r['type']+")")
+                util.subtitle(path+" ("+r['type']+")")
 
-                self.projects[r['path']] = self.builders[r['type']].Builder(path,
-                        self.repos[r['path']].get_version())
+                self.projects[path] = self.builders[r['type']].Builder(root,
+                        self.repos[path].get_version())
 
-                outfiles = self.projects[r['path']].build(jobs, r['exclude'])
+                outfiles = self.projects[path].build(jobs, r['exclude'])
                 for f in self.files:
                     outfiles[f] = [x for x in outfiles[f] if x]
                     self.files[f].extend(outfiles[f])
 
             else:
-                util.error("No type declared for",r['path'],"; skipping")
+                util.error("No type declared for",path,"; skipping")
 
                  
     @util.headline
@@ -191,41 +196,49 @@ class Packthing:
         self.packager.make()
 
         self.buildtypes = []
-        for r in self.config['repo']:
 
-            # get list of build types
+        # icon generators
+        if not 'icon' in dir(self.packager):
+            util.warning("No icon generator configured for this target")
+        else:
+            for path in self.config['repo'].keys():
+                r = self.config['repo'][path]
+
+                if 'icon' in r:
+                    self.packager.icon(
+                            os.path.join(path,r['icon']),
+                            path)
+                else:
+                    util.warning("No icon for",path)
+
+
+        # get list of build types
+        for path in self.config['repo'].keys():
+            r = self.config['repo'][path]
+
             if 'type' in r:
                 if not r['type'] in self.buildtypes:
                     self.buildtypes.append(r['type'])
+        print "Build systems used by this project:",', '.join(self.buildtypes)
 
-            # check if icon and build, don't care if it fails
-            if 'icon' in r:
-                try:
-                    method = getattr(self.packager, 'icon')
-                    method(os.path.join(r['path'],r['icon']),r['path'])
-                except AttributeError:
-                    util.warning("Icon not supported for current platform")
-            else:
-                util.warning("No icon for ",r['path'])
 
         for p in self.projects:
             try:
                 method = getattr(self.projects[p], self.targetname)
                 method(self.packager.get_path())
             except AttributeError:
-                util.warning("No build specific targets found for",self.targetname,"in",p)
-                pass
+                util.warning("No '"+self.targetname+"'-specific packaging for",p,"("+self.config['repo'][p]['type']+")")
 
         self.packager.finish()
 
 
     @util.headline
     def install(self):
-        try:
+        if 'install' in dir(self.packager):
             self.packager.install()
-        except:
-            util.warning("Not installing: No install method defined for this platform")
-    
+        else:
+            util.error("No installation procedure defined for this target")
+
 
 def console():
     parser = argparse.ArgumentParser(description='write once, package everywhere')
@@ -243,10 +256,10 @@ def console():
     stages.add_argument('--install',        action='store_true', help="install newly built package to OS")
 
     overrides = parser.add_argument_group('overrides', 'manually override settings in the packthing config (advanced users!)')
-    overrides.add_argument('--platform',    nargs=1, metavar='PLATFORM',    help="Override platform configuration")
-    overrides.add_argument('--arch',        nargs=1, metavar='ARCH',        help="Override CPU architecture")
+    overrides.add_argument('--platform',    nargs=1, metavar='PLATFORM', help="Override platform configuration")
+    overrides.add_argument('--arch',        nargs=1, metavar='ARCH',     help="Override CPU architecture")
 
-    parser.add_argument('target',           nargs='?', metavar='TARGET',                    help="Target platform to build ("+', '.join(packagelist)+")")
+    parser.add_argument('target',           nargs='?', metavar='TARGET', help="Target package to build ("+', '.join(packagelist)+")")
 
     args = parser.parse_args()
 
