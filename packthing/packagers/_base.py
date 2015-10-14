@@ -44,7 +44,11 @@ class Packager(object):
 
     def clean(self):
         if os.path.exists(self.DIR_STAGING) and os.path.isdir(self.DIR_STAGING):
-            shutil.rmtree(self.DIR_STAGING)
+            try:
+                shutil.rmtree(self.DIR_STAGING)
+            except OSError as e:
+                util.error("You do not have permission to delete this file:\n"
+                        +e.filename)
 
     def packagename(self):
         n = self.info['package']

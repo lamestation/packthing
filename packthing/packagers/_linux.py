@@ -2,9 +2,9 @@
 
 import os
 
-from . import base
+from . import _base
 
-class Packager(base.Packager):
+class Packager(_base.Packager):
 
     def __init__(self, info, version, files):
         super(Packager,self).__init__(info, version, files)

@@ -4,7 +4,6 @@ import os
 import uuid, subprocess
 
 import packthing.util as util
-from .. import base
 
 try:
     from PIL import Image
@@ -15,7 +14,9 @@ REQUIRE = [ 'iscc',
             'windeployqt',
             ]
 
-class Packager(base.Packager):
+from . import _base
+
+class Packager(_base.Packager):
 
     def __init__(self, info, version, files):
         super(Packager,self).__init__(info, version, files)

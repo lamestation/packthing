@@ -6,13 +6,14 @@ import shutil
 import glob
 
 import packthing.util as util
-from .. import base
 
 REQUIRE = [ 'macdeployqt' ]
 
 KEYS = [ 'category' ]
 
-class Packager(base.Packager):
+from . import _base
+
+class Packager(_base.Packager):
 
     def __init__(self, info, version, files):
         super(Packager,self).__init__(info, version, files)

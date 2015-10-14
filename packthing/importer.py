@@ -17,7 +17,7 @@ def get_modulelist(package):
     for i in range(len(packagelist)):
         packagelist[i] = packagelist[i].split('.')[-1]
 
-    packagelist = [x for x in packagelist if not x == 'base']
+    packagelist = [x for x in packagelist if not x.startswith('_')]
 
     return packagelist
 

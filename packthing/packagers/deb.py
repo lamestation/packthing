@@ -9,7 +9,6 @@ import time
 from email import utils
 
 import packthing.util as util
-from . import build
 
 REQUIRE = [ 'dpkg-deb',
             'dh_fixperms',
@@ -28,7 +27,9 @@ KEYS = [
 
 util.root()
 
-class Packager(build.Packager):
+from . import _linux
+
+class Packager(_linux.Packager):
 
     def __init__(self, info, version, files):
         super(Packager,self).__init__(info, version, files)

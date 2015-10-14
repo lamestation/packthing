@@ -18,17 +18,7 @@ def signal_handler(signal, frame):
     sys.exit(0)
 signal.signal(signal.SIGINT, signal_handler)
 
-
-
-_platforms = importer.get_modulelist(packagers)
-
-# detect platform
 _platform = platform.system().lower()
-#try:
-#    targets = importer.get_module(packagers, _platform)
-#except ImportError:
-#    util.error("Packthing has no package targets for the '"+_platform+"' operating system.",
-#               "\nSupported systems:",', '.join(_platforms))
 
 packagelist = importer.get_modulelist(packagers)
 packagelist.append("src")
@@ -55,7 +45,7 @@ class Packthing:
         self.targetnames = []
         for t in importer.list_module_hierarchy(self.target):
             self.targetnames.append(t.__module__.split('.')[-1])
-        self.targetnames = [x for x in self.targetnames if not x in ['base','__builtin__']]
+        self.targetnames = [x for x in self.targetnames if not x.startswith('_')]
 
         self.build_config(config)
 
@@ -226,7 +216,7 @@ class Packthing:
             if 'type' in r:
                 if not r['type'] in self.buildtypes:
                     self.buildtypes.append(r['type'])
-        print "Build systems used by this project:",', '.join(self.buildtypes)
+#        print "Build systems used by this project:",', '.join(self.buildtypes)
 
 
         for p in self.projects:
@@ -275,14 +265,14 @@ def console():
 
     if not args.target:
         if not args.checkout and not args.configure and not args.build:
-            util.error("Must pass a target to packthing.",
-                        "\nAvailable",_platform.capitalize(),"packagers:",', '.join(packagelist))
+            util.error("Must select a packaging target.",
+                        "\nAvailable packagers:",', '.join(packagelist))
         else:
-            args.target = 'base'
+            args.target = '_base'
     else:
         if not args.target in packagelist:
-            util.error("'"+args.target+"' does not exist on this platform.",
-                    "\nAvailable",_platform.capitalize(),"packagers:",', '.join(packagelist))
+            util.error("The '"+args.target+"' packager does not exist.",
+                    "\nAvailable packagers:",', '.join(packagelist))
 
     if args.target == "clean":
         try:
