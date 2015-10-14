@@ -9,12 +9,13 @@ import time
 from email import utils
 
 import packthing.util as util
+import packthing.icons as icons
 
 REQUIRE = [ 'dpkg-deb',
             'dh_fixperms',
             'dpkg-shlibdeps',
             'dpkg-gencontrol',
-            'help2man',
+#            'help2man',
             'dh_installmanpages',
             'convert',
             ]
@@ -93,32 +94,29 @@ class Packager(_linux.Packager):
                     os.path.join(OUTDIR,g),
                     '-o',os.path.join(self.DIR_DEBIAN,g+'.1')],strict=False)
 
-    def menu(self):
+    def menu(self, icon):
         d = {
             'NAME'        : self.info['name'],
-            'APPLICATION' : self.info['package'],
+            'PACKAGE'     : self.info['package'],
             'DESCRIPTION' : self.info['description'],
             'SECTION'     : self.info['section'],
+            'ICON'        : icon,
         }
         return util.get_template('deb/menu').substitute(d)
 
-    def desktop(self):
+    def desktop(self, icon):
         d = {
             'NAME'        : self.info['name'],
-            'APPLICATION' : self.info['package'],
+            'PACKAGE'     : self.info['package'],
             'DESCRIPTION' : self.info['description'],
             'TAGLINE'     : self.info['tagline'],
             'CATEGORIES'  : self.info['categories'],
+            'ICON'        : icon,
         }
         return util.get_template('deb/desktop').substitute(d)
 
     def icon(self,icon,target):
-        if os.path.exists(icon):
-            util.mkdir(self.DIR_PIXMAPS)
-            util.command(['convert',icon,'-resize','32x32',
-                    os.path.join(self.DIR_PIXMAPS,target+'.xpm')])
-        else:
-            util.error("Icon does not exist:",os.path.join(os.getcwd(),icon))
+        icons.imagemagick(icon, os.path.join(self.DIR_PIXMAPS,target), 32, 'xpm')
 
     def make(self):
         util.mkdir(self.DIR_DEBIAN)
@@ -132,8 +130,9 @@ class Packager(_linux.Packager):
             util.create('9',             os.path.join(self.DIR_DEBIAN,'compat'))
             util.create(self.postinst(), os.path.join(self.DIR_DEBIAN,'postinst'))
 
-            util.create(self.menu(),    os.path.join(self.DIR_MENU,self.info['package']))
-            util.create(self.desktop(), os.path.join(self.DIR_DESKTOP,self.info['package']+'.desktop'))
+            for i in self.info['icon'].keys():
+                util.create(self.menu(i),    os.path.join(self.DIR_MENU,i))
+                util.create(self.desktop(i), os.path.join(self.DIR_DESKTOP,i+'.desktop'))
 
     def finish(self):
         with util.pushd(self.DIR_STAGING):

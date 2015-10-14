@@ -1,9 +1,9 @@
 [Desktop Entry]
-Exec=${APPLICATION}
-Icon=/usr/share/pixmaps/${APPLICATION}.xpm
+Exec=${PACKAGE}
+Icon=/usr/share/pixmaps/${ICON}.xpm
 Terminal=false
 Type=Application
-Categories=Development;IDE
+Categories=${CATEGORIES}
 StartupNotify=true
 Name=${NAME}
 GenericName=${TAGLINE}

@@ -1,7 +1,7 @@
-?package(${APPLICATION}):\
+?package(${PACKAGE}):\
   needs="X11"\
   section="${SECTION}" \
-  title="${NAME}" command="${APPLICATION}" \
+  title="${NAME}" command="${PACKAGE}" \
   longtitle="${DESCRIPTION}" \
-  icon="/usr/share/pixmaps/${APPLICATION}.xpm"
+  icon="/usr/share/pixmaps/${ICON}.xpm"
 

@@ -66,6 +66,24 @@ class Packthing:
             if not 'master' in self.config:
                 util.error("No master repository defined in",repofile)
 
+        # repo specific stuff
+        
+        if not 'repo' in self.config:
+            util.error("No repository configured in",repofile)
+
+
+        self.config['icon'] = dict()
+        for path in self.config['repo'].keys():
+            r = self.config['repo'][path]
+
+            if 'icon' in r:
+                for i in r['icon'].keys():
+                    self.config['icon'][i] = os.path.join(path,r['icon'][i])
+            else:
+                util.warning("No icon for",path)
+
+
+
         # add platform and overrides
 
         for k in _platform.keys():
@@ -216,16 +234,10 @@ class Packthing:
         # icon generators
         if not 'icon' in dir(self.packager):
             util.warning("No icon generator configured for this target")
-        else:
-            for path in self.config['repo'].keys():
-                r = self.config['repo'][path]
 
-                if 'icon' in r:
-                    self.packager.icon(
-                            os.path.join(path,r['icon']),
-                            path)
-                else:
-                    util.warning("No icon for",path)
+        # generate icons
+        for i in self.config['icon'].keys():
+            self.packager.icon(self.config['icon'][i], i)
 
 
         # get list of build types
