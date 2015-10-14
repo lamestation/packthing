@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-import os
+import os, sys
 import shutil
 import textwrap
 
@@ -145,7 +145,12 @@ class Packager(_linux.Packager):
 
             util.command(deps)
             util.command(['dh_installmanpages'])
-            util.command(['dpkg-gencontrol','-v'+self.VERSION,'-P'+self.DIR_OUT])
+
+            try:
+                util.command(['dpkg-gencontrol','-v'+self.VERSION,'-P'+self.DIR_OUT])
+            except:
+                sys.exit(1)
+
             util.command(['dh_fixperms'])
             util.command(['dpkg-deb','-b',self.DIR_OUT,self.packagename()+'.deb'])
         super(Packager,self).finish()

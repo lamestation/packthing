@@ -258,13 +258,16 @@ def console():
     stages.add_argument('--build',          action='store_true', help="stop packthing at build stage")
     stages.add_argument('--install',        action='store_true', help="install newly built package to OS")
 
-    overrides = parser.add_argument_group('overrides', 'manually override settings in the packthing config (advanced users!)')
-    overrides.add_argument('--platform',    nargs=1, metavar='PLATFORM', help="Override platform configuration")
-    overrides.add_argument('--arch',        nargs=1, metavar='ARCH',     help="Override CPU architecture")
+    overrides = parser.add_argument_group('overrides', 'manually override auto-generated settings (use at own risk!)')
+    overrides.add_argument('--system',      nargs=1, metavar='SYSTEM',  help="Override platform system (linux, windows, ...)")
+    overrides.add_argument('--arch',        nargs=1, metavar='ARCH',    help="Override platform machine (i686, amd64, ...)")
 
-    parser.add_argument('target',           nargs='?', metavar='TARGET', help="Target package to build ("+', '.join(packagelist)+")")
+    parser.add_argument('target',           nargs='?', metavar='TARGET',help="Target package to build ("+', '.join(packagelist)+")")
 
     args = parser.parse_args()
+
+    if args.system: _platform['system']     = args.system[0]
+    if args.arch:   _platform['machine']    = args.arch[0]
 
     if args.C:
         os.chdir(args.c[0])
