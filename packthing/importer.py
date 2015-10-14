@@ -17,14 +17,16 @@ def get_modulelist(package):
     for i in range(len(packagelist)):
         packagelist[i] = packagelist[i].split('.')[-1]
 
-
-    if 'base' in packagelist:
-        packagelist.remove('base')
+    packagelist = [x for x in packagelist if not x == 'base']
 
     return packagelist
 
 def get_module(parent, modulename):
     return importlib.import_module(parent.__name__+'.'+modulename)
+
+def list_module_hierarchy(module):
+    clsmembers = inspect.getmembers(module, inspect.isclass)
+    return inspect.getmro(clsmembers[0][1])
 
 def build_module_hierarchy(module):
     clsmembers = inspect.getmembers(module, inspect.isclass)

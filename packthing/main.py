@@ -50,6 +50,13 @@ class Packthing:
         except IOError:
             util.error("'"+self.repofile+"' not found; please specify a valid packthing file")
 
+        # build tree of included targets
+        self.target = importer.get_module(targets,self.targetname)
+        self.targetnames = []
+        for t in importer.list_module_hierarchy(self.target):
+            self.targetnames.append(t.__module__.split('.')[-1])
+        self.targetnames = [x for x in self.targetnames if not x in ['base','__builtin__']]
+
         self.build_config(config)
 
         # package
@@ -69,7 +76,6 @@ class Packthing:
             if not 'master' in self.config:
                 util.error("No master repository defined in",repofile)
 
-        self.target = importer.get_module(targets,self.targetname)
         importer.require(self.target)
 
         for k in importer.required_keys(self.target):
@@ -88,8 +94,9 @@ class Packthing:
             
         for key in config.keys():
             if key == 'target':
-                if self.targetname in config['target']:
-                    self.build_config(config['target'][self.targetname])
+                for t in self.targetnames:
+                    if t in config['target']:
+                        self.build_config(config['target'][t])
             else:
                 self.add_value(config, key)
 

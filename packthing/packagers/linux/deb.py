@@ -20,6 +20,12 @@ REQUIRE = [ 'dpkg-deb',
             'convert',
             ]
 
+KEYS = [
+        'depends',
+        'section',
+        'categories',
+        ]
+
 util.root()
 
 class Packager(build.Packager):
