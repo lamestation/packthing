@@ -18,8 +18,8 @@ from . import _base
 
 class Packager(_base.Packager):
 
-    def __init__(self, info, version, files):
-        super(Packager,self).__init__(info, version, files)
+    def __init__(self, info, files):
+        super(Packager,self).__init__(info, files)
 
         #self.EXT = 'exe'
         self.EXT_BIN = 'exe'

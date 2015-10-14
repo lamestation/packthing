@@ -31,8 +31,8 @@ from . import _linux
 
 class Packager(_linux.Packager):
 
-    def __init__(self, info, version, files):
-        super(Packager,self).__init__(info, version, files)
+    def __init__(self, info, files):
+        super(Packager,self).__init__(info, files)
 
         self.PREFIX = 'usr'
         self.EXT = 'deb'

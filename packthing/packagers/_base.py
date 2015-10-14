@@ -21,9 +21,9 @@ KEYS = [
         ]
 
 class Packager(object):
-    def __init__(self, info, version, files):
+    def __init__(self, info, files):
         self.info = info
-        self.VERSION = version
+        self.VERSION = self.info['version']
         self.SYSTEM = self.info['system']
         self.CPU = self.info['machine']
 

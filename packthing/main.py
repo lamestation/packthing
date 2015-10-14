@@ -66,6 +66,7 @@ class Packthing:
             if not 'master' in self.config:
                 util.error("No master repository defined in",repofile)
 
+        # add platform and overrides
 
         for k in _platform.keys():
             self.add_value(_platform,k)
@@ -74,9 +75,20 @@ class Packthing:
 
         for k in importer.required_keys(self.target):
             self.add_value(self.config, k)
-            print "%20s: %s" % (k,self.config[k])
 
 
+        for k in self.config.keys():
+            if not k == 'repo':
+                print "%20s: %s" % (k,self.config[k])
+
+#        k = 'repo'
+#        print "\n%s:" % (k)
+#        for l in self.config[k].keys():
+#            print "      %s:" % (l)
+#            for m in self.config[k][l].keys():
+#                print "%20s: %s" % (m,self.config[k][l][m])
+#
+#
 #        pp = pprint.PrettyPrinter(indent=4)
 #        pp.pprint(self.config)
 
@@ -127,6 +139,12 @@ class Packthing:
             if refresh:
                 repo.update()
 
+        if not 'version' in self.config:
+            self.config['version'] = self.repos[self.config['master']].get_version()
+
+        print "\nMaster version: ",self.config['version']
+
+
     def filelist(self):
         fl = []
         for r in self.repos.values():
@@ -136,8 +154,7 @@ class Packthing:
 
     @util.headline
     def archive(self):
-        version = self.repos[self.config['master']].get_version()
-        archivename = self.config['name']+"-"+version
+        archivename = self.config['name']+"-"+self.config['version']
 
         if _platform['system'] == "windows":
             util.zip_archive(archivename,self.filelist())
@@ -189,11 +206,7 @@ class Packthing:
     @util.headline
     def package(self):
 
-        self.packager = self.target.Packager(
-                self.config, 
-                self.repos[self.config['master']].get_version(),
-                files=self.files,
-                )
+        self.packager = self.target.Packager(self.config, files=self.files)
 
         self.packager.clean()
         self.packager.make()
@@ -258,16 +271,18 @@ def console():
     stages.add_argument('--build',          action='store_true', help="stop packthing at build stage")
     stages.add_argument('--install',        action='store_true', help="install newly built package to OS")
 
-    overrides = parser.add_argument_group('overrides', 'manually override auto-generated settings (use at own risk!)')
-    overrides.add_argument('--system',      nargs=1, metavar='SYSTEM',  help="Override platform system (linux, windows, ...)")
-    overrides.add_argument('--arch',        nargs=1, metavar='ARCH',    help="Override platform machine (i686, amd64, ...)")
+    overrides = parser.add_argument_group('overrides', 'manually override settings')
+    overrides.add_argument('--system',      nargs=1, metavar='SYSTEM',  help="Set platform system (linux, windows, ...)")
+    overrides.add_argument('--arch',        nargs=1, metavar='ARCH',    help="Set platform machine (i686, amd64, ...)")
+    overrides.add_argument('--version',     nargs=1, metavar='VERSION', help="Set application version (e.g. 1.2.3)")
 
     parser.add_argument('target',           nargs='?', metavar='TARGET',help="Target package to build ("+', '.join(packagelist)+")")
 
     args = parser.parse_args()
 
-    if args.system: _platform['system']     = args.system[0]
-    if args.arch:   _platform['machine']    = args.arch[0]
+    if args.system:     _platform['system']     = args.system[0]
+    if args.arch:       _platform['machine']    = args.arch[0]
+    if args.version:    _platform['version']    = args.version[0]
 
     if args.C:
         os.chdir(args.c[0])
