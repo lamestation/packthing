@@ -5,8 +5,6 @@ from .. import util
 import shutil
 import subprocess
 
-_platform = util.get_platform()
-
 KEYS = [
         'name',
         'package',
@@ -18,14 +16,16 @@ KEYS = [
         'license',
         'tagline',
         'description',
+        'system',
+        'machine',
         ]
 
 class Packager(object):
     def __init__(self, info, version, files):
         self.info = info
         self.VERSION = version
-        self.SYSTEM = _platform['system']
-        self.CPU = _platform['machine']
+        self.SYSTEM = self.info['system']
+        self.CPU = self.info['machine']
 
         self.PREFIX = ''
 

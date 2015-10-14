@@ -66,11 +66,16 @@ class Packthing:
             if not 'master' in self.config:
                 util.error("No master repository defined in",repofile)
 
+
+        for k in _platform.keys():
+            self.add_value(_platform,k)
+
         importer.require(self.target)
 
         for k in importer.required_keys(self.target):
             self.add_value(self.config, k)
             print "%20s: %s" % (k,self.config[k])
+
 
 #        pp = pprint.PrettyPrinter(indent=4)
 #        pp.pprint(self.config)
@@ -184,7 +189,8 @@ class Packthing:
     @util.headline
     def package(self):
 
-        self.packager = self.target.Packager(self.config, 
+        self.packager = self.target.Packager(
+                self.config, 
                 self.repos[self.config['master']].get_version(),
                 files=self.files,
                 )
