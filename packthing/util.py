@@ -6,6 +6,20 @@ from contextlib import contextmanager
 import string
 import errno
 import tarfile, zipfile
+import platform
+
+def get_platform():
+    _platform = dict()
+
+    _platform['system'] = platform.system().lower()
+
+    machine = platform.machine()
+    if machine == 'x86_64':
+        machine = 'amd64'
+    _platform['machine'] = machine
+
+    return _platform
+
 
 def warning(*objs):
     print("WARNING:", *objs, file=sys.stderr)

@@ -1,7 +1,6 @@
 # -*- coding: utf-8 -*-
 
 import os, sys
-import platform
 import importer
 import util, shutil
 import yaml
@@ -18,11 +17,12 @@ def signal_handler(signal, frame):
     sys.exit(0)
 signal.signal(signal.SIGINT, signal_handler)
 
-_platform = platform.system().lower()
-
 packagelist = importer.get_modulelist(packagers)
 packagelist.append("src")
 packagelist.append("clean")
+
+_platform = util.get_platform()
+
 
 class Packthing:
     def __init__(self, repofile, targetname):
@@ -134,7 +134,7 @@ class Packthing:
         version = self.repos[self.config['master']].get_version()
         archivename = self.config['name']+"-"+version
 
-        if _platform == "windows":
+        if _platform['system'] == "windows":
             util.zip_archive(archivename,self.filelist())
         else:
             util.tar_archive(archivename,self.filelist())

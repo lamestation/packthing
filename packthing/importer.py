@@ -3,7 +3,8 @@ import sys
 import util
 import pkgutil, importlib
 import inspect
-import platform
+
+_platform = util.get_platform()
 
 def get_modulelist(package):
     packagelist = []
@@ -41,7 +42,7 @@ def build_module_hierarchy(module):
 
 
 def require(module):
-    if platform.system() == 'Windows': # REQUIRE DOESN'T WORK ON WINDOWS
+    if _platform['system'] == 'windows': # REQUIRE DOESN'T WORK ON WINDOWS
         return
 
     for m in build_module_hierarchy(module):

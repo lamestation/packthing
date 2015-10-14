@@ -3,9 +3,10 @@ import shutil
 from .. import util
 import glob
 import subprocess
-import platform
 
 from . import base
+
+_platform = util.get_platform()
 
 class Builder(base.Builder):
     def __init__(self, path, version):
@@ -24,7 +25,7 @@ class Builder(base.Builder):
         self.IGNORE_PATTERNS = ('CVS','.git','.svn')
 
 
-        dir = os.path.join(self.path, platform.system())
+        dir = os.path.join(self.path, _platform['system'])
         for k in self.files.keys():
             
             kdir = os.path.join(dir, k)
@@ -32,7 +33,7 @@ class Builder(base.Builder):
             if os.path.isdir(kdir):
                 self.files[k] = self.get_all_files(kdir)
 
-                if platform.system() == "Windows":
+                if _platform['system'] == "windows":
                     self.files['bin'] = [os.path.splitext(f)[0] for f in self.files['bin']]
                     self.files['lib'] = [os.path.splitext(f)[0] for f in self.files['lib']]
         

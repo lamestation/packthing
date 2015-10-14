@@ -1,9 +1,11 @@
 # -*- coding: utf-8 -*-
 
-import os, platform
+import os
 from .. import util
 import shutil
 import subprocess
+
+_platform = util.get_platform()
 
 KEYS = [
         'name',
@@ -22,10 +24,8 @@ class Packager(object):
     def __init__(self, info, version, files):
         self.info = info
         self.VERSION = version
-        self.SYSTEM = platform.system().lower()
-        self.CPU = platform.machine()
-        if self.CPU == 'x86_64':
-            self.CPU = 'amd64'
+        self.SYSTEM = _platform['system']
+        self.CPU = _platform['machine']
 
         self.PREFIX = ''
 
