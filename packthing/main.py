@@ -71,18 +71,6 @@ class Packthing:
         if not 'repos' in self.config:
             util.error("No repository configured in",repofile)
 
-
-#        self.config['icon'] = dict()
-#        for path in self.config['repos'].keys():
-#            r = self.config['repos'][path]
-#
-#            if 'icon' in r:
-#                for i in r['icon'].keys():
-#                    self.config['icon'][i] = os.path.join(path,r['icon'][i])
-        #    else:
-        #        util.warning("No icon for",path)
-
-
         # add platform and overrides
 
         for k in _platform.keys():
@@ -114,8 +102,8 @@ class Packthing:
 
 
 
-        pp = pprint.PrettyPrinter(indent=4)
-        pp.pprint(self.config)
+#        pp = pprint.PrettyPrinter(indent=4)
+#        pp.pprint(self.config)
 
 
     def build_config(self, config):

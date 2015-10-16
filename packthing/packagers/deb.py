@@ -15,7 +15,6 @@ REQUIRE = [ 'dpkg-deb',
             'dh_fixperms',
             'dpkg-shlibdeps',
             'dpkg-gencontrol',
-#            'help2man',
             'dh_installmanpages',
             'convert',
             ]
@@ -85,14 +84,21 @@ class Packager(_linux.Packager):
         }
         return util.get_template('deb/changelog').substitute(d)
 
-    def manpages(self):
+    def help2man(self):
+        if not util.which('help2man'):
+            util.warning("help2man not found; skipping man page generation")
+            return
+
+        OUTDIR = os.path.join(self.DIR_OUT,self.OUT['bin'])
         for f in self.files['bin']:
-            OUTDIR = os.path.join(self.DIR_OUT,self.OUT['bin'])
             g = os.path.basename(f)
 
-            util.command(['help2man','--no-info',
-                    os.path.join(OUTDIR,g),
-                    '-o',os.path.join(self.DIR_DEBIAN,g+'.1')],strict=False)
+            if g in self.info['help2man']:
+                util.command(['help2man',
+                        '--no-info',
+                        '--source='+self.info['package'],
+                        os.path.join(OUTDIR,g),
+                        '-o',os.path.join(self.DIR_DEBIAN,g+'.1')],strict=False)
 
     def menu(self, filename, config):
         d = {
@@ -124,7 +130,7 @@ class Packager(_linux.Packager):
         util.mkdir(self.DIR_DEBIAN)
         util.mkdir(self.DIR_DEBIAN2)
         self.install_files()
-#        self.manpages()
+        self.help2man()
 
         with util.pushd(self.DIR_STAGING):
             util.create(self.control(),  os.path.join(self.DIR_DEBIAN,'control'))
