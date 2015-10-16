@@ -47,7 +47,7 @@ class Packthing:
             self.targetnames.append(t.__module__.split('.')[-1])
         self.targetnames = [x for x in self.targetnames if not x.startswith('_')]
 
-        self.build_config(config)
+        self.config.update(self.build_config(config))
 
         # package
         if not 'package' in self.config:
@@ -55,8 +55,8 @@ class Packthing:
 
         # master
         if not 'master' in self.config:
-            for path in self.config['repo'].keys():
-                r = self.config['repo'][path]
+            for path in self.config['repos'].keys():
+                r = self.config['repos'][path]
 
                 if path == self.config['name'] or path == self.config['package']:
                     self.config['master'] = path
@@ -68,72 +68,119 @@ class Packthing:
 
         # repo specific stuff
         
-        if not 'repo' in self.config:
+        if not 'repos' in self.config:
             util.error("No repository configured in",repofile)
 
 
-        self.config['icon'] = dict()
-        for path in self.config['repo'].keys():
-            r = self.config['repo'][path]
-
-            if 'icon' in r:
-                for i in r['icon'].keys():
-                    self.config['icon'][i] = os.path.join(path,r['icon'][i])
-            else:
-                util.warning("No icon for",path)
-
+#        self.config['icon'] = dict()
+#        for path in self.config['repos'].keys():
+#            r = self.config['repos'][path]
+#
+#            if 'icon' in r:
+#                for i in r['icon'].keys():
+#                    self.config['icon'][i] = os.path.join(path,r['icon'][i])
+        #    else:
+        #        util.warning("No icon for",path)
 
 
         # add platform and overrides
 
         for k in _platform.keys():
-            self.add_value(_platform,k)
+            self.config.update(self.add_key(_platform,k))
 
         importer.require(self.target)
 
         for k in importer.required_keys(self.target):
-            self.add_value(self.config, k)
+            self.config.update(self.add_key(self.config, k))
 
 
         for k in self.config.keys():
-            if not k == 'repo':
+            if not k in ['repos','files']:
                 print "%20s: %s" % (k,self.config[k])
 
-#        k = 'repo'
+#        k = 'repos'
 #        print "\n%s:" % (k)
 #        for l in self.config[k].keys():
 #            print "      %s:" % (l)
 #            for m in self.config[k][l].keys():
 #                print "%20s: %s" % (m,self.config[k][l][m])
 #
-#
-#        pp = pprint.PrettyPrinter(indent=4)
-#        pp.pprint(self.config)
+#        k = 'files'
+#        print "\n%s:" % (k)
+#        for l in self.config[k].keys():
+#            print "      %s:" % (l)
+#            for m in self.config[k][l].keys():
+#                print "%20s: %s" % (m,self.config[k][l][m])
+
+
+
+        pp = pprint.PrettyPrinter(indent=4)
+        pp.pprint(self.config)
 
 
     def build_config(self, config):
         try:
             config.keys()
         except AttributeError as e:
-            return
+            util.error("No keys defined in '"+config+"' key")
             
+        newconfig = dict()
         for key in config.keys():
+
             if key == 'target':
                 for t in self.targetnames:
                     if t in config['target']:
-                        self.build_config(config['target'][t])
+                        self.config.update(self.build_config(config['target'][t]))
+
+            elif key == 'repos':
+                if not 'repos' in self.config:
+                    self.config['repos'] = dict()
+
+                for r in config['repos'].keys():
+
+                    if not r in self.config['repos'].keys():
+                        self.config['repos'][r] = dict()
+
+                    for i in ['url','builder']:
+                        if not i in config['repos'][r].keys():
+                            util.error("Missing required '"+i+"' key in '"+r+"' repository")
+
+                    for i in config['repos'][r].keys():
+
+                        if i == 'files':
+                            fconfig = config['repos'][r]['files']
+                            for f in fconfig.keys():
+                                for k in fconfig[f].keys():
+                                    if not k in ['name','icon','help2man']:
+                                        util.error("Invalid key '"+k+"' found in 'files/"+f+"'")
+                                    else:
+                                        if k == 'icon':
+                                            fconfig[f][k] = r+"/"+fconfig[f][k]
+
+                            self.config['files'] = fconfig
+
+                        else:
+                            self.config['repos'][r].update(self.add_key(config['repos'][r], i, required=False))
+
             else:
-                self.add_value(config, key)
+                newconfig.update(self.add_key(config, key))
 
 
-    def add_value(self, config, key):
-        if key in config:
-            self.config[key] = config[key]
-            if self.config[key] is None:
-                self.config[key] = ""
-        else:
-            util.error("This build requires the '"+key+"' key; see docs for details.")
+        return newconfig
 
+    def add_key(self, config, key, required=True):
+        try:
+            if config[key] is None:
+                config[key] = ""
+            return dict({key: config[key]})
+        except KeyError as e:
+            util.error("This build requires the '"+e.message+"' key; see docs for details.")
+
+    def add_keys(self, config, keys, required=True):
+        newconfig = dict()
+        for k in keys:
+            newconfig.update(self.add_key(config, key, required))
+        return newconfig
 
     @util.headline
     def checkout(self, refresh=False):
@@ -141,8 +188,8 @@ class Packthing:
         importer.require(v)
 
         self.repos = {}
-        for path in self.config['repo'].keys():
-            a = self.config['repo'][path]
+        for path in self.config['repos'].keys():
+            a = self.config['repos'][path]
 
             ref = None
             if 'branch' in a:
@@ -195,8 +242,9 @@ class Packthing:
         self.files['lib'] = []
         self.files['share'] = []
 
-        for path in self.config['repo'].keys():
-            r = self.config['repo'][path]
+
+        for path in self.config['repos'].keys():
+            r = self.config['repos'][path]
 
             if 'root' in r:
                 root = os.path.join(path,r['root'])
@@ -206,10 +254,10 @@ class Packthing:
             if not 'exclude' in r:
                 r['exclude'] = []
 
-            if 'type' in r:
-                util.subtitle(path+" ("+r['type']+")")
+            if 'builder' in r:
+                util.subtitle(path+" ("+r['builder']+")")
 
-                self.projects[path] = self.builders[r['type']].Builder(root,
+                self.projects[path] = self.builders[r['builder']].Builder(root,
                         self.repos[path].get_version())
 
                 outfiles = self.projects[path].build(jobs, r['exclude'])
@@ -218,8 +266,12 @@ class Packthing:
                     self.files[f].extend(outfiles[f])
 
             else:
-                util.error("No type declared for",path,"; skipping")
+                util.error("No builder declared for",path,"; skipping")
 
+
+        print self.files['bin']
+        for f in self.files['bin']:
+            print os.path.basename(f)
                  
     @util.headline
     def package(self):
@@ -235,18 +287,20 @@ class Packthing:
         if not 'icon' in dir(self.packager):
             util.warning("No icon generator configured for this target")
 
-        # generate icons
-        for i in self.config['icon'].keys():
-            self.packager.icon(self.config['icon'][i], i)
+        else:
+            # generate icons
+            for f in self.config['files'].keys():
+                if 'icon' in self.config['files'][f]:
+                    self.packager.icon(self.config['files'][f]['icon'], f)
 
 
         # get list of build types
-        for path in self.config['repo'].keys():
-            r = self.config['repo'][path]
+        for path in self.config['repos'].keys():
+            r = self.config['repos'][path]
 
-            if 'type' in r:
-                if not r['type'] in self.buildtypes:
-                    self.buildtypes.append(r['type'])
+            if 'builder' in r:
+                if not r['builder'] in self.buildtypes:
+                    self.buildtypes.append(r['builder'])
 #        print "Build systems used by this project:",', '.join(self.buildtypes)
 
 
@@ -255,7 +309,7 @@ class Packthing:
                 method = getattr(self.projects[p], self.targetname)
                 method(self.packager.get_path())
             except AttributeError:
-                util.warning("No '"+self.targetname+"'-specific packaging for",p,"("+self.config['repo'][p]['type']+")")
+                util.warning("No '"+self.targetname+"'-specific packaging for",p,"("+self.config['repos'][p]['builder']+")")
 
         self.packager.finish()
 

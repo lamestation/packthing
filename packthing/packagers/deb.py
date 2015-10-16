@@ -94,24 +94,26 @@ class Packager(_linux.Packager):
                     os.path.join(OUTDIR,g),
                     '-o',os.path.join(self.DIR_DEBIAN,g+'.1')],strict=False)
 
-    def menu(self, icon):
+    def menu(self, filename, config):
         d = {
-            'NAME'        : self.info['name'],
-            'PACKAGE'     : self.info['package'],
+            'NAME'        : config['name'],
+            'PACKAGE'     : filename,
             'DESCRIPTION' : self.info['description'],
             'SECTION'     : self.info['section'],
-            'ICON'        : icon,
+            'FILENAME'    : filename,
+            'ICON'        : filename,
         }
         return util.get_template('deb/menu').substitute(d)
 
-    def desktop(self, icon):
+    def desktop(self, filename, config):
         d = {
-            'NAME'        : self.info['name'],
-            'PACKAGE'     : self.info['package'],
+            'NAME'        : config['name'],
+            'PACKAGE'     : filename,
             'DESCRIPTION' : self.info['description'],
             'TAGLINE'     : self.info['tagline'],
             'CATEGORIES'  : self.info['categories'],
-            'ICON'        : icon,
+            'FILENAME'    : filename,
+            'ICON'        : filename,
         }
         return util.get_template('deb/desktop').substitute(d)
 
@@ -130,9 +132,9 @@ class Packager(_linux.Packager):
             util.create('9',             os.path.join(self.DIR_DEBIAN,'compat'))
             util.create(self.postinst(), os.path.join(self.DIR_DEBIAN,'postinst'))
 
-            for i in self.info['icon'].keys():
-                util.create(self.menu(i),    os.path.join(self.DIR_MENU,i))
-                util.create(self.desktop(i), os.path.join(self.DIR_DESKTOP,i+'.desktop'))
+            for i in self.info['files'].keys():
+                util.create(self.menu(i, self.info['files'][i]),    os.path.join(self.DIR_MENU,i))
+                util.create(self.desktop(i, self.info['files'][i]), os.path.join(self.DIR_DESKTOP,i+'.desktop'))
 
     def finish(self):
         with util.pushd(self.DIR_STAGING):
@@ -144,6 +146,7 @@ class Packager(_linux.Packager):
 
             util.command(deps)
             util.command(['dh_installmanpages'])
+            util.command(['dh_installmenu'])
 
             try:
                 util.command(['dpkg-gencontrol','-v'+self.VERSION,'-P'+self.DIR_OUT])
