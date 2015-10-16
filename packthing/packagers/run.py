@@ -17,7 +17,7 @@ class Packager(_linux.Packager):
     def setup_script(self):
         d = {
             'APPLICATION' : self.config['package'],
-            'VERSION'     : self.VERSION,
+            'VERSION'     : self.config['version'],
             'DEFAULT_DIR' : '/opt/',
         }
         return util.get_template('run/setup.sh').safe_substitute(d)
