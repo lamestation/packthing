@@ -1,9 +1,9 @@
-Source: ${application}
-Maintainer: ${maintainer} <${email}>
+Source: ${PACKAGE}
+Maintainer: ${MAINTAINER} <${EMAIL}>
 
-Package: ${application}
+Package: ${PACKAGE}
 Priority: optional
-Architecture: ${CPU}
-Depends: ${depends}
-Description: ${tagline}
- ${description}
+Architecture: ${MACHINE}
+Depends: ${DEPENDS}
+Description: ${TAGLINE}
+ ${DESCRIPTION}

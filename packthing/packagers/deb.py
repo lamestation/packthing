@@ -31,19 +31,19 @@ from . import _linux
 
 class Packager(_linux.Packager):
 
-    def __init__(self, info, files):
-        super(Packager,self).__init__(info, files)
+    def __init__(self, config, files):
+        super(Packager,self).__init__(config, files)
 
         self.PREFIX = 'usr'
         self.EXT = 'deb'
 
         self.DIR_DEBIAN  = os.path.join(self.DIR_STAGING,'debian')
-        self.DIR_DEBIAN2 = os.path.join(self.DIR_DEBIAN,self.info['package'],'DEBIAN')
-        self.DIR_OUT     = os.path.join(self.DIR_DEBIAN,self.info['package'])
+        self.DIR_DEBIAN2 = os.path.join(self.DIR_DEBIAN,self.config['package'],'DEBIAN')
+        self.DIR_OUT     = os.path.join(self.DIR_DEBIAN,self.config['package'])
 
         self.OUT['bin']   = os.path.join('usr','bin')
         self.OUT['lib']   = os.path.join('usr','lib')
-        self.OUT['share'] = os.path.join('usr','share',self.info['package'])
+        self.OUT['share'] = os.path.join('usr','share',self.config['package'])
 
         self.DIR_MENU    = os.path.join(self.DIR_OUT,'usr','share','menu')
         self.DIR_DESKTOP = os.path.join(self.DIR_OUT,'usr','share','applications')
@@ -51,36 +51,35 @@ class Packager(_linux.Packager):
 
     def postinst(self):
         return util.get_template('deb/postinst').substitute(dict())
-        
 
     def control(self):
-        script = util.get_template('deb/control')
         depends     = "${shlibs:Depends}"
-        if 'depends' in self.info:
-            depends += ', '+self.info['depends']
-        rendering = script.substitute(
-                        application = self.info['package'],
-                        maintainer  = self.info['maintainer'],
-                        email       = self.info['email'],
-                        VERSION     = self.VERSION,
-                        CPU         = self.CPU,
-                        tagline     = self.info['tagline'],
-                        description = textwrap.fill(self.info['description'], 
-                                60, subsequent_indent = ' '),
-                        depends     = depends,
-                    )
-        return rendering
+        if 'depends' in self.config:
+            depends += ', '+self.config['depends']
+
+        d = {
+            'PACKAGE'     : self.config['package'],
+            'MAINTAINER'  : self.config['maintainer'],
+            'EMAIL'       : self.config['email'],
+            'VERSION'     : self.config['version'],
+            'MACHINE'     : self.config['machine'],
+            'TAGLINE'     : self.config['tagline'],
+            'DESCRIPTION' : textwrap.fill(self.config['description'], 
+                                    60, subsequent_indent = ' '),
+            'DEPENDS'     : depends,
+        }
+        return util.get_template('deb/control').substitute(d)
 
     def changelog(self):
         now = datetime.datetime.now().timetuple()
         date = utils.formatdate(time.mktime(now))
 
         d = {
-            'application' : self.info['package'],
-            'maintainer'  : self.info['maintainer'],
-            'email'       : self.info['email'],
-            'VERSION'     : self.VERSION,
-            'datetime'    : date,  
+            'PACKAGE'     : self.config['package'],
+            'MAINTAINER'  : self.config['maintainer'],
+            'EMAIL'       : self.config['email'],
+            'VERSION'     : self.config['version'],
+            'DATETIME'    : date,  
         }
         return util.get_template('deb/changelog').substitute(d)
 
@@ -93,10 +92,10 @@ class Packager(_linux.Packager):
         for f in self.files['bin']:
             g = os.path.basename(f)
 
-            if g in self.info['help2man']:
+            if g in self.config['help2man']:
                 util.command(['help2man',
                         '--no-info',
-                        '--source='+self.info['package'],
+                        '--source='+self.config['package'],
                         os.path.join(OUTDIR,g),
                         '-o',os.path.join(self.DIR_DEBIAN,g+'.1')],strict=False)
 
@@ -104,8 +103,8 @@ class Packager(_linux.Packager):
         d = {
             'NAME'        : config['name'],
             'PACKAGE'     : filename,
-            'DESCRIPTION' : self.info['description'],
-            'SECTION'     : self.info['section'],
+            'DESCRIPTION' : self.config['description'],
+            'SECTION'     : self.config['section'],
             'FILENAME'    : filename,
             'ICON'        : filename,
         }
@@ -115,9 +114,9 @@ class Packager(_linux.Packager):
         d = {
             'NAME'        : config['name'],
             'PACKAGE'     : filename,
-            'DESCRIPTION' : self.info['description'],
-            'TAGLINE'     : self.info['tagline'],
-            'CATEGORIES'  : self.info['categories'],
+            'DESCRIPTION' : self.config['description'],
+            'TAGLINE'     : self.config['tagline'],
+            'CATEGORIES'  : self.config['categories'],
             'FILENAME'    : filename,
             'ICON'        : filename,
         }
@@ -130,7 +129,8 @@ class Packager(_linux.Packager):
         util.mkdir(self.DIR_DEBIAN)
         util.mkdir(self.DIR_DEBIAN2)
         self.install_files()
-        self.help2man()
+
+        if 'help2man' in self.config: self.help2man()
 
         with util.pushd(self.DIR_STAGING):
             util.create(self.control(),  os.path.join(self.DIR_DEBIAN,'control'))
@@ -138,9 +138,9 @@ class Packager(_linux.Packager):
             util.create('9',             os.path.join(self.DIR_DEBIAN,'compat'))
             util.create(self.postinst(), os.path.join(self.DIR_DEBIAN,'postinst'))
 
-            for i in self.info['files'].keys():
-                util.create(self.menu(i, self.info['files'][i]),    os.path.join(self.DIR_MENU,i))
-                util.create(self.desktop(i, self.info['files'][i]), os.path.join(self.DIR_DESKTOP,i+'.desktop'))
+            for i in self.config['files'].keys():
+                util.create(self.menu(i, self.config['files'][i]),    os.path.join(self.DIR_MENU,i))
+                util.create(self.desktop(i, self.config['files'][i]), os.path.join(self.DIR_DESKTOP,i+'.desktop'))
 
     def finish(self):
         with util.pushd(self.DIR_STAGING):
@@ -155,7 +155,7 @@ class Packager(_linux.Packager):
             util.command(['dh_installmenu'])
 
             try:
-                util.command(['dpkg-gencontrol','-v'+self.VERSION,'-P'+self.DIR_OUT])
+                util.command(['dpkg-gencontrol','-v'+self.config['version'],'-P'+self.DIR_OUT])
             except:
                 sys.exit(1)
 

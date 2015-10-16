@@ -18,8 +18,8 @@ from . import _base
 
 class Packager(_base.Packager):
 
-    def __init__(self, info, files):
-        super(Packager,self).__init__(info, files)
+    def __init__(self, config, files):
+        super(Packager,self).__init__(config, files)
 
         #self.EXT = 'exe'
         self.EXT_BIN = 'exe'
@@ -36,7 +36,7 @@ class Packager(_base.Packager):
 
     # Taken from innosetup module (https://pypi.python.org/pypi/innosetup/0.6.6)
     def AppID(self):
-        src = self.info['url'].encode('ascii')
+        src = self.config['url'].encode('ascii')
         appid = uuid.uuid5(uuid.NAMESPACE_URL, src).urn.rsplit(':', 1)[1]
         return '{{%s}' % appid
 
@@ -44,15 +44,15 @@ class Packager(_base.Packager):
         banner = os.path.join(self.DIR_STAGING,'..\\..\\icons\\win-banner.bmp')
         d = {
             "APPID"           : self.AppID(),
-            "ORGANIZATION"    : self.info['org'],
-            "NAME"            : self.info['name'],
+            "ORGANIZATION"    : self.config['org'],
+            "NAME"            : self.config['name'],
             "PACKAGENAME"     : self.packagename(),
-            "WEBSITE"         : self.info['url'],
-            "VERSION"         : self.VERSION,
+            "WEBSITE"         : self.config['url'],
+            "VERSION"         : self.config['version'],
             "BANNER"          : banner,
             "SOURCEDIR"       : self.DIR_OUT,
             "OUTDIR"          : self.DIR_STAGING,
-            "SHORTNAME"       : self.info['package'],
+            "SHORTNAME"       : self.config['package'],
         }
         return util.get_template(os.path.join('win','installer.iss')).substitute(d)
 

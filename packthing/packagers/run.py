@@ -9,14 +9,14 @@ from . import _linux
 
 class Packager(_linux.Packager):
 
-    def __init__(self, info, files):
-        super(Packager,self).__init__(info, files)
+    def __init__(self, config, files):
+        super(Packager,self).__init__(config, files)
 
         self.EXT = 'run'
 
     def setup_script(self):
         d = {
-            'APPLICATION' : self.info['package'],
+            'APPLICATION' : self.config['package'],
             'VERSION'     : self.VERSION,
             'DEFAULT_DIR' : '/opt/',
         }

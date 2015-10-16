@@ -21,11 +21,8 @@ KEYS = [
         ]
 
 class Packager(object):
-    def __init__(self, info, files):
-        self.info = info
-        self.VERSION = self.info['version']
-        self.SYSTEM = self.info['system']
-        self.CPU = self.info['machine']
+    def __init__(self, config, files):
+        self.config = config
 
         self.PREFIX = ''
 
@@ -51,9 +48,9 @@ class Packager(object):
                         +e.filename)
 
     def packagename(self):
-        n = self.info['package']
-        n += '-'+self.VERSION
-        n += '-'+self.CPU
+        n = self.config['package']
+        n += '-'+self.config['version']
+        n += '-'+self.config['machine']
         return n.lower()
 
 

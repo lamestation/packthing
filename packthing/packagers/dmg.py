@@ -4,6 +4,7 @@ import plistlib
 import subprocess
 import shutil
 import glob
+import time
 
 import packthing.util as util
 
@@ -15,8 +16,8 @@ from . import _base
 
 class Packager(_base.Packager):
 
-    def __init__(self, info, files):
-        super(Packager,self).__init__(info, files)
+    def __init__(self, config, files):
+        super(Packager,self).__init__(config, files)
 
         self.volumename = self.packagename()
 
@@ -24,7 +25,7 @@ class Packager(_base.Packager):
         self.EXT_BIN = ''
         self.EXT_LIB = 'dylib'
         self.DIR_PACKAGE = os.path.join(self.DIR_STAGING,'mac')
-        self.DIR_BUNDLE = os.path.join(self.DIR_PACKAGE,self.info['name']+'.app')
+        self.DIR_BUNDLE = os.path.join(self.DIR_PACKAGE,self.config['name']+'.app')
         self.DIR_OUT = os.path.join(self.DIR_BUNDLE,'Contents')
 
         self.OUT['bin'] = 'MacOS'
@@ -35,27 +36,27 @@ class Packager(_base.Packager):
         return self.DIR_BUNDLE
 
     def bundle_identifier(self):
-        return 'com.'+self.info['org'].lower()+self.info['name']
+        return 'com.'+self.config['org'].lower()+self.config['name']
 
-    def build_plist(self, info, target):
+    def build_plist(self, config, target):
         pl = dict(
             CFBundleDevelopmentRegion = "English",
-            CFBundleDisplayName = self.info['name'],
-            CFBundleExecutable = self.info['package'],
+            CFBundleDisplayName = self.config['name'],
+            CFBundleExecutable = self.config['package'],
             CFBundleIconFile = "mac.icns",
             CFBundleIdentifier = self.bundle_identifier(),
             CFBundleInfoDictionaryVersion = "6.0",
-            CFBundleName = self.info['name'],
+            CFBundleName = self.config['name'],
             CFBundlePackageType = "APPL",
-            CFBundleShortVersionString = self.VERSION,
+            CFBundleShortVersionString = self.config['version'],
             CFBundleVersion = "1",
-            LSApplicationCategoryType = self.info['category'],
+            LSApplicationCategoryType = self.config['category'],
             LSMinimumSystemVersion = "10.7",
-            NSHumanReadableCopyright = u"Copyright © "+self.info['copyright']
-                    +", "+self.info['org']+". "
-                    +self.info['name']
+            NSHumanReadableCopyright = u"Copyright © "+self.config['copyright']
+                    +", "+self.config['org']+". "
+                    +self.config['name']
                     +" is released under the "
-                    +self.info['license']+" license.",
+                    +self.config['license']+" license.",
             NSPrincipalClass = "NSApplication",
             NSSupportsSuddenTermination = "YES",
         )
@@ -74,7 +75,7 @@ class Packager(_base.Packager):
     def make(self):
         super(Packager,self).make()
         with util.pushd(self.DIR_OUT):
-            plistlib.writePlist(self.build_plist(self.info, None), 
+            plistlib.writePlist(self.build_plist(self.config, None), 
                     os.path.join(self.DIR_OUT,'Info.plist'))
 
     def generate_icon(self,icon,size,targetdir,addition=False):
@@ -142,6 +143,7 @@ class Packager(_base.Packager):
         util.copy(self.background, DIR_VOLUME)
 
         util.command(['sync'])
+        time.sleep(3)
 
         print self.mac_installer()
         util.command(['osascript'], stdinput=self.mac_installer())
@@ -149,7 +151,7 @@ class Packager(_base.Packager):
         util.command(['chmod','-Rf','go-w',DIR_VOLUME])
         util.command(['chmod','-Rf','go-w',
                         os.path.join(os.path.dirname(DIR_VOLUME),
-                        self.info['name']+'.app')])
+                        self.config['name']+'.app')])
         util.command(['chmod','-Rf','go-w',
                         os.path.join(os.path.dirname(DIR_VOLUME),
                         'Applications')])
