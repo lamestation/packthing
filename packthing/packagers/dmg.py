@@ -10,7 +10,7 @@ import packthing.util as util
 
 REQUIRE = [ 'macdeployqt' ]
 
-KEYS = [ 'category', 'background' ]
+KEYS = [ 'category', 'background', 'bundle' ]
 
 from . import _base
 
@@ -70,6 +70,11 @@ class Packager(_base.Packager):
         }
         return util.get_template('dmg/installer.AppleScript').substitute(d)
 
+    def mac_install(self):
+        d = {
+            'VOLUME'    : self.volumename,
+        }
+        return util.get_template('dmg/install.AppleScript').substitute(d)
 
     def make(self):
         super(Packager,self).make()
@@ -90,30 +95,27 @@ class Packager(_base.Packager):
 
     def icon(self,icon,target):
         if os.path.exists(icon):
-            DIR_ICNS = os.path.join(self.DIR_STAGING,'mac.iconset')
-            util.mkdir(DIR_ICNS)
-            self.generate_icon(icon,'16',DIR_ICNS,False)
-            self.generate_icon(icon,'32',DIR_ICNS,True)
-            self.generate_icon(icon,'32',DIR_ICNS,False)
-            self.generate_icon(icon,'64',DIR_ICNS,True)
-            self.generate_icon(icon,'64',DIR_ICNS,False)
-            self.generate_icon(icon,'128',DIR_ICNS,False)
-            self.generate_icon(icon,'256',DIR_ICNS,True)
-            self.generate_icon(icon,'256',DIR_ICNS,False)
-            self.generate_icon(icon,'512',DIR_ICNS,True)
-            self.generate_icon(icon,'512',DIR_ICNS,False)
-            util.command(['iconutil','-c','icns',
-                '--output',os.path.join(self.DIR_OUT,self.OUT['share'],'mac.icns'),DIR_ICNS])
-            shutil.rmtree(DIR_ICNS)
+            if target == self.config['bundle']:
+                DIR_ICNS = os.path.join(self.DIR_STAGING,'mac.iconset')
+                util.mkdir(DIR_ICNS)
+                self.generate_icon(icon,'16',DIR_ICNS,False)
+                self.generate_icon(icon,'32',DIR_ICNS,True)
+                self.generate_icon(icon,'32',DIR_ICNS,False)
+                self.generate_icon(icon,'64',DIR_ICNS,True)
+                self.generate_icon(icon,'64',DIR_ICNS,False)
+                self.generate_icon(icon,'128',DIR_ICNS,False)
+                self.generate_icon(icon,'256',DIR_ICNS,True)
+                self.generate_icon(icon,'256',DIR_ICNS,False)
+                self.generate_icon(icon,'512',DIR_ICNS,True)
+                self.generate_icon(icon,'512',DIR_ICNS,False)
+                util.command(['iconutil','-c','icns',
+                    '--output',os.path.join(self.DIR_OUT,self.OUT['share'],'mac.icns'),DIR_ICNS])
+                shutil.rmtree(DIR_ICNS)
         else:
             util.error("Icon does not exist:", icon)
 
-#    def build_volume(self, name):
-
     def finish(self):
         super(Packager,self).finish()
-
-        target = os.path.join(self.DIR_STAGING, self.packagename()+'.dmg')
 
         size = util.command(['du','-s',self.DIR_BUNDLE])[0].split()[0]
         size = str(int(size)+1000)
@@ -133,13 +135,13 @@ class Packager(_base.Packager):
             '-size',size+'k',
             tmpdevice])
 
-        devices = util.command(['hdiutil','attach',
+        util.command(['hdiutil','attach',
             '-readwrite',
             tmpdevice])
 
         util.command(['sync'])
 
-        device = glob.glob("/Volumes/"+self.volumename)[0]
+        self.volume = "/Volumes/"+self.volumename
 
         DIR_VOLUME = os.path.join(os.sep,'Volumes',self.volumename,'.background')
         util.copy(self.config['master']+"/"+self.config['background'], DIR_VOLUME)
@@ -156,8 +158,25 @@ class Packager(_base.Packager):
                         'Applications')])
 
         util.command(['sync'])
-        util.command(['hdiutil','detach',device])
-        util.command(['hdiutil','convert',tmpdevice,'-format','UDZO',
-            '-imagekey','zlib-level=9','-o',target])
+        util.command(['hdiutil','detach',self.volume])
+        util.command(['hdiutil','convert',
+                tmpdevice,
+                '-format','UDZO',
+                '-imagekey',
+                'zlib-level=9',
+                '-o',os.path.join(self.DIR_STAGING, self.packagename()+'.dmg')])
+
+        util.command(['sync'])
 
         os.remove(tmpdevice)
+
+    def install(self):
+        with util.pushd(self.DIR_STAGING):
+            try:
+                util.command(['hdiutil','attach',
+                    '-readonly',
+                    os.path.join(self.DIR_STAGING, self.packagename()+'.dmg')])
+                util.command(['sync'])
+                util.command(['osascript'], stdinput=self.mac_install())
+            except:
+                util.error("Installation failed! Oh, well.")

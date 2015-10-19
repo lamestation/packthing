@@ -316,7 +316,7 @@ def console():
     stages.add_argument('--configure',      action='store_true', help="stop packthing at configure stage")
     stages.add_argument('--checkout',       action='store_true', help="stop packthing at checkout stage")
     stages.add_argument('--build',          action='store_true', help="stop packthing at build stage")
-    stages.add_argument('--install',        action='store_true', help="install newly built package to OS")
+    stages.add_argument('--install',        action='store_true', help="Attempt to run newly-built installer")
 
     overrides = parser.add_argument_group('overrides', 'manually override settings')
     overrides.add_argument('--system',      nargs=1, metavar='SYSTEM',  help="Set platform system (linux, windows, ...)")

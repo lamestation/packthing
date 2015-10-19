@@ -13,7 +13,6 @@ tell application "Finder"
         set position of item "${BUNDLE}" of container window to {105, 180}
         set position of item "Applications" of container window to {395, 180}
         update without registering applications
-        delay 5
         close
     end tell
 end tell
