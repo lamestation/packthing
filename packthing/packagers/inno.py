@@ -14,6 +14,8 @@ REQUIRE = [ 'iscc',
             'windeployqt',
             ]
 
+KEYS = [ 'banner' ]
+
 from . import _base
 
 class Packager(_base.Packager):

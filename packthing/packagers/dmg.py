@@ -10,7 +10,7 @@ import packthing.util as util
 
 REQUIRE = [ 'macdeployqt' ]
 
-KEYS = [ 'category' ]
+KEYS = [ 'category', 'background' ]
 
 from . import _base
 
@@ -63,13 +63,12 @@ class Packager(_base.Packager):
         return pl
 
     def mac_installer(self):
-        script = util.get_template('mac/installer.AppleScript')
-        rendering = script.substitute(
-                        title = self.volumename,
-                        background = os.path.basename(self.background),
-                        applicationName = os.path.basename(self.DIR_BUNDLE)
-                    )
-        return rendering
+        d = {
+            'VOLUME'    : self.volumename,
+            'BACKGROUND': os.path.basename(self.config['background']),
+            'BUNDLE'    :os.path.basename(self.DIR_BUNDLE),
+        }
+        return util.get_template('dmg/installer.AppleScript').substitute(d)
 
 
     def make(self):
@@ -112,9 +111,6 @@ class Packager(_base.Packager):
     def finish(self):
         target = os.path.join(self.DIR_STAGING, self.packagename()+'.dmg')
 
-        # this is hacky and needs to be changed
-        self.background = '../icons/mac-dmg.png'
-
         size = util.command(['du','-s',self.DIR_BUNDLE])[0].split()[0]
         size = str(int(size)+1000)
         tmpdevice = os.path.join(self.DIR_PACKAGE, 'pack.temp.dmg')
@@ -137,13 +133,12 @@ class Packager(_base.Packager):
             '-readwrite',
             tmpdevice])
 
-        device = glob.glob("/Volumes/"+self.volumename+"*")[0]
+        util.command(['sync'])
+
+        device = glob.glob("/Volumes/"+self.volumename)[0]
 
         DIR_VOLUME = os.path.join(os.sep,'Volumes',self.volumename,'.background')
-        util.copy(self.background, DIR_VOLUME)
-
-        util.command(['sync'])
-        time.sleep(3)
+        util.copy(self.config['master']+"/"+self.config['background'], DIR_VOLUME)
 
         print self.mac_installer()
         util.command(['osascript'], stdinput=self.mac_installer())
