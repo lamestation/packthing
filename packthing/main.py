@@ -78,28 +78,22 @@ class Packthing:
 
         importer.require(self.target)
 
+        # ensure required keys are present
+
         for k in importer.required_keys(self.target):
             self.config.update(self.add_key(self.config, k))
 
+        # add optional keys
+
+        for k in config.keys():
+            if not k in ['repos','files','target']:
+                self.config[k] = config[k]
+
+        # print final keys
 
         for k in self.config.keys():
             if not k in ['repos','files']:
                 print "%20s: %s" % (k,self.config[k])
-
-#        k = 'repos'
-#        print "\n%s:" % (k)
-#        for l in self.config[k].keys():
-#            print "      %s:" % (l)
-#            for m in self.config[k][l].keys():
-#                print "%20s: %s" % (m,self.config[k][l][m])
-#
-#        k = 'files'
-#        print "\n%s:" % (k)
-#        for l in self.config[k].keys():
-#            print "      %s:" % (l)
-#            for m in self.config[k][l].keys():
-#                print "%20s: %s" % (m,self.config[k][l][m])
-
 
 
 #        pp = pprint.PrettyPrinter(indent=4)
@@ -230,7 +224,6 @@ class Packthing:
         self.files['lib'] = []
         self.files['share'] = []
 
-
         for path in self.config['repos'].keys():
             r = self.config['repos'][path]
 
@@ -257,10 +250,6 @@ class Packthing:
                 util.error("No builder declared for",path,"; skipping")
 
 
-        print self.files['bin']
-        for f in self.files['bin']:
-            print os.path.basename(f)
-                 
     @util.headline
     def package(self):
 
@@ -271,6 +260,7 @@ class Packthing:
 
         self.buildtypes = []
 
+        util.subtitle("Running file-specific commands")
         # icon generators
         if not 'icon' in dir(self.packager):
             util.warning("No icon generator configured for this target")
@@ -293,13 +283,16 @@ class Packthing:
 
 
         for p in self.projects:
+            util.subtitle(p+" ("+self.config['repos'][p]['builder']+")")
             try:
                 method = getattr(self.projects[p], self.targetname)
                 method(self.packager.get_path())
             except AttributeError:
-                util.warning("No '"+self.targetname+"'-specific packaging for",p,"("+self.config['repos'][p]['builder']+")")
+                print "No '"+self.targetname+"'-specific packaging for",p,"("+self.config['repos'][p]['builder']+")"
 
         self.packager.finish()
+
+        util.title("Build complete")
 
 
     @util.headline

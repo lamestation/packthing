@@ -125,4 +125,4 @@ class Packager(object):
         text = self.packagename()
         if not self.EXT == '':
             text += "."+self.EXT
-        print "Creating",text
+        util.subtitle("Building package: "+text)

@@ -105,10 +105,14 @@ class Packager(_base.Packager):
             util.command(['iconutil','-c','icns',
                 '--output',os.path.join(self.DIR_OUT,self.OUT['share'],'mac.icns'),DIR_ICNS])
             shutil.rmtree(DIR_ICNS)
+        else:
+            util.error("Icon does not exist:", icon)
 
 #    def build_volume(self, name):
 
     def finish(self):
+        super(Packager,self).finish()
+
         target = os.path.join(self.DIR_STAGING, self.packagename()+'.dmg')
 
         size = util.command(['du','-s',self.DIR_BUNDLE])[0].split()[0]

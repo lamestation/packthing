@@ -143,6 +143,8 @@ class Packager(_linux.Packager):
                 util.create(self.desktop(i, self.config['files'][i]), os.path.join(self.DIR_DESKTOP,i+'.desktop'))
 
     def finish(self):
+        super(Packager,self).finish()
+
         with util.pushd(self.DIR_STAGING):
             deps = ['dpkg-shlibdeps','--ignore-missing-info']
             for f in self.files['bin']:
@@ -161,7 +163,6 @@ class Packager(_linux.Packager):
 
             util.command(['dh_fixperms'])
             util.command(['dpkg-deb','-b',self.DIR_OUT,self.packagename()+'.deb'])
-        super(Packager,self).finish()
 
     def install(self):
         with util.pushd(self.DIR_STAGING):

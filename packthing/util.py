@@ -13,7 +13,7 @@ def get_platform():
 
     _platform['system'] = platform.system().lower()
 
-    machine = platform.machine()
+    machine = platform.machine().lower()
     if machine == 'x86_64':
         machine = 'amd64'
     _platform['machine'] = machine
