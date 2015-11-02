@@ -33,11 +33,12 @@ class Builder(base.Builder):
 
             p = glob.glob('*.pro')
 
+            relpath = os.path.relpath(os.getcwd(), self.home)
             if len(p) < 1:
-                raise KeyError("Project file not found in "+path)
+                util.error("Project file not found in\n'"+relpath+"'")
 
             if len(p) > 1:
-                raise KeyError("There are more than two project files in "+path)
+                util.error("There are more than two project files in\n'"+relpath+"'")
             p = p[0]
 
             tmppro = '.'+os.path.basename(p)+'.tmp'
@@ -48,7 +49,7 @@ class Builder(base.Builder):
             self.insert_value(tmppro, r"""CONFIG -= debug_and_release app_bundle""")
             self.insert_value(tmppro, r"""isEmpty(VERSION_ARG):VERSION_ARG = 0.0.0""")
             self.insert_value(tmppro, r"""VERSION_ARG = '\\"$${VERSION_ARG}\\"'""")
-            self.insert_value(tmppro, r"""DEFINES += VERSION=\"$${VERSION_ARG}\"""")
+            self.insert_value(tmppro, r"""DEFINES += VERSION=\"$${VERSION_ARG}\" """)
 
             output = util.command(['qmake','VERSION_ARG='+self.VERSION,tmppro])[1]
 

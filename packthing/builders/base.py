@@ -1,5 +1,8 @@
+import os
+
 class Builder(object):
     def __init__(self, path, version):
+        self.home = os.getcwd()
         self.path = path 
         self.VERSION = version
 
