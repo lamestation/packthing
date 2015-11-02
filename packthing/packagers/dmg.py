@@ -52,11 +52,12 @@ class Packager(_base.Packager):
             CFBundleVersion = "1",
             LSApplicationCategoryType = self.config['category'],
             LSMinimumSystemVersion = "10.7",
-            NSHumanReadableCopyright = u"Copyright © "+self.config['copyright']
-                    +", "+self.config['org']+". "
-                    +self.config['name']
-                    +" is released under the "
-                    +self.config['license']+" license.",
+            NSHumanReadableCopyright = u"Copyright © "
+                    + str(self.config['copyright'])
+                    + ", "+self.config['org']+". "
+                    + self.config['name']
+                    + " is released under the "
+                    + self.config['license']+" license.",
             NSPrincipalClass = "NSApplication",
             NSSupportsSuddenTermination = "YES",
         )
