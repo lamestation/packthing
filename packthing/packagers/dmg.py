@@ -139,6 +139,7 @@ class Packager(_base.Packager):
             '-readwrite',
             tmpdevice])
 
+        time.sleep(5)
         util.command(['sync'])
 
         self.volume = "/Volumes/"+self.volumename
