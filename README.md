@@ -24,4 +24,3 @@ Please submit issues with Packthing to the [LameStation JIRA](https://lamestatio
 # Author
 
 Packthing was created by LameStation to support the [PropellerIDE project](https://github.com/parallaxinc/PropellerIDE).
-
