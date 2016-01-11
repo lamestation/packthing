@@ -66,7 +66,17 @@ class Builder(base.Builder):
             logging.debug(node.values)
 
             if values['TEMPLATE'] == ['subdirs']:
+                f = [ line for line in open(tmppro) if '.subdir' in line ]
+
+                dirtable = {}
+                for line in f:
+                    name, directory = line.split("=")
+                    dirtable[name.strip().replace(".subdir","")] = directory.strip().split(" ")[0].split("#")[0]
+
                 for v in values['SUBDIRS']:
+                    if v in dirtable.keys():
+                        v = dirtable[v]
+
                     node.add_child(self.build_project_tree(v))
 
         return node 
