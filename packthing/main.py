@@ -267,9 +267,10 @@ class Packthing:
 
         else:
             # generate icons
-            for f in self.config['files'].keys():
-                if 'icon' in self.config['files'][f]:
-                    self.packager.icon(self.config['files'][f]['icon'], f)
+            if 'files' in self.config:
+                for f in self.config['files'].keys():
+                    if 'icon' in self.config['files'][f]:
+                        self.packager.icon(self.config['files'][f]['icon'], f)
 
 
         # get list of build types

@@ -138,9 +138,10 @@ class Packager(_linux.Packager):
             util.create('9',             os.path.join(self.DIR_DEBIAN,'compat'))
             util.create(self.postinst(), os.path.join(self.DIR_DEBIAN,'postinst'))
 
-            for i in self.config['files'].keys():
-                util.create(self.menu(i, self.config['files'][i]),    os.path.join(self.DIR_MENU,i))
-                util.create(self.desktop(i, self.config['files'][i]), os.path.join(self.DIR_DESKTOP,i+'.desktop'))
+            if 'files' in self.config:
+                for i in self.config['files'].keys():
+                    util.create(self.menu(i, self.config['files'][i]),    os.path.join(self.DIR_MENU,i))
+                    util.create(self.desktop(i, self.config['files'][i]), os.path.join(self.DIR_DESKTOP,i+'.desktop'))
 
     def finish(self):
         super(Packager,self).finish()
