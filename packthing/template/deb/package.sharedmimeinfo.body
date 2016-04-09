@@ -1,0 +1,4 @@
+    <mime-type type="${TYPE}">
+        <glob pattern="*.${EXTENSION}"/>
+        <comment>${DESCRIPTION}</comment>
+    </mime-type>

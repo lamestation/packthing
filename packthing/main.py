@@ -140,7 +140,7 @@ class Packthing:
                                         if k == 'mimetypes':
                                             for l in fconfig[f][k]:
                                                 for m in l:
-                                                    if not m in ['glob','type','icon','description']:
+                                                    if not m in ['extension','type','icon','description']:
                                                         util.error("Invalid key '"+m+"' found in 'files/"+f+"/"+k+"'")
 
                             self.config['files'] = fconfig
@@ -289,8 +289,7 @@ class Packthing:
             if 'files' in self.config:
                 for f in self.config['files'].keys():
                     if 'mimetypes' in self.config['files'][f]:
-                        for m in self.config['files'][f]['mimetypes']:
-                            self.packager.mimetypes(m, f)
+                        self.packager.mimetypes(self.config['files'][f]['mimetypes'], f)
 
 
         # get list of build types

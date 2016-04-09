@@ -123,23 +123,50 @@ class Packager(_linux.Packager):
             'FILENAME'    : filename,
             'ICON'        : filename,
         }
-        return util.get_template('deb/desktop').substitute(d)
+        output = util.get_template('deb/desktop').substitute(d)
 
-    def package_mime(self, filename, config):
-        d = {
-            'TYPE'        : config['type'],
-            'EXECUTABLE'  : filename,
-            'DESCRIPTION' : config['description'],
-        }
-        return util.get_template('deb/package.mime').substitute(d)
+        if 'mimetypes' in config.keys():
+            mimestring = "MimeType="
 
-    def package_sharedmimeinfo(self, config):
-        d = {
-            'TYPE'        : config['type'],
-            'GLOB'        : config['glob'],
-            'DESCRIPTION' : config['description'],
-        }
-        return util.get_template('deb/package.sharedmimeinfo').substitute(d)
+            first = True
+            for mimetype in config['mimetypes']:
+                if first:
+                    first = False
+                    mimestring += mimetype['type']
+                else:
+                    mimestring += ";" + mimetype['type']
+
+            output += mimestring
+
+        return output
+
+    def package_mime(self, filename, mimetypes):
+        output = ""
+
+        for mimetype in mimetypes:
+            d = {
+                'TYPE'        : mimetype['type'],
+                'EXECUTABLE'  : filename,
+                'DESCRIPTION' : mimetype['description'],
+            }
+            output += util.get_template('deb/package.mime').substitute(d)
+
+        return output
+
+    def package_sharedmimeinfo(self, mimetypes):
+        output = util.get_template_text('deb/package.sharedmimeinfo.header')
+
+        for mimetype in mimetypes:
+            d = {
+                'TYPE'        : mimetype['type'],
+                'EXTENSION'   : mimetype['extension'],
+                'DESCRIPTION' : mimetype['description'],
+            }
+            output += util.get_template('deb/package.sharedmimeinfo.body').substitute(d)
+
+        output += util.get_template_text('deb/package.sharedmimeinfo.footer')
+
+        return output
 
     def icon(self,icon,target):
         icons.imagemagick(os.path.join(target, icon), 
@@ -149,7 +176,8 @@ class Packager(_linux.Packager):
         util.create(self.package_mime(target, mimetypes),   os.path.join(self.DIR_DEBIAN, target+".mime"))
         util.create(self.package_sharedmimeinfo(mimetypes), os.path.join(self.DIR_DEBIAN, target+".sharedmimeinfo"))
 
-        util.copy(os.path.join(target, mimetypes['icon']), self.DIR_MIMETYPES)
+        for mimetype in mimetypes:
+            util.copy(os.path.join(target, mimetype['icon']), self.DIR_MIMETYPES)
 
     def make(self):
         util.mkdir(self.DIR_DEBIAN)
@@ -183,7 +211,10 @@ class Packager(_linux.Packager):
             util.command(['dh_installmanpages'])
             util.command(['dh_installmenu'])
             util.command(['dh_installmime'])
+            util.command(['dh_installdeb'])
             util.command(['dh_icons'])
+            util.command(['dh_desktop'])
+
 
             try:
                 util.command(['dpkg-gencontrol','-v'+self.config['version'],'-P'+self.DIR_OUT])

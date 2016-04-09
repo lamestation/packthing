@@ -145,11 +145,15 @@ def from_scriptroot(filename):
     currentpath = os.path.dirname(os.path.abspath(__file__))
     return os.path.join(currentpath,filename)
 
-def get_template(template, substitute=dict()):
+
+def get_template_text(template):
     template = os.path.join('template',template)
     template = from_scriptroot(template)
-    return string.Template(open(template,'r').read())
+    return open(template,'r').read()
 
+
+def get_template(template):
+    return string.Template(get_template_text(template))
 
 
 #python-chroot-builder
