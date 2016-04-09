@@ -100,6 +100,12 @@ class Packthing:
 #        pp.pprint(self.config)
 
 
+    def get_repo_from_executable_name(self, executable):
+        for r in self.config['repos'].keys():
+            if 'files' in self.config['repos'][r].keys():
+                if executable in self.config['repos'][r]['files'].keys():
+                    return r
+
     def build_config(self, config):
         try:
             config.keys()
@@ -143,8 +149,12 @@ class Packthing:
                                                     if not m in ['extension','type','icon','description']:
                                                         util.error("Invalid key '"+m+"' found in 'files/"+f+"/"+k+"'")
 
-                            self.config['files'] = fconfig
+                            try:
+                                self.config['files'].update(fconfig)
+                            except KeyError:
+                                self.config['files'] = fconfig
 
+                            self.config['repos'][r].update(self.add_key(config['repos'][r], i, required=False))
                         else:
                             self.config['repos'][r].update(self.add_key(config['repos'][r], i, required=False))
 
@@ -289,7 +299,8 @@ class Packthing:
             if 'files' in self.config:
                 for f in self.config['files'].keys():
                     if 'mimetypes' in self.config['files'][f]:
-                        self.packager.mimetypes(self.config['files'][f]['mimetypes'], f)
+                        self.packager.mimetypes(self.config['files'][f]['mimetypes'], f, 
+                                self.get_repo_from_executable_name(f))
 
 
         # get list of build types

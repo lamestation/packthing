@@ -168,16 +168,17 @@ class Packager(_linux.Packager):
 
         return output
 
-    def icon(self,icon,target):
-        icons.imagemagick(os.path.join(target, icon), 
-                os.path.join(self.DIR_PIXMAPS,target), 128, 'png')
+    def icon(self, icon, executable):
+        icons.imagemagick(os.path.join(executable, icon), 
+                os.path.join(self.DIR_PIXMAPS, executable), 128, 'png')
 
-    def mimetypes(self, mimetypes, target):
-        util.create(self.package_mime(target, mimetypes),   os.path.join(self.DIR_DEBIAN, target+".mime"))
-        util.create(self.package_sharedmimeinfo(mimetypes), os.path.join(self.DIR_DEBIAN, target+".sharedmimeinfo"))
+    def mimetypes(self, mimetypes, executable, reponame):
+
+        util.create(self.package_mime(executable, mimetypes),   os.path.join(self.DIR_DEBIAN, executable+".mime"))
+        util.create(self.package_sharedmimeinfo(mimetypes),     os.path.join(self.DIR_DEBIAN, executable+".sharedmimeinfo"))
 
         for mimetype in mimetypes:
-            util.copy(os.path.join(target, mimetype['icon']), self.DIR_MIMETYPES)
+            util.copy(os.path.join(executable, mimetype['icon']), self.DIR_MIMETYPES)
 
     def make(self):
         util.mkdir(self.DIR_DEBIAN)
@@ -194,8 +195,9 @@ class Packager(_linux.Packager):
 
             if 'files' in self.config:
                 for i in self.config['files'].keys():
-                    util.create(self.menu(i, self.config['files'][i]),    os.path.join(self.DIR_MENU,i))
-                    util.create(self.desktop(i, self.config['files'][i]), os.path.join(self.DIR_DESKTOP,i+'.desktop'))
+                    if 'name' in self.config['files'][i] and 'icon' in self.config['files'][i]:
+                        util.create(self.menu(i,    self.config['files'][i]),   os.path.join(self.DIR_MENU,i))
+                        util.create(self.desktop(i, self.config['files'][i]),   os.path.join(self.DIR_DESKTOP,  i+'.desktop'))
 
     def finish(self):
         super(Packager,self).finish()
