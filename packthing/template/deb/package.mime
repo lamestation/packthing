@@ -1,0 +1,1 @@
+${TYPE}; ${EXECUTABLE} %s; description="${DESCRIPTION}"; test=test -n "$$DISPLAY"; priority=7

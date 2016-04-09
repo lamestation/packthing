@@ -3,5 +3,5 @@
   section="${SECTION}" \
   title="${NAME}" command="${FILENAME}" \
   longtitle="${DESCRIPTION}" \
-  icon="/usr/share/pixmaps/${ICON}.xpm"
+  icon="/usr/share/pixmaps/${ICON}.png"
 

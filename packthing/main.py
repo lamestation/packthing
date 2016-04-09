@@ -133,11 +133,15 @@ class Packthing:
                             fconfig = config['repos'][r]['files']
                             for f in fconfig.keys():
                                 for k in fconfig[f].keys():
-                                    if not k in ['name','icon','help2man']:
+
+                                    if not k in ['name','icon','help2man','mimetypes']:
                                         util.error("Invalid key '"+k+"' found in 'files/"+f+"'")
                                     else:
-                                        if k == 'icon':
-                                            fconfig[f][k] = r+"/"+fconfig[f][k]
+                                        if k == 'mimetypes':
+                                            for l in fconfig[f][k]:
+                                                for m in l:
+                                                    if not m in ['glob','type','icon','description']:
+                                                        util.error("Invalid key '"+m+"' found in 'files/"+f+"/"+k+"'")
 
                             self.config['files'] = fconfig
 
@@ -229,6 +233,10 @@ class Packthing:
 
             if 'root' in r:
                 root = os.path.join(path,r['root'])
+
+                if not os.path.realpath(root).startswith(os.getcwd() + os.sep + path + os.sep):
+                    util.error("root key specifies a directory outside of the project root: ",root)
+
             else:
                 root = path
 
@@ -261,16 +269,28 @@ class Packthing:
         self.buildtypes = []
 
         util.subtitle("Running file-specific commands")
-        # icon generators
-        if not 'icon' in dir(self.packager):
-            util.warning("No icon generator configured for this target")
 
+        # generate icons
+
+        if not 'icon' in dir(self.packager):
+            util.warning("No icon generator for this target")
         else:
-            # generate icons
             if 'files' in self.config:
                 for f in self.config['files'].keys():
                     if 'icon' in self.config['files'][f]:
                         self.packager.icon(self.config['files'][f]['icon'], f)
+
+
+        # generate file associations
+
+        if not 'mimetypes' in dir(self.packager):
+            util.warning("No filetype association generator for this target")
+        else:
+            if 'files' in self.config:
+                for f in self.config['files'].keys():
+                    if 'mimetypes' in self.config['files'][f]:
+                        for m in self.config['files'][f]['mimetypes']:
+                            self.packager.mimetypes(m, f)
 
 
         # get list of build types

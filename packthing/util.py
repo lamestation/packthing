@@ -62,7 +62,7 @@ def copy(src, dest, verbose=True, permissions=0644):
     destfile = os.path.join(dest,os.path.basename(src))
     if verbose:
         print("Copy",src,"to dir",dest)
-    os.mkdir(dest)
+    mkdir(dest)
     shutil.copy(src, destfile)
     os.chmod(destfile, permissions)
 

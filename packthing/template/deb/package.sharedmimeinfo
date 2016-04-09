@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mime-info xmlns="http://www.freedesktop.org/standards/shared-mime-info">
+    <mime-type type="${TYPE}">
+        <glob pattern="${GLOB}"/>
+        <comment>${DESCRIPTION}</comment>
+    </mime-type>
+</mime-info>
+

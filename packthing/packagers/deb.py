@@ -45,9 +45,12 @@ class Packager(_linux.Packager):
         self.OUT['lib']   = os.path.join('usr','lib')
         self.OUT['share'] = os.path.join('usr','share',self.config['package'])
 
-        self.DIR_MENU    = os.path.join(self.DIR_OUT,'usr','share','menu')
-        self.DIR_DESKTOP = os.path.join(self.DIR_OUT,'usr','share','applications')
-        self.DIR_PIXMAPS = os.path.join(self.DIR_OUT,'usr','share','pixmaps')
+        self.DIR_MENU      = os.path.join(self.DIR_OUT,'usr','share','menu')
+        self.DIR_DESKTOP   = os.path.join(self.DIR_OUT,'usr','share','applications')
+        self.DIR_PIXMAPS   = os.path.join(self.DIR_OUT,'usr','share','pixmaps')
+        self.DIR_ICONS     = os.path.join(self.DIR_OUT,'usr','share','icons')
+        self.DIR_MIMETYPES = os.path.join(self.DIR_ICONS,'gnome','scalable','mimetypes')
+
 
     def postinst(self):
         return util.get_template('deb/postinst').substitute(dict())
@@ -122,8 +125,31 @@ class Packager(_linux.Packager):
         }
         return util.get_template('deb/desktop').substitute(d)
 
+    def package_mime(self, filename, config):
+        d = {
+            'TYPE'        : config['type'],
+            'EXECUTABLE'  : filename,
+            'DESCRIPTION' : config['description'],
+        }
+        return util.get_template('deb/package.mime').substitute(d)
+
+    def package_sharedmimeinfo(self, config):
+        d = {
+            'TYPE'        : config['type'],
+            'GLOB'        : config['glob'],
+            'DESCRIPTION' : config['description'],
+        }
+        return util.get_template('deb/package.sharedmimeinfo').substitute(d)
+
     def icon(self,icon,target):
-        icons.imagemagick(icon, os.path.join(self.DIR_PIXMAPS,target), 32, 'xpm')
+        icons.imagemagick(os.path.join(target, icon), 
+                os.path.join(self.DIR_PIXMAPS,target), 128, 'png')
+
+    def mimetypes(self, mimetypes, target):
+        util.create(self.package_mime(target, mimetypes),   os.path.join(self.DIR_DEBIAN, target+".mime"))
+        util.create(self.package_sharedmimeinfo(mimetypes), os.path.join(self.DIR_DEBIAN, target+".sharedmimeinfo"))
+
+        util.copy(os.path.join(target, mimetypes['icon']), self.DIR_MIMETYPES)
 
     def make(self):
         util.mkdir(self.DIR_DEBIAN)
@@ -156,6 +182,8 @@ class Packager(_linux.Packager):
             util.command(deps)
             util.command(['dh_installmanpages'])
             util.command(['dh_installmenu'])
+            util.command(['dh_installmime'])
+            util.command(['dh_icons'])
 
             try:
                 util.command(['dpkg-gencontrol','-v'+self.config['version'],'-P'+self.DIR_OUT])
