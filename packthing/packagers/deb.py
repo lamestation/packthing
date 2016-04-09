@@ -178,7 +178,7 @@ class Packager(_linux.Packager):
         util.create(self.package_sharedmimeinfo(mimetypes),     os.path.join(self.DIR_DEBIAN, executable+".sharedmimeinfo"))
 
         for mimetype in mimetypes:
-            util.copy(os.path.join(executable, mimetype['icon']), self.DIR_MIMETYPES)
+            util.copy(os.path.join(reponame, mimetype['icon']), self.DIR_MIMETYPES)
 
     def make(self):
         util.mkdir(self.DIR_DEBIAN)
