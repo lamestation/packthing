@@ -11,12 +11,3 @@ def imagemagick(icon, target, size, fmt):
     else:
         util.error("Icon does not exist:",os.path.join(os.getcwd(),icon))
 
-def pillow(icon, target, size, fmt):
-    if os.path.exists(icon):
-        print "Generate icon:", icon, target, "("+str(size)+"x"+str(size), fmt+")"
-        img = Image.open(icon)
-        img.thumbnail((size, size), Image.ANTIALIAS)
-        img.save(target)
-    else:
-        util.error("Icon does not exist:", icon)
-

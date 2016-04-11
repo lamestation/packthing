@@ -84,8 +84,18 @@ class Packager(_base.Packager):
         return util.get_template('inno/mime.iss').substitute(d)
 
 
+    def pillow(self, icon, target, size, fmt):
+        if os.path.exists(icon):
+            print "Generate icon:", icon, target, "("+str(size)+"x"+str(size), fmt+")"
+            img = Image.open(icon)
+            img.thumbnail((size, size), Image.ANTIALIAS)
+            img.save(target)
+        else:
+            util.error("Icon does not exist:", icon)
+
+
     def icon(self, icon, executable):
-        icons.pillow(os.path.join(executable, icon), 
+        self.pillow(os.path.join(executable, icon), 
                      os.path.join(self.DIR_OUT, executable+'.ico'), 
                      256,
                      'png')
