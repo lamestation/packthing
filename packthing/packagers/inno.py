@@ -79,7 +79,7 @@ class Packager(_base.Packager):
             'EXTENSION'   : mimetype['extension'],
             'DESCRIPTION' : mimetype['description'],
             'EXECUTABLE'  : executable,
-            'ICON'        : os.path.join(reponame, mimetype['icon'])
+            'ICON'        : os.path.basename(mimetype['icon'])
         }
         return util.get_template('inno/mime.iss').substitute(d)
 
