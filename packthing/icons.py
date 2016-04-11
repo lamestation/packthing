@@ -13,7 +13,7 @@ def imagemagick(icon, target, size, fmt):
 
 def pillow(icon, target, size, fmt):
     if os.path.exists(icon):
-        print "Generate icon:", icon, target, "("+size+"x"+size, fmt+")"
+        print "Generate icon:", icon, target, "("+str(size)+"x"+str(size), fmt+")"
         img = Image.open(icon)
         img.thumbnail((size, size), Image.ANTIALIAS)
         img.save(target)
