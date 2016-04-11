@@ -72,37 +72,32 @@ class Packager(_base.Packager):
         }
         return util.get_template('inno/run.iss').substitute(d)
 
-    def iss_mime(self, executable, mimetype):
+    def iss_mime(self, mimetype, executable, reponame):
         d = {
             'TYPE'        : mimetype['extension']+"FiletypeAssociation-"+self.config['package'],
             'EXTENSION'   : mimetype['extension'],
             'DESCRIPTION' : mimetype['description'],
             'EXECUTABLE'  : executable,
+            'ICON'        : os.path.join(reponame, mimetype['icon'])
         }
         return util.get_template('inno/mime.iss').substitute(d)
 
 
-    def icon(self, icon, target):
-        print "Generating icon for",target+'.exe'
-        icon = icon.replace('/','\\')
-        icon = os.path.join(target, icon)
-        if os.path.exists(icon):
-            img = Image.open(icon)
-            img.thumbnail((256,256),Image.ANTIALIAS)
-            img.save(os.path.join(self.DIR_OUT,target+'.ico'))
+    def icon(self, icon, executable):
+        icons.pillow(os.path.join(executable, icon), 
+                     os.path.join(self.DIR_OUT, executable+'.ico'), 
+                     256,
+                     'png')
 
-            self.iss += self.iss_file(target)
+        self.iss += self.iss_file(executable)
 
-            if 'run' in self.config and target in self.config['run']:
-                self.iss += self.iss_run(target)
-        else:
-            util.error("Icon does not exist:", icon)
-
+        if 'run' in self.config and executable in self.config['run']:
+            self.iss += self.iss_run(executable)
 
     def mimetypes(self, mimetypes, executable, reponame):
 
         for mimetype in mimetypes:
-            self.iss += self.iss_mime(executable, mimetype)
+            self.iss += self.iss_mime(mimetype, executable, reponame)
             util.copy(os.path.join(reponame, mimetype['icon']), self.DIR_OUT)
 
     def make(self):
