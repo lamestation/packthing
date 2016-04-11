@@ -170,7 +170,14 @@ class Packager(_linux.Packager):
 
     def icon(self, icon, executable):
         icons.imagemagick(os.path.join(executable, icon), 
-                os.path.join(self.DIR_PIXMAPS, executable), 128, 'png')
+                os.path.join(self.DIR_PIXMAPS, executable+'.png'), 128, 'png')
+
+    def mime_icon(self, mimetype, executable, size):
+        iconname = os.path.basename(mimetype['icon'])
+        icons.imagemagick(os.path.join(executable, mimetype['icon']), 
+                          os.path.join(self.DIR_ICONS, 'gnome', str(size)+'x'+str(size), 'mimetypes', iconname), 
+                          size,
+                          'png')
 
     def mimetypes(self, mimetypes, executable, reponame):
 
@@ -178,7 +185,10 @@ class Packager(_linux.Packager):
         util.create(self.package_sharedmimeinfo(mimetypes),     os.path.join(self.DIR_DEBIAN, executable+".sharedmimeinfo"))
 
         for mimetype in mimetypes:
-            util.copy(os.path.join(executable, mimetype['icon']), self.DIR_MIMETYPES)
+#            util.copy(os.path.join(executable, mimetype['icon']), self.DIR_MIMETYPES)
+
+            for size in [8, 16, 22, 24, 32, 48, 128, 256, 512]:
+                self.mime_icon(mimetype, executable, size)
 
     def make(self):
         util.mkdir(self.DIR_DEBIAN)
