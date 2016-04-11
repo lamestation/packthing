@@ -4,6 +4,7 @@ import os
 import uuid, subprocess
 
 import packthing.util as util
+import packthing.icons as icons
 
 try:
     from PIL import Image
