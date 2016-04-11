@@ -109,7 +109,11 @@ class Packager(_base.Packager):
 
         for mimetype in mimetypes:
             self.iss += self.iss_mime(mimetype, executable, reponame)
-            util.copy(os.path.join(reponame, mimetype['icon']), self.DIR_OUT)
+
+            self.pillow(os.path.join(reponame, mimetype['icon']), 
+                         os.path.join(self.DIR_OUT, os.path.basename(mimetype['icon'])), 
+                         256,
+                         'png')
 
     def make(self):
         super(Packager,self).make()
