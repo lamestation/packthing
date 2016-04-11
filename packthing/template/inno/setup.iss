@@ -21,6 +21,7 @@ DisableDirPage=yes
 DisableProgramGroupPage=yes
 DisableReadyPage=no
 WizardImageFile="${BANNER}"
+ChangesAssociations=yes
 
 [Languages]
 Name: "english"; MessagesFile: "compiler:Default.isl"
