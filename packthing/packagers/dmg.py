@@ -93,9 +93,10 @@ class Packager(_base.Packager):
         util.command(['sips','-z',size,size,icon,
                 '--out',os.path.join(targetdir,iconname)])
 
-    def icon(self,icon,target):
+    def icon(self, icon, executable):
+        icon = os.path.join(executable, icon)
         if os.path.exists(icon):
-            if target == self.config['bundle']:
+            if executable == self.config['bundle']:
                 DIR_ICNS = os.path.join(self.DIR_STAGING,'mac.iconset')
                 util.mkdir(DIR_ICNS)
                 self.generate_icon(icon,'16',DIR_ICNS,False)
@@ -139,16 +140,23 @@ class Packager(_base.Packager):
             '-readwrite',
             tmpdevice])
 
-        time.sleep(5)
         util.command(['sync'])
 
         self.volume = "/Volumes/"+self.volumename
 
+        # wait for device to exist
+        # that was easy
+        while True:
+            if os.path.isdir(self.volume):
+                break
+            time.sleep(1)
+
         DIR_VOLUME = os.path.join(os.sep,'Volumes',self.volumename,'.background')
         util.copy(self.config['master']+"/"+self.config['background'], DIR_VOLUME)
 
-        print self.mac_installer()
-        util.command(['osascript'], stdinput=self.mac_installer())
+        installscript = self.mac_installer()
+        print installscript
+        util.command(['osascript'], stdinput=installscript)
 
         util.command(['chmod','-Rf','go-w',DIR_VOLUME])
         util.command(['chmod','-Rf','go-w',
