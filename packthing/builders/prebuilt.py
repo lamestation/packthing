@@ -1,7 +1,5 @@
 import os
-import shutil
 from .. import util
-import glob
 import subprocess
 
 from . import base
@@ -20,15 +18,13 @@ class Builder(base.Builder):
                 matches.append(os.path.join(root, filename))
         return matches
 
-
     def build(self,jobs='1',exclude=None):
         self.IGNORE_PATTERNS = ('CVS','.git','.svn')
 
-
-        dir = os.path.join(self.path, _platform['system'])
+        directory = os.path.join(self.path, _platform['system'])
         for k in self.files.keys():
             
-            kdir = os.path.join(dir, k)
+            kdir = os.path.join(directory, k)
             
             if os.path.isdir(kdir):
                 self.files[k] = self.get_all_files(kdir)
