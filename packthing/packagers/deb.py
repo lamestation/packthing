@@ -219,14 +219,15 @@ class Packager(_linux.Packager):
                 outf = os.path.join(OUTDIR,f)
                 deps.append(outf)
 
-            util.command(deps)
+            if len(self.files['bin']) > 0:
+                util.command(deps)
+
             util.command(['dh_installmanpages'])
             util.command(['dh_installmenu'])
             util.command(['dh_installmime'])
             util.command(['dh_installdeb'])
             util.command(['dh_icons'])
             util.command(['dh_desktop'])
-
 
             try:
                 util.command(['dpkg-gencontrol','-v'+self.config['version'],'-P'+self.DIR_OUT])
