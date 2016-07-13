@@ -36,14 +36,13 @@ class Packager(_base.Packager):
         return self.DIR_BUNDLE
 
     def bundle_identifier(self):
-        return 'com.'+self.config['org'].lower()+self.config['name']
+        return 'com.'+self.config['org'].lower().split(' ')[0]+'.'+self.config['package'].lower()
 
     def build_plist(self, config, target):
         pl = dict(
             CFBundleDevelopmentRegion = "English",
             CFBundleDisplayName = self.config['name'],
             CFBundleExecutable = self.config['package'],
-            CFBundleIconFile = "mac.icns",
             CFBundleIdentifier = self.bundle_identifier(),
             CFBundleInfoDictionaryVersion = "6.0",
             CFBundleName = self.config['name'],
@@ -78,9 +77,8 @@ class Packager(_base.Packager):
 
     def make(self):
         super(Packager,self).make()
-        with util.pushd(self.DIR_OUT):
-            plistlib.writePlist(self.build_plist(self.config, None), 
-                    os.path.join(self.DIR_OUT,'Info.plist'))
+
+        self.plist = self.build_plist(self.config, None);
 
     def generate_icon(self,icon,size,targetdir,addition=False):
         iconname = 'icon_'
@@ -93,9 +91,12 @@ class Packager(_base.Packager):
         util.command(['sips','-z',size,size,icon,
                 '--out',os.path.join(targetdir,iconname)])
 
-    def icon(self,icon,target):
+    def icon(self, icon, executable):
+        icon = os.path.join(executable, icon)
         if os.path.exists(icon):
-            if target == self.config['bundle']:
+            self.plist.update(dict(CFBundleIconFile = "mac.icns"))
+
+            if executable == self.config['bundle']:
                 DIR_ICNS = os.path.join(self.DIR_STAGING,'mac.iconset')
                 util.mkdir(DIR_ICNS)
                 self.generate_icon(icon,'16',DIR_ICNS,False)
@@ -114,8 +115,42 @@ class Packager(_base.Packager):
         else:
             util.error("Icon does not exist:", icon)
 
+
+    def mimetypes(self, mimetypes, executable, reponame):
+        documenttypes = []
+
+        for mimetype in mimetypes:
+#            self.+= self.iss_mime(mimetype, executable, reponame)
+#            
+            documenttypes.append(
+                    dict(
+                        CFBundleTypeName = mimetype['description'],
+                        CFBundleTypeExtensions = [
+                            mimetype['extension'],
+                        ],
+                        CFBundleTypeIconFile = "mac",
+                        CFBundleTypeRole = "Editor",
+                        LSItemContentTypes = [
+                            self.bundle_identifier()+"."+mimetype['extension']
+                        ],
+                        LSIsAppleDefaultForType = True,
+                        LSHandlerRank = "Owner",
+                    )
+                )
+
+        self.plist.update(dict(CFBundleDocumentTypes = documenttypes))
+
+#            self.pillow(os.path.join(reponame, mimetype['icon']), 
+
     def finish(self):
         super(Packager,self).finish()
+
+        # create plist file
+
+        with util.pushd(self.DIR_OUT):
+            plistlib.writePlist(self.plist, os.path.join(self.DIR_OUT,'Info.plist'))
+
+        # begin packaging
 
         size = util.command(['du','-s',self.DIR_BUNDLE])[0].split()[0]
         size = str(int(size)+1000)
@@ -139,16 +174,24 @@ class Packager(_base.Packager):
             '-readwrite',
             tmpdevice])
 
-        time.sleep(5)
         util.command(['sync'])
 
         self.volume = "/Volumes/"+self.volumename
 
+        # wait for device to exist
+        # that was easy
+        while True:
+            out, err = util.command(['df','-h'])
+            if out.find(self.volume) != -1 and os.path.isdir(self.volume):
+                break
+            time.sleep(1)
+
         DIR_VOLUME = os.path.join(os.sep,'Volumes',self.volumename,'.background')
         util.copy(self.config['master']+"/"+self.config['background'], DIR_VOLUME)
 
-        print self.mac_installer()
-        util.command(['osascript'], stdinput=self.mac_installer())
+        installscript = self.mac_installer()
+        print installscript
+        util.command(['osascript'], stdinput=installscript)
 
         util.command(['chmod','-Rf','go-w',DIR_VOLUME])
         util.command(['chmod','-Rf','go-w',
