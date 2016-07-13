@@ -93,6 +93,23 @@ def command_in_dir(args, newdir, verbose=True, strict=True, stdinput=None):
 def table(path, version, url):
     return "%30s  %10s  %s" % (path, version, url)
 
+def make(path, args):
+    with pushd(path):
+        args.insert(0,'make')
+        for m in ['make','mingw32-make']:
+            args[0] = m
+            failed = 0
+
+            try:
+                subprocess.check_call(args)
+            except OSError:
+                failed = 1
+            except subprocess.CalledProcessError as e:
+                error("Failed to build project '"+path+"'")
+
+            if not failed:
+                return
+
 def which(program):
     def is_exe(fpath):
         return os.path.isfile(fpath) and os.access(fpath, os.X_OK)
