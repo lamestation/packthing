@@ -7,7 +7,7 @@ import subprocess
 
 from . import base
 
-REQUIRE = [ 'qmake' ]
+REQUIRE = [ 'fpc' ]
 
 _platform = util.get_platform()
 
