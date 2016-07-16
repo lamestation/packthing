@@ -116,6 +116,8 @@ class Packager(object):
                     except subprocess.CalledProcessError as e:
                         raise Exception
 
+        util.command(['sync'])
+
     def make(self):
         util.mkdir(self.DIR_STAGING)
         util.mkdir(self.DIR_OUT)
