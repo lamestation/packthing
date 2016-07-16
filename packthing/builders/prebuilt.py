@@ -15,7 +15,8 @@ class Builder(base.Builder):
         for root, dirnames, filenames in os.walk(directory, topdown=True):
             dirnames[:] = [d for d in dirnames if d not in self.IGNORE_PATTERNS]
             for filename in filenames:
-                matches.append(os.path.join(root, filename))
+                matches.append(os.path.abspath(os.path.join(root, filename)))
+
         return matches
 
     def build(self,jobs='1',exclude=None):
