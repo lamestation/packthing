@@ -28,7 +28,7 @@ class Builder(base.Builder):
         if _platform["system"] in ["linux", "darwin"]:
             return "-T"+_platform["system"]
         elif _platform["system"] == "windows" and _platform["machine"] == "amd64":
-            return "-Twin64"
+            return "-Twin32"
         else:
             return ""
 
