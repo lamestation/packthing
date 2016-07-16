@@ -198,10 +198,10 @@ class Packager(_base.Packager):
                 break
             except subprocess.CalledProcessError as e:
                 if tries < 10:
-                    print "Build mac installer (tries: "+tries+")..."
                     tries += 1
+                    print "Trying again (tries: "+str(tries)+"/10)..."
                 else:
-                    util.error("Can't find the freaking device: "+self.volume)
+                    util.error("Can't find the freaking device!!: "+self.volume)
 
         util.command(['chmod','-Rf','go-w',DIR_VOLUME])
         util.command(['chmod','-Rf','go-w',
