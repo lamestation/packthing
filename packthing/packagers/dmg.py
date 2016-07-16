@@ -178,20 +178,30 @@ class Packager(_base.Packager):
 
         self.volume = "/Volumes/"+self.volumename
 
+        DIR_VOLUME = os.path.join(os.sep,'Volumes',self.volumename,'.background')
+
         # wait for device to exist
         # that was easy
+        tries = 0
         while True:
-            out, err = util.command(['df','-h'])
-            if out.find(self.volume) != -1 and os.path.isdir(self.volume):
+            while True:
+                out, err = util.command(['df','-h'])
+                if out.find(self.volume) != -1 and os.path.isdir(self.volume):
+                    break
+                time.sleep(1)
+    
+            util.copy(self.config['master']+"/"+self.config['background'], DIR_VOLUME)
+    
+            try:
+                util.command(['osascript'], stdinput=self.mac_installer())
+                print self.mac_installer()
                 break
-            time.sleep(1)
-
-        DIR_VOLUME = os.path.join(os.sep,'Volumes',self.volumename,'.background')
-        util.copy(self.config['master']+"/"+self.config['background'], DIR_VOLUME)
-
-        installscript = self.mac_installer()
-        print installscript
-        util.command(['osascript'], stdinput=installscript)
+            except subprocess.CalledProcessError as e:
+                if tries < 10:
+                    print "Build mac installer (tries: "+tries+")..."
+                    tries += 1
+                else:
+                    util.error("Can't find the freaking device: "+self.volume)
 
         util.command(['chmod','-Rf','go-w',DIR_VOLUME])
         util.command(['chmod','-Rf','go-w',
