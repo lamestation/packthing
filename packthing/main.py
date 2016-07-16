@@ -260,9 +260,17 @@ class Packthing:
                         self.repos[path].get_version())
 
                 outfiles = self.projects[path].build(jobs, r['exclude'])
-                for f in self.files:
-                    outfiles[f] = [x for x in outfiles[f] if x]
-                    self.files[f].extend(outfiles[f])
+
+                # verify all absolute paths (after prebuilt incident)
+
+                for key in ['bin', 'lib']:
+                    for f in outfiles[key]:
+                        if os.path.isabs(f) == False:
+                            util.error("Path returned from "+path+" ("+r['builder']+") is not absolute!")
+
+                for key in self.files:
+                    outfiles[key] = [x for x in outfiles[key] if x]
+                    self.files[key].extend(outfiles[key])
 
             else:
                 util.error("No builder declared for",path,"; skipping")
