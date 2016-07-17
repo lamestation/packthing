@@ -69,10 +69,14 @@ def copy(src, dest, verbose=True, permissions=0644):
 def command(args,verbose=True, strict=True, stdinput=None):
     if verbose:
         print("-",' '.join(args))
+
+    if not args:
+        error("Attempting to run empty command.")
+
     try:
         process = subprocess.Popen(args, stdout=subprocess.PIPE,
                 stdin=subprocess.PIPE, stderr=subprocess.PIPE)
-    except OSError as e:
+    except (OSError, WindowsError) as e:
         error("Command '"+args[0]+"' not found; exiting.")
 
     out, err = process.communicate(input=stdinput)
