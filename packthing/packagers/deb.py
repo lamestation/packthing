@@ -213,10 +213,19 @@ class Packager(_linux.Packager):
         super(Packager,self).finish()
 
         with util.pushd(self.DIR_STAGING):
-            deps = ['dpkg-shlibdeps','--ignore-missing-info']
+
+            executables = []
             for f in self.files['bin']:
                 OUTDIR = os.path.join(self.DIR_OUT,self.OUT['bin'])
                 outf = os.path.join(OUTDIR,f)
+                executables.append(outf)
+
+            util.cksum(executables)
+
+            deps = ['dpkg-shlibdeps','--ignore-missing-info']
+            deps.extend(executables)
+
+            for f in executables:
                 deps.append(outf)
 
             if len(self.files['bin']) > 0:

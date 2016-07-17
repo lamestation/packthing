@@ -275,6 +275,8 @@ class Packthing:
             else:
                 util.error("No builder declared for",path,"; skipping")
 
+            util.cksum(self.files['bin'])
+
 
     @util.headline
     def package(self):

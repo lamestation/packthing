@@ -240,3 +240,12 @@ def root():
     if os.geteuid() != 0:
         error("This configuration requires root privileges!")
 
+def cksum(files):
+    print("cksum:")
+    for f in files:
+        try:
+            out, err = command(["cksum", f], verbose=False)
+        except subprocess.CalledProcessError as e:
+            error("Failed to checksum file:", f)
+            
+        print("| "+out.replace("\n",""))

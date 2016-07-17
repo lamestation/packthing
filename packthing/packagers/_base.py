@@ -82,6 +82,7 @@ class Packager(object):
                 shutil.copy(f,outf)
 
     def install_files(self):
+        executables = []
         for outdir in self.files:
             OUTDIR = os.path.join(self.DIR_OUT,self.OUT[outdir])
 
@@ -105,17 +106,22 @@ class Packager(object):
 
                 if outdir == 'bin' or outdir == 'lib':
                     try:
-                        util.command(['install','-m',perm,'-s',f,outf])
-                    except subprocess.CalledProcessError as e:
+#                        util.command(['install','-m',perm,'-s',f,outf])
+#                    except subprocess.CalledProcessError as e:
                         util.command(['install','-m',perm,f,outf])
                     except subprocess.CalledProcessError as e:
                         raise Exception
+
+                    if outdir == 'bin':
+                        executables.append(os.path.join(outf,os.path.basename(f)))
+
                 else:
                     try:
                         util.command(['install','-m',perm,f,outf])
                     except subprocess.CalledProcessError as e:
                         raise Exception
 
+        util.cksum(executables)
         util.command(['sync'])
 
     def make(self):
