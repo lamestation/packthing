@@ -125,7 +125,12 @@ class Packager(_base.Packager):
 
         with util.pushd(self.DIR_STAGING):
             util.write(self.iss, 'installer.iss')
-            subprocess.check_call(['C:\\Program Files (x86)\\Inno Setup 5\\ISCC.exe','installer.iss'])
+            try:
+                subprocess.check_call(['iscc','installer.iss'])
+            except (OSError, WindowsError):
+                util.error("iscc not found; exiting.")
+            except subprocess.CalledProcessError as e:
+                util.error("iscc returned:",e.returncode)
 
     def install(self):
         with util.pushd(self.DIR_STAGING):

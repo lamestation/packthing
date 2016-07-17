@@ -28,7 +28,7 @@ class Builder(base.Builder):
         if _platform["system"] in ["linux", "darwin"]:
             return "-T"+_platform["system"]
         elif _platform["system"] == "windows" and _platform["machine"] == "amd64":
-            return "-Twin64"
+            return "-Twin32"
         else:
             return ""
 
@@ -36,13 +36,17 @@ class Builder(base.Builder):
         with util.pushd(self.path):
             pfile, pname = self.get_program()
             pname = pname.lower()
-            print "Found program", pname, "in", pfile
+            print "Building ", pname, "in", pfile
+
+            outname = pname
+            if _platform["system"] == "windows":
+                outname += ".exe"
 
             args = [
                     'fpc',
                     '-O3',
                     self.get_target_os_flag(),
-                    "-o"+pname,
+                    "-o"+outname,
                     pfile
                    ]
             print "- "+' '.join(args)
