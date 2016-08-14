@@ -5,7 +5,7 @@ with open('README.md') as f:
 
 setup(
         name = "packthing",
-        version = '0.2.3',
+        version = '1.0.0',
         author = "LameStation",
         author_email = "contact@lamestation.com",
         description = "Write once, package everywhere",
