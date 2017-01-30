@@ -1,0 +1,55 @@
+---
+type: object
+additionalProperties: False
+properties:
+    name:
+        type: string
+
+    package:
+        type: string
+
+    org:
+        type: string
+
+    url:
+        type: string
+
+    maintainer:
+        type: string
+
+    email:
+        type: string
+
+    copyright:
+        type: string
+
+    license:
+        type: string
+
+    tagline:
+        type: string
+
+    description:
+        type: string
+
+    version:
+        type: string
+
+    master:
+        type: string
+
+    platforms:
+        type: object
+
+    packagers:
+        type: object
+
+    sources:
+        type: object
+
+    mimetypes:
+        oneOf:
+            -   type: object
+            -   type: array
+                items:
+                    type: object

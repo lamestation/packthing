@@ -26,6 +26,7 @@ _platform = util.get_platform()
 
 class Packthing:
     def __init__(self, repofile, targetname):
+        self.config = {}
         self.configure(repofile, targetname)
 
 
@@ -33,7 +34,7 @@ class Packthing:
     def configure(self, repofile, targetname):
         self.repofile = repofile
         self.targetname = targetname
-        self.config = dict()
+        self.config = {}
 
         try:
             config = yaml.load(open(self.repofile))
@@ -344,84 +345,217 @@ class Packthing:
             util.error("No installation procedure defined for this target")
 
 
-def console():
-    parser = argparse.ArgumentParser(description='write once, package everywhere')
-    defaultrepo = 'packthing.yml'
-    parser.add_argument('-f',               nargs=1, metavar='FILE',default=[defaultrepo],  help="packthing.yml file name (default: "+defaultrepo+")")
-    parser.add_argument('-C',               nargs=1, metavar='DIR',                         help="change to DIR before running")
-    parser.add_argument('-j','--jobs',      nargs=1, metavar='JOBS',default='1',            help="number of jobs to pass to child builds")
-    parser.add_argument('-r','--refresh',   action='store_true',                            help="refresh the repository checkout")
+#def console():
+#
+#    print ("Bacon")
+#    sys.exit(0)
+#
+#    parser = argparse.ArgumentParser(description='write once, package everywhere')
+#    defaultrepo = 'packthing.yml'
+#    parser.add_argument('-f',               nargs=1, metavar='FILE',default=[defaultrepo],  help="packthing.yml file name (default: "+defaultrepo+")")
+#    parser.add_argument('-C',               nargs=1, metavar='DIR',                         help="change to DIR before running")
+#    parser.add_argument('-j','--jobs',      nargs=1, metavar='JOBS',default='1',            help="number of jobs to pass to child builds")
+#    parser.add_argument('-r','--refresh',   action='store_true',                            help="refresh the repository checkout")
+#
+#
+#    stages = parser.add_mutually_exclusive_group()
+#    stages.add_argument('--configure',      action='store_true', help="stop packthing at configure stage")
+#    stages.add_argument('--checkout',       action='store_true', help="stop packthing at checkout stage")
+#    stages.add_argument('--build',          action='store_true', help="stop packthing at build stage")
+#    stages.add_argument('--install',        action='store_true', help="Attempt to run newly-built installer")
+#
+#    overrides = parser.add_argument_group('overrides', 'manually override settings')
+#    overrides.add_argument('--system',      nargs=1, metavar='SYSTEM',  help="Set platform system (linux, windows, ...)")
+#    overrides.add_argument('--arch',        nargs=1, metavar='ARCH',    help="Set platform machine (i686, amd64, ...)")
+#    overrides.add_argument('--version',     nargs=1, metavar='VERSION', help="Set application version (e.g. 1.2.3)")
+#
+#    parser.add_argument('target',           nargs='?', metavar='TARGET',help="Target package to build ("+', '.join(packagelist)+")")
+#
+#    args = parser.parse_args()
+#
+#    if args.system:     _platform['system']     = args.system[0]
+#    if args.arch:       _platform['machine']    = args.arch[0]
+#    if args.version:    _platform['version']    = args.version[0]
+#
+#    if args.C:
+#        os.chdir(args.c[0])
+#
+#    if not args.target:
+#        if not args.checkout and not args.configure and not args.build:
+#            util.error("Must select a packaging target.",
+#                        "\nAvailable packagers:",', '.join(packagelist))
+#        else:
+#            args.target = '_base'
+#    else:
+#        if not args.target in packagelist:
+#            util.error("The '"+args.target+"' packager does not exist.",
+#                    "\nAvailable packagers:",', '.join(packagelist))
+#
+#    if args.target == "clean":
+#        try:
+#            shutil.rmtree('build')
+#        except OSError as e:
+#            if e.errno == 2:
+#                pass
+#            elif e.errno == 13:
+#                util.error("You don't have permissions to delete '"+e.filename+"'; try running as root?")
+#            else:
+#                util.error(e.strerror+":","'"+e.filename+"'")
+#
+#        print("Staging area deleted.")
+#        sys.exit(0)
+#
+#
+#    pm = Packthing(args.f[0], args.target)
+#
+#    if args.configure: sys.exit(0)
+#
+#    util.mkdir('build')
+#    with util.pushd('build'):
+#
+#        pm.checkout(args.refresh)
+#
+#        if args.checkout: sys.exit(0)
+#
+#        if args.target == "src":
+#            pm.archive()
+#            sys.exit(0)
+#
+#        pm.build(args.jobs[0])
+#
+#        if args.build: sys.exit(0)
+#
+#        pm.package()
+#
+#        if args.install:
+#            pm.install()
 
+import click
 
-    stages = parser.add_mutually_exclusive_group()
-    stages.add_argument('--configure',      action='store_true', help="stop packthing at configure stage")
-    stages.add_argument('--checkout',       action='store_true', help="stop packthing at checkout stage")
-    stages.add_argument('--build',          action='store_true', help="stop packthing at build stage")
-    stages.add_argument('--install',        action='store_true', help="Attempt to run newly-built installer")
+APP_NAME = 'packthing'
+APP_VERSION = '0.0.0'
+APP_HOME = os.getcwd()
+APP_CFG  = os.path.join(click.get_app_dir(APP_NAME), 'config.ini')
+PACKFILE = 'packthing.yml'
 
-    overrides = parser.add_argument_group('overrides', 'manually override settings')
-    overrides.add_argument('--system',      nargs=1, metavar='SYSTEM',  help="Set platform system (linux, windows, ...)")
-    overrides.add_argument('--arch',        nargs=1, metavar='ARCH',    help="Set platform machine (i686, amd64, ...)")
-    overrides.add_argument('--version',     nargs=1, metavar='VERSION', help="Set application version (e.g. 1.2.3)")
+class PackRunner(object):
 
-    parser.add_argument('target',           nargs='?', metavar='TARGET',help="Target package to build ("+', '.join(packagelist)+")")
+    def __init__(self, home):
+        self.config = {}
+        self.home = APP_HOME
+        self.jobs = 1
+        self.refresh = False
+        self.verbose = False
 
-    args = parser.parse_args()
+    def __repr__(self):
+        return '<PackRunner %r>' % self.home
 
-    if args.system:     _platform['system']     = args.system[0]
-    if args.arch:       _platform['machine']    = args.arch[0]
-    if args.version:    _platform['version']    = args.version[0]
+class Packfile(object):
 
-    if args.C:
-        os.chdir(args.c[0])
+    def __init__(self, filename, schema):
+        self.config = {}
+        self.name = filename
+        self.path = os.path.dirname(filename)
+        self.schema =
 
-    if not args.target:
-        if not args.checkout and not args.configure and not args.build:
-            util.error("Must select a packaging target.",
-                        "\nAvailable packagers:",', '.join(packagelist))
-        else:
-            args.target = '_base'
-    else:
-        if not args.target in packagelist:
-            util.error("The '"+args.target+"' packager does not exist.",
-                    "\nAvailable packagers:",', '.join(packagelist))
-
-    if args.target == "clean":
         try:
-            shutil.rmtree('build')
-        except OSError as e:
-            if e.errno == 2:
-                pass
-            elif e.errno == 13:
-                util.error("You don't have permissions to delete '"+e.filename+"'; try running as root?")
-            else:
-                util.error(e.strerror+":","'"+e.filename+"'")
+            config = yaml.load(open(self.name))
+        except IOError:
+            util.error("'"+self.name+"' not found; please specify a valid packthing file")
 
-        print("Staging area deleted.")
-        sys.exit(0)
+        print self.name
+
+    def __repr__(self):
+        return '<Packfile %r>' % self.home
+
+#    def set_config(self, key, value, force=False):
+#        if key in self.config and not force:
+#            util.error("Key already found in config")
+#
+#        self.config[key] = value
+#
+#        if self.verbose:
+#            click.echo('setting "%s" to %s' % (key, value), file=sys.stderr)
 
 
-    pm = Packthing(args.f[0], args.target)
 
-    if args.configure: sys.exit(0)
+@click.command()
 
-    util.mkdir('build')
-    with util.pushd('build'):
+@click.option('--packfile', '-p',   metavar='PACKFILE', default=1,          help="name of packfile to use (default: '"+PACKFILE+"')")
+@click.option('--jobs',     '-j',   metavar='N',        default=1,          help="number of jobs to pass to child builds")
+@click.option('--refresh',  '-r',   is_flag=True,                           help="refresh the repository checkout")
+@click.option('--verbose',  '-v',   is_flag=True,                           help="show what is being done")
 
-        pm.checkout(args.refresh)
+@click.option('--target-system',    metavar='SYSTEM',                       help="set target system (linux, windows, ...)")
+@click.option('--target-arch',      metavar='ARCH',                         help="set target architecture (i686, amd64, ...)")
+@click.option('--app-version',      metavar='VERSION',  default='0.0.0',    help="set application version (e.g. 1.2.3)")
+@click.option('--schema',           metavar='FILE',                         help="use alternate schema (expert users only!)")
 
-        if args.checkout: sys.exit(0)
+@click.argument('target')
 
-        if args.target == "src":
-            pm.archive()
-            sys.exit(0)
+@click.version_option(APP_VERSION)
+@click.pass_context
 
-        pm.build(args.jobs[0])
+def cli(ctx, packfile, jobs, refresh, verbose,
+            target_system, target_arch, app_version, schema, target):
+    """Write once, package everywhere.
 
-        if args.build: sys.exit(0)
+    Packthing is a high-level integration tool for combining
+    multiple projects and build systems into a standalone
+    package without writing extra code.
 
-        pm.package()
+    With it, you can automate the platform-specific
+    OS package creation, icon and menu creation, and preparing
+    for distribution in a package manager.
 
-        if args.install:
-            pm.install()
+    \b
+    Source targets:
+        tar     source tarball (.tar.gz)
+        zip     source zipfile (.zip)
+    
+    \b
+    Mac OS X targets:
+        dmg     Apple Disk Image (.dmg)
+        pkg     Apple Installer package (.pkg)
+    
+    \b
+    Windows targets:
+        inno    InnoSetup installer (.exe)
+        nsis    NSIS installer (.exe)
+        msi     MSI installer (.msi)
+    
+    \b
+    Linux targets:
+        deb     Debian package (.deb)
+        rpm     RPM package (.rpm)
+        pac     pacman package (.pkg.tar.xz)
+        run     self-extracting archive (.run)
+    
+    \b
+    Mobile targets:
+        apk     Android APK (.apk)
+        ipa     iOS application (.ipa)
+    
+    """
 
+#    click.secho('interesting thing!!!!', fg='green')
+    print 'jobs', jobs
+    print 'refresh', refresh
+
+#    ctx.obj = Packfile(os.path.abspath(APP_HOME))
+#    ctx.obj.jobs    = jobs
+#    ctx.obj.verbose = verbose 
+#    ctx.obj.refresh = refresh
+
+    #click.echo(APP_CFG)
+
+    packfile = Packfile('packthing.yml')
+
+if __name__ == '__main__':
+    cli()
+
+#stages = parser.add_mutually_exclusive_group()
+#stages.add_argument('--configure',      action='store_true', help="stop after configure stage")
+#stages.add_argument('--checkout',       action='store_true', help="stop after checkout stage")
+#stages.add_argument('--build',          action='store_true', help="stop after build stage")
+#stages.add_argument('--install',        action='store_true', help="attempt to run newly-built installer")

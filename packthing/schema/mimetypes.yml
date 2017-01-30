@@ -1,0 +1,18 @@
+---
+type: object
+properties:
+    type:
+        type: string
+    extension:
+        type: string
+    description:
+        type: string
+    icon:
+        type: string
+    files:
+        oneOf:
+            -   type: string
+            -   type: array
+                items:
+                    type: string
+

@@ -1,1 +1,4 @@
 pyyaml
+jsonschema
+click
+colorama

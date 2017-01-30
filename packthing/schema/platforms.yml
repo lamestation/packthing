@@ -1,0 +1,24 @@
+---
+type: object
+properties:
+
+    linux:
+        type: object
+        properties:
+            categories:
+                type: string
+            section:
+                type: string
+            help2man:
+                oneOf:
+                    -   type: string
+                    -   type: array
+                        items:
+                            type: string
+
+    mac:
+        type: object
+        properties:
+            category:
+                type: string
+

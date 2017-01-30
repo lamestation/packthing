@@ -1,0 +1,62 @@
+---
+type: object
+properties:
+    url:
+        type: string
+
+    scm:
+        enum:
+            -   git
+            -   svn
+            -   hg
+            -   cvs
+            -   tar
+            -   zip
+
+    ref:
+        type: string
+
+    tag:
+        type: string
+
+    branch:
+        type: string
+
+    builders:
+        oneOf:
+            -   type: object
+            -   type: array
+                items:
+                    type: object
+
+    files:
+        oneOf:
+            -   type: object
+            -   type: array
+                items:
+                    type: object
+required:
+    -   url
+    -   builders
+additionalProperties: False
+
+#not:
+#    anyOf:
+#        -   required:
+#                - tag
+#                - ref
+#        -   required:
+#                - ref
+#                - branch
+#        -   required:
+#                - branch
+#                - tag
+#
+#anyOf:
+#    -   required: 
+#            -   tag
+#    -   required:
+#            -   ref
+#    -   required:
+#            -   branch
+#

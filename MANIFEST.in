@@ -1,1 +1,2 @@
 recursive-include packthing/template *
+recursive-include packthing/schema *.yml

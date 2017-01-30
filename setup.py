@@ -17,7 +17,7 @@ setup(
         include_package_data=True,
         entry_points={
             'console_scripts': [
-                'packthing = packthing.main:console',
+                'packthing = packthing.main:cli',
                 ],
             },
         test_suite="test",

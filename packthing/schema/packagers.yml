@@ -1,0 +1,34 @@
+---
+type: object
+properties:
+
+    deb:
+        type: object
+        properties:
+            depends:
+                oneOf:
+                    -   type: string
+                    -   type: array
+                        items:
+                            type: string
+
+    dmg:
+        type: object
+        properties:
+            background:
+                type: string
+            bundle:
+                type: string
+
+    inno:
+        type: object
+        properties:
+            banner:
+                type: string
+            run:
+                oneOf:
+                    -   type: string
+                    -   type: array
+                        items:
+                            type: string
+
