@@ -1,15 +1,64 @@
 ---
-type: object
-properties:
+title: Platforms
+description: |
+    Packthing supports various options that are platform-specific;
+    as in Windows, Mac, Linux, etc. These options tailor features
+    like menus, icons, and more.
 
+type: object
+additionalProperties: False
+properties:
     linux:
+        title: Linux Settings
+        description:
         type: object
+        additionalProperties: False
+        required:
+            -   categories
+            -   section
         properties:
+
             categories:
+                title: freedesktop.org menu categories
+                description: |
+                    A semicolon-separated list of freedesktop.org menu categories.
+                    This option is required for your application to appear in menus
+                    in KDE, GNOME, and many other window managers.
+
+                        categories: Development;IDE
+                    
+                    See the [Desktop Menu Specification](https://specifications.freedesktop.org/menu-spec/latest/apa.html)
+                    for a complete list.
                 type: string
+
             section:
+                title: Debian Menu section
+                description: |
+                    A slash-separated list of hierarchical Debian Menu section components.
+
+                        section: Applications/Editors
+
+                    See the [Debian Menu sub-policy](https://www.debian.org/doc/packaging-manuals/menu-policy/ch2.html)
+                    for a complete list.
                 type: string
+
             help2man:
+                title: Generate man pages using `help2man`
+                description: |
+                    Run help2man to generate man pages for the listed executables
+                    in this project. Requires help2man to be installed on the system.
+
+                        help2man:
+                            - propelleride
+                            - propman
+                            - openspin
+
+                    !!! caution Use only if your application supports the `--help`
+                        command line switch.
+                        
+                        `help2man` expects your executable to have a `--help` option that
+                        immediately quits the application after. If your application does not
+                        quit, this feature will hang Packthing.
                 oneOf:
                     -   type: string
                     -   type: array
@@ -17,8 +66,23 @@ properties:
                             type: string
 
     mac:
+        title: Mac Settings
+        description:
         type: object
+        additionalProperties: False
+        required:
+            -   category
         properties:
+
             category:
+                title: Launch Service application category
+                description: |
+                    Provides the Launch Service application category, which categorizes the
+                    application for the Apple App Store.
+    
+                        category: public.app-category.developer-tools
+    
+                    For a complete list, see
+                    [LSApplicationCategoryType](https://developer.apple.com/library/ios/documentation/General/Reference/InfoPlistKeyReference/Articles/LaunchServicesKeys.html#//apple_ref/doc/uid/TP40009250-SW8).
                 type: string
 

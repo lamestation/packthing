@@ -1,18 +1,29 @@
 ---
-title: Informational Keys
+title: Top-Level Keys
 description: |
     These keys are required in every Packthing project. They project
     basic information on what a project is and who it belongs to.
 type: object
 additionalProperties: False
+required:
+    -   name
+    -   package
+    -   org
+    -   url
+    -   maintainer
+    -   email
+    -   copyright
+    -   license
+    -   tagline
+    -   description
 properties:
     name:
-        title: Pretty Name
+        title: Pretty name
         description: The pretty name of the repository.
         type: string
 
     package:
-        title: Package Name
+        title: Package name
         description: The package filename.
         type: string
 
@@ -27,17 +38,17 @@ properties:
         type: string
 
     maintainer:
-        title: Maintainer Name
+        title: Maintainer name
         description: The name of the project maintainer.
         type: string
 
     email:
-        title: Email Address
+        title: Email address
         description: The email address of the project maintainer.
         type: string
 
     copyright:
-        title: Year of Copyright
+        title: Copyright year
         description: |
             The copyright year of the project. This should be formatted
             as `YYYY`, or you can express a range of years with `YYYY-YYYY`.
@@ -59,30 +70,30 @@ properties:
         type: string
 
     version:
-        title: Package Version
+        title: Package version
         description: |
             Version of the package.
         type: string
 
     master:
-        title: Master Source
+        title: Master source
         description: |
             The master source repository. If not provided, Packthing will attempt
             to use `name`, then `package`, then the first project listed in `sources`. 
         type: string
 
     platforms:
-        title: Platform Meta Keyword
+        title: Platforms
         description:
         type: object
 
     packagers:
-        title: Packager Meta Keyword
+        title: Packagers
         description:
         type: object
 
     sources:
-        title: Source Meta Keyword
+        title: Sources
         description:
         type: object
 

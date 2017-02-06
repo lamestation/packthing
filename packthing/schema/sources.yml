@@ -1,7 +1,19 @@
 ---
+title: Project Sources
+description: |
+    A key feature of Packthing is the ability to combine multiple
+    source repositories into a single package. This allows the
+    bundling of external applications with a primary one.
+
 type: object
 properties:
     url:
+        title: Source URL
+        description: |
+            The URL from which to retrieve source code. Currently only Git
+            is supported, but future options here will include alternative
+            version control systems, as well as local files.
+
         type: string
 
     scm:

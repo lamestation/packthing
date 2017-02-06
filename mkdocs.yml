@@ -1,12 +1,22 @@
 site_name: Packthing
 
+theme: readthedocs
+
+markdown_extensions:
+    -   smarty
+    -   admonition
+    -   tables
+    -   toc:
+            permalink: True
+
 pages:
     -   Home: index.md
-    -   User Guide:
-        -   Command Line Usage: usage.md
-        -   Packfile Configuration: packfile.md
-#    -   Sources: sources.md
-#    -   Building: building.md
-#    -   Packaging: packaging.md
-#    -   Developer Guide:
-#
+    -   Usage: usage.md
+    -   Configuration:
+        -   Top-Level Keys: config/main.md
+        -   Platforms: config/platforms.md
+        -   Project Sources: config/sources.md
+          #        -   config/builders.md
+          #        -   config/files.md
+          #        -   config/packagers.md
+          #        -   config/mimetypes.md
