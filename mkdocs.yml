@@ -1,0 +1,12 @@
+site_name: Packthing
+
+pages:
+    -   Home: index.md
+    -   User Guide:
+        -   Command Line Usage: usage.md
+        -   Packfile Configuration: packfile.md
+#    -   Sources: sources.md
+#    -   Building: building.md
+#    -   Packaging: packaging.md
+#    -   Developer Guide:
+#

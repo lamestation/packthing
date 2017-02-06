@@ -1,53 +1,94 @@
 ---
+title: Informational Keys
+description: |
+    These keys are required in every Packthing project. They project
+    basic information on what a project is and who it belongs to.
 type: object
 additionalProperties: False
 properties:
     name:
+        title: Pretty Name
+        description: The pretty name of the repository.
         type: string
 
     package:
+        title: Package Name
+        description: The package filename.
         type: string
 
     org:
+        title: Organization
+        description: The name of the organization.
         type: string
 
     url:
+        title: URL
+        description: The URL of a web page representing the project.
         type: string
 
     maintainer:
+        title: Maintainer Name
+        description: The name of the project maintainer.
         type: string
 
     email:
+        title: Email Address
+        description: The email address of the project maintainer.
         type: string
 
     copyright:
+        title: Year of Copyright
+        description: |
+            The copyright year of the project. This should be formatted
+            as `YYYY`, or you can express a range of years with `YYYY-YYYY`.
         type: string
 
     license:
+        title: License
+        description: The software license used by the project.
         type: string
 
     tagline:
+        title: Tagline
+        description: A short (several word) description of the project.
         type: string
 
     description:
+        title: Description
+        description: A longer description of the project.
         type: string
 
     version:
+        title: Package Version
+        description: |
+            Version of the package.
         type: string
 
     master:
+        title: Master Source
+        description: |
+            The master source repository. If not provided, Packthing will attempt
+            to use `name`, then `package`, then the first project listed in `sources`. 
         type: string
 
     platforms:
+        title: Platform Meta Keyword
+        description:
         type: object
 
     packagers:
+        title: Packager Meta Keyword
+        description:
         type: object
 
     sources:
+        title: Source Meta Keyword
+        description:
         type: object
 
     mimetypes:
+        title: Mimetypes
+        description:
         oneOf:
             -   type: object
             -   type: array
