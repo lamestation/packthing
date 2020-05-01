@@ -1,4 +1,4 @@
-from __future__ import print_function
+
 import os, sys
 import shutil
 import subprocess
@@ -20,9 +20,8 @@ def get_platform():
 
     return _platform
 
-
-def warning(*objs):
-    print("WARNING:", *objs, file=sys.stderr)
+def warning(*args):
+    print("WARNING:" + ' '.join(args))
 
 def error(*objs):
     blocks = []
@@ -32,17 +31,17 @@ def error(*objs):
         else:
             blocks.append(b)
 
-    print("\nERROR:", "\n".join(blocks), file=sys.stderr)
+    print("\nERROR:" + "\n".join(blocks))
     print()
     sys.exit(1)
 
 def subtitle(text):
-    line = (80-(len(text)+2))/2
+    line = (80-(len(text)+2))//2
     print("-"*line,text,"-"*(line+(len(text) % 2)))
 
 def title(text):
-    line = (80-(len(text)+2))/2
-    print("="*line,text.upper(),"="*(line+(len(text) % 2)))
+    line = (80-(len(text)+2))//2
+    print("="*line, text.upper(), "="*(line+(len(text) % 2)))
 
 def headline(func):
     def wrapper(*args, **kwargs):
@@ -58,7 +57,7 @@ def pushd(newDir):
     yield
     os.chdir(previousDir)
 
-def copy(src, dest, verbose=True, permissions=0644):
+def copy(src, dest, verbose=True, permissions=0o644):
     destfile = os.path.join(dest,os.path.basename(src))
     if verbose:
         print("Copy",src,"to dir",dest)
@@ -78,8 +77,13 @@ def command(args,verbose=True, strict=True, stdinput=None):
                 stdin=subprocess.PIPE, stderr=subprocess.PIPE)
     except (OSError, WindowsError) as e:
         error("Command '"+args[0]+"' not found; exiting.")
+    
+    if stdinput is not None:
+        stdinput = stdinput.encode()
 
     out, err = process.communicate(input=stdinput)
+    out = out.decode()
+    err = err.decode()
     if strict:
         if process.returncode:
             print(err)
@@ -208,7 +212,7 @@ def ldd(filenames):
             s.pop()
             if len(s) == 2:
                 libs.append(s)
-	return libs
+    return libs
 #-----------------------------------------
 
 def extract_libs(files, libs):
@@ -236,9 +240,9 @@ def create(text, filename, executable=False):
     f.write(text)
     f.close()
     if executable:
-        os.chmod(filename, 0755)
+        os.chmod(filename, 0o755)
     else:
-        os.chmod(filename, 0644)
+        os.chmod(filename, 0o644)
 
 def root():
     if os.geteuid() != 0:

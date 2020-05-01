@@ -1,13 +1,11 @@
 import os, util
 
-#REQUIRE['imagemagick'] = ['convert']
+# REQUIRE['imagemagick'] = ['convert']
+
 
 def imagemagick(icon, target, size, fmt):
     if os.path.exists(icon):
         util.mkdir(os.path.dirname(target))
-        util.command(['convert',icon,
-            '-resize',str(size)+"x"+str(size),
-                target])
+        util.command(["convert", icon, "-resize", str(size) + "x" + str(size), target])
     else:
-        util.error("Icon does not exist:",os.path.join(os.getcwd(),icon))
-
+        util.error("Icon does not exist:", os.path.join(os.getcwd(), icon))

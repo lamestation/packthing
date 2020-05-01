@@ -6,9 +6,10 @@ import subprocess
 
 from . import base
 
+
 class Builder(base.Builder):
     def __init__(self, path, version):
-        super(Builder,self).__init__(path, version)
+        super(Builder, self).__init__(path, version)
 
     def get_all_files(self, directory):
         matches = []
@@ -18,10 +19,8 @@ class Builder(base.Builder):
                 matches.append(os.path.join(root, filename))
         return matches
 
+    def build(self, jobs="1", exclude=None):
+        self.IGNORE_PATTERNS = ("CVS", ".git", ".svn")
 
-    def build(self,jobs='1',exclude=None):
-        self.IGNORE_PATTERNS = ('CVS','.git','.svn')
-
-        self.files['share'] = self.get_all_files(self.path)
+        self.files["share"] = self.get_all_files(self.path)
         return self.files
-
