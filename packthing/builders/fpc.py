@@ -20,7 +20,7 @@ class Builder(base.Builder):
         for f in os.listdir("."):
             matches = re.findall(
                 b"^[ \t]*program[ \t]*([a-z_][a-z0-9_]*)[ \t]*;",
-                open(f, 'rb').read(),
+                open(f, "rb").read(),
                 flags=re.IGNORECASE,
             )
             if len(matches):
