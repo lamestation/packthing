@@ -21,7 +21,7 @@ You can find the documentation on how to use Packthing on the [LameStation Wiki]
 
 # Bug Reporting
 
-Please submit issues with Packthing to the [LameStation JIRA](https://lamestation.atlassian.net/projects/PACK/issues/).
+Please submit bugs to the [issue tracker](https://github.com/lamestation/packthing/issues).
 
 # Author
 
