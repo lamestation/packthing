@@ -1,5 +1,7 @@
 ![image](gfx/packthing-logo.png)
 
+[![Build Status](https://img.shields.io/endpoint.svg?url=https%3A%2F%2Factions-badge.atrox.dev%2Flamestation%2Fpackthing%2Fbadge%3Fref%3Dmaster&style=flat)](https://actions-badge.atrox.dev/lamestation/packthing/goto?ref=master)
+
 packthing is a high-level integration tool that makes packaging and
 distributing your application simple.
 

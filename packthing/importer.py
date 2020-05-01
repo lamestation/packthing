@@ -1,33 +1,36 @@
-from __future__ import print_function
 import sys
-import util
+from . import util
 import pkgutil, importlib
 import inspect
 
 _platform = util.get_platform()
 
+
 def get_modulelist(package):
     packagelist = []
 
-    for p in pkgutil.iter_modules(package.__path__, package.__name__+'.'):
+    for p in pkgutil.iter_modules(package.__path__, package.__name__ + "."):
         packagelist.append(p[1])
 
-#    for p in pkgutil.walk_packages(package.__path__, package.__name__ + '.'):
-#        packagelist.append(p[1])
+    #    for p in pkgutil.walk_packages(package.__path__, package.__name__ + '.'):
+    #        packagelist.append(p[1])
 
     for i in range(len(packagelist)):
-        packagelist[i] = packagelist[i].split('.')[-1]
+        packagelist[i] = packagelist[i].split(".")[-1]
 
-    packagelist = [x for x in packagelist if not x.startswith('_')]
+    packagelist = [x for x in packagelist if not x.startswith("_")]
 
     return packagelist
 
+
 def get_module(parent, modulename):
-    return importlib.import_module(parent.__name__+'.'+modulename)
+    return importlib.import_module(parent.__name__ + "." + modulename)
+
 
 def list_module_hierarchy(module):
     clsmembers = inspect.getmembers(module, inspect.isclass)
     return inspect.getmro(clsmembers[0][1])
+
 
 def build_module_hierarchy(module):
     clsmembers = inspect.getmembers(module, inspect.isclass)
@@ -42,7 +45,7 @@ def build_module_hierarchy(module):
 
 
 def require(module):
-    if _platform['system'] == 'windows': # REQUIRE DOESN'T WORK ON WINDOWS
+    if _platform["system"] == "windows":  # REQUIRE DOESN'T WORK ON WINDOWS
         return
 
     for m in build_module_hierarchy(module):
@@ -54,7 +57,8 @@ def require(module):
         for r in m.REQUIRE:
             found = util.which(r)
             if not found:
-                util.error("Required program '"+r+"' not available")
+                util.error("Required program '" + r + "' not available")
+
 
 def required_keys(module):
     keylist = []
