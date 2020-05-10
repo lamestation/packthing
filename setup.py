@@ -1,11 +1,13 @@
 from setuptools import setup, find_packages
 
-with open("README.md") as f:
+from packthing import __version__
+
+with open("README.rst") as f:
     long_description = f.read()
 
 setup(
     name="packthing",
-    version="1.0.0",
+    version=__version__,
     author="LameStation",
     author_email="contact@lamestation.com",
     description="Write once, package everywhere",
@@ -16,6 +18,7 @@ setup(
     packages=find_packages(exclude=["test"]),
     include_package_data=True,
     entry_points={"console_scripts": ["packthing = packthing.main:console",],},
+    install_requires=["pyyaml"],
     test_suite="test",
     classifiers=[
         "Environment :: Console",
