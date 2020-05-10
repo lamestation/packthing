@@ -1,15 +1,17 @@
 # -*- coding: utf-8 -*-
 
-import os, sys
-import shutil
-import textwrap
-
 import datetime
+import os
+import shutil
+import sys
+import textwrap
 import time
 from email import utils
 
-import packthing.util as util
 import packthing.icons as icons
+import packthing.util as util
+
+from . import _linux
 
 REQUIRE = [
     "dpkg-deb",
@@ -27,8 +29,6 @@ KEYS = [
 ]
 
 util.root()
-
-from . import _linux
 
 
 class Packager(_linux.Packager):

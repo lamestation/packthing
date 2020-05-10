@@ -9,9 +9,11 @@ isort = "*"
 rstcheck = "*"
 sphinx = "*"
 bump2version = "*"
+pylint = "*"
 
 [packages]
 pyyaml = "*"
+dmgbuild = "*"
 
 [requires]
 python_version = "3.7"

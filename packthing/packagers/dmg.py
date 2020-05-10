@@ -1,18 +1,20 @@
 # -*- coding: utf-8 -*-
-import os, re, sys
-import plistlib
-import subprocess
-import shutil
 import glob
+import os
+import plistlib
+import re
+import shutil
+import subprocess
+import sys
 import time
 
 import packthing.util as util
 
-REQUIRE = ["macdeployqt"]
+from . import _base
+
+REQUIRE = ["dmgbuild", "macdeployqt"]
 
 KEYS = ["category", "background", "bundle"]
-
-from . import _base
 
 
 class Packager(_base.Packager):
@@ -27,6 +29,7 @@ class Packager(_base.Packager):
         self.DIR_PACKAGE = os.path.join(self.DIR_STAGING, "mac")
         self.DIR_BUNDLE = os.path.join(self.DIR_PACKAGE, self.config["name"] + ".app")
         self.DIR_OUT = os.path.join(self.DIR_BUNDLE, "Contents")
+        self.DIR_RESOURCES = os.path.join(self.DIR_OUT, "Resources")
 
         self.OUT["bin"] = "MacOS"
         self.OUT["lib"] = "MacOS"
@@ -137,8 +140,7 @@ class Packager(_base.Packager):
         documenttypes = []
 
         for mimetype in mimetypes:
-            #            self.+= self.iss_mime(mimetype, executable, reponame)
-            #
+            # self.+= self.iss_mime(mimetype, executable, reponame)
             documenttypes.append(
                 dict(
                     CFBundleTypeName=mimetype["description"],
@@ -155,133 +157,42 @@ class Packager(_base.Packager):
 
         self.plist.update(dict(CFBundleDocumentTypes=documenttypes))
 
-    #            self.pillow(os.path.join(reponame, mimetype['icon']),
-
     def finish(self):
         super(Packager, self).finish()
 
         # create plist file
-
         with util.pushd(self.DIR_OUT):
             plistlib.writePlist(self.plist, os.path.join(self.DIR_OUT, "Info.plist"))
 
-        # begin packaging
-
-        size = util.command(["du", "-s", self.DIR_BUNDLE])[0].split()[0]
-        size = str(int(size) + 1000)
-        tmpdevice = os.path.join(self.DIR_PACKAGE, "pack.temp.dmg")
-
-        existingdevices = glob.glob("/Volumes/" + self.volumename + "*")
-        for d in existingdevices:
-            try:
-                util.command(["hdiutil", "detach", d])
-            except subprocess.CalledProcessError as e:
-                util.error(
-                    "Couldn't unmount "
-                    + d
-                    + "; close all programs using this Volume and try again."
-                )
-
-        util.command(
-            [
-                "hdiutil",
-                "create",
-                "-format",
-                "UDRW",
-                "-srcfolder",
-                self.DIR_BUNDLE,
-                "-volname",
-                self.volumename,
-                "-size",
-                size + "k",
-                tmpdevice,
-            ]
+        background_path = os.path.abspath(
+            os.path.join(self.config["master"], self.config["background"])
         )
+        icon_path = os.path.join(self.DIR_RESOURCES, "mac.icns")
+        app_name = self.config["name"]
+        bundle_name = f"{app_name}.app"
+        dmg_name = f"{app_name}.dmg"
 
-        util.command(["hdiutil", "attach", "-readwrite", tmpdevice])
-
-        util.command(["sync"])
-
-        self.volume = "/Volumes/" + self.volumename
-
-        DIR_VOLUME = os.path.join(os.sep, "Volumes", self.volumename, ".background")
-
-        # wait for device to exist
-        # that was easy
-        tries = 0
-        while True:
-            while True:
-                out, err = util.command(["df", "-h"])
-                if out.find(self.volume) != -1 and os.path.isdir(self.volume):
-                    break
-                time.sleep(1)
-
-            util.copy(
-                self.config["master"] + "/" + self.config["background"], DIR_VOLUME
+        dmgbuild_settings_file = os.path.join(self.DIR_PACKAGE, "settings.py")
+        dmgbuild_settings = util.get_template(
+            os.path.join("dmg", "dmgbuild.py")
+        ).substitute(
+            dict(
+                bundle_name=bundle_name,
+                icon_path=icon_path,
+                background_path=background_path,
             )
-
-            try:
-                util.command(["osascript"], stdinput=self.mac_installer())
-                print(self.mac_installer())
-                break
-            except subprocess.CalledProcessError as e:
-                if tries < 10:
-                    tries += 1
-                    print("Trying again (tries: " + str(tries) + "/10)...")
-                else:
-                    util.error("Can't find the freaking device!!: " + self.volume)
-
-        util.command(["chmod", "-Rf", "go-w", DIR_VOLUME])
-        util.command(
-            [
-                "chmod",
-                "-Rf",
-                "go-w",
-                os.path.join(os.path.dirname(DIR_VOLUME), self.config["name"] + ".app"),
-            ]
-        )
-        util.command(
-            [
-                "chmod",
-                "-Rf",
-                "go-w",
-                os.path.join(os.path.dirname(DIR_VOLUME), "Applications"),
-            ]
         )
 
-        util.command(["sync"])
-        util.command(["hdiutil", "detach", self.volume])
-        util.command(["sleep", "2"])
-        util.command(
-            [
-                "hdiutil",
-                "convert",
-                tmpdevice,
-                "-format",
-                "UDZO",
-                "-imagekey",
-                "zlib-level=9",
-                "-o",
-                os.path.join(self.DIR_STAGING, self.packagename() + ".dmg"),
+        with open(dmgbuild_settings_file, "w") as handle:
+            handle.write(dmgbuild_settings)
+
+        with util.pushd(self.DIR_PACKAGE):
+            cmd = [
+                "dmgbuild",
+                "-s",
+                dmgbuild_settings_file,
+                app_name,
+                dmg_name,
             ]
-        )
-
-        util.command(["sync"])
-
-        os.remove(tmpdevice)
-
-    def install(self):
-        with util.pushd(self.DIR_STAGING):
-            try:
-                util.command(
-                    [
-                        "hdiutil",
-                        "attach",
-                        "-readonly",
-                        os.path.join(self.DIR_STAGING, self.packagename() + ".dmg"),
-                    ]
-                )
-                util.command(["sync"])
-                util.command(["osascript"], stdinput=self.mac_install())
-            except:
-                util.error("Installation failed! Oh, well.")
+            print(cmd)
+            subprocess.check_call(cmd)

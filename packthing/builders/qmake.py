@@ -1,12 +1,12 @@
 # -*- coding: utf-8 -*-
 
-import os
 import glob
-from .. import util
-import shutil
 import logging
+import os
+import shutil
 import subprocess
 
+from .. import util
 from . import base
 
 REQUIRE = ["qmake"]

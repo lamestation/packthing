@@ -1,11 +1,13 @@
-import os, sys
-import shutil
-import subprocess
-from contextlib import contextmanager
-import string
 import errno
-import tarfile, zipfile
+import os
 import platform
+import shutil
+import string
+import subprocess
+import sys
+import tarfile
+import zipfile
+from contextlib import contextmanager
 
 
 def get_platform():

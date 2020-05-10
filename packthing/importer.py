@@ -1,7 +1,9 @@
-import sys
-from . import util
-import pkgutil, importlib
+import importlib
 import inspect
+import pkgutil
+import sys
+
+from . import util
 
 _platform = util.get_platform()
 

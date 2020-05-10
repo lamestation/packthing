@@ -1,10 +1,13 @@
 # -*- coding: utf-8 -*-
 
 import os
-import uuid, subprocess
+import subprocess
+import uuid
 
-import packthing.util as util
 import packthing.icons as icons
+import packthing.util as util
+
+from . import _base
 
 try:
     from PIL import Image
@@ -17,8 +20,6 @@ REQUIRE = [
 ]
 
 KEYS = ["banner"]
-
-from . import _base
 
 
 class Packager(_base.Packager):

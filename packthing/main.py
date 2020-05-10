@@ -1,19 +1,20 @@
-# -*- coding: utf-8 -*-
-
-import os, sys
-from . import importer
-from . import util
-import shutil
-import yaml
-import pkgutil, importlib
-from . import packagers, vcs, builders
-
 import argparse
+import importlib
+import os
+import pkgutil
 import pprint
-
-
-# intercept CTRL+C
+import shutil
 import signal
+import sys
+
+import yaml
+
+from . import __version__
+from . import builders
+from . import importer
+from . import packagers
+from . import util
+from . import vcs
 
 
 def signal_handler(signal, frame):
@@ -438,20 +439,17 @@ def console():
 
     overrides = parser.add_argument_group("overrides", "manually override settings")
     overrides.add_argument(
-        "--system",
-        nargs=1,
+        "--override-system",
         metavar="SYSTEM",
         help="Set platform system (linux, windows, ...)",
     )
     overrides.add_argument(
-        "--arch",
-        nargs=1,
+        "--override-arch",
         metavar="ARCH",
         help="Set platform machine (i686, amd64, ...)",
     )
     overrides.add_argument(
-        "--version",
-        nargs=1,
+        "--override-version",
         metavar="VERSION",
         help="Set application version (e.g. 1.2.3)",
     )
@@ -463,14 +461,18 @@ def console():
         help="Target package to build (" + ", ".join(packagelist) + ")",
     )
 
+    parser.add_argument(
+        "--version", action="version", version=f"%(prog)s {__version__}"
+    )
+
     args = parser.parse_args()
 
-    if args.system:
-        _platform["system"] = args.system[0]
-    if args.arch:
-        _platform["machine"] = args.arch[0]
-    if args.version:
-        _platform["version"] = args.version[0]
+    if args.override_system:
+        _platform["system"] = args.override_system
+    if args.override_arch:
+        _platform["machine"] = args.override_arch
+    if args.override_version:
+        _platform["version"] = args.override_version
 
     if args.C:
         os.chdir(args.c[0])

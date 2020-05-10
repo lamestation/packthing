@@ -1,9 +1,10 @@
 # -*- coding: utf-8 -*-
 
 import os
-from .. import util
 import shutil
 import subprocess
+
+from .. import util
 
 KEYS = [
     "name",

@@ -1,7 +1,7 @@
 import os
-from .. import util
 import subprocess
 
+from .. import util
 from . import base
 
 _platform = util.get_platform()

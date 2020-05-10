@@ -1,4 +1,6 @@
-import os, util
+import os
+
+import util
 
 # REQUIRE['imagemagick'] = ['convert']
 

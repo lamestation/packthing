@@ -19,11 +19,23 @@ jobs:
       run: |
         pip install --upgrade pip
         pip install -r requirements.txt
-    - name: Lint with black
+    - name: Run linters
       run: |
-        pip install black
+        pip install black isort
+        isort -rc -c .
         black --check .
-    #- name: Test with pytest
-    #  run: |
-    #    pip install pytest
-    #    pytest
+
+  installable-test:
+    runs-on: "${matrix.os}"
+    strategy:
+      matrix:
+        os: [macos-latest]
+
+    steps:
+    - uses: actions/checkout@v2
+    - name: Install dependencies
+      run: |
+        pip install .
+    - name: Try to run packthing
+      run: |
+        packthing --version

@@ -1,6 +1,7 @@
-from . import base
-from .. import util
 import subprocess
+
+from .. import util
+from . import base
 
 REQUIRE = ["git"]
 

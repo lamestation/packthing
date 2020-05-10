@@ -1,4 +1,5 @@
-from setuptools import setup, find_packages
+from setuptools import find_packages
+from setuptools import setup
 
 from packthing import __version__
 
@@ -18,7 +19,7 @@ setup(
     packages=find_packages(exclude=["test"]),
     include_package_data=True,
     entry_points={"console_scripts": ["packthing = packthing.main:console",],},
-    install_requires=["pyyaml"],
+    install_requires=["pyyaml", "dmgbuild; sys_platform == 'darwin'",],
     test_suite="test",
     classifiers=[
         "Environment :: Console",

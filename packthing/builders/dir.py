@@ -1,9 +1,9 @@
+import glob
 import os
 import shutil
-from .. import util
-import glob
 import subprocess
 
+from .. import util
 from . import base
 
 
