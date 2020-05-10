@@ -23,12 +23,12 @@ setup(
     classifiers=[
         "Environment :: Console",
         "Development Status :: 2 - Pre-Alpha",
-        "Topic :: Utilities",
         "License :: OSI Approved :: GNU General Public License v3 (GPLv3)",
-        "Topic :: System :: Archiving :: Packaging",
-        "Environment :: X11 Applications :: Qt",
-        "Programming Language :: Python :: 3 :: Only",
-        "Programming Language :: C++",
+        "Programming Language :: Python :: 3.6",
+        "Programming Language :: Python :: 3.7",
+        "Programming Language :: Python :: 3.8",
         "Topic :: Software Development :: Code Generators",
+        "Topic :: System :: Archiving :: Packaging",
+        "Topic :: Utilities",
     ],
 )

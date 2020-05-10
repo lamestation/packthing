@@ -1,19 +1,25 @@
 .. figure:: gfx/packthing-logo.png
    :alt: image
 
-.. image:: https://img.shields.io/endpoint.svg?url=https%3A%2F%2Factions-badge.atrox.dev%2Flamestation%2Fpackthing%2Fbadge%3Fref%3Dmaster&style=flat
-   :target: https://actions-badge.atrox.dev/lamestation/packthing/goto?ref=master
+
+
+.. image:: https://img.shields.io/github/workflow/status/lamestation/packthing/build
+   :target: https://github.com/lamestation/packthing/actions
    :alt: Build status
 
-.. image:: https://img.shields.io/pypi/v/packthing.svg
-   :target: https://pypi.org/project/packthing/
-   :alt: PyPI
+.. image:: https://img.shields.io/pypi/v/packthing
+   :target: https://pypi.org/project/packthing
+   :alt: PyPI package
 
-.. image:: https://pepy.tech/project/packthing
-   :target: https://pepy.tech/badge/packthing
+.. image:: https://img.shields.io/pypi/pyversions/packthing
+   :target: https://pypi.org/project/packthing
+   :alt: Supported Python versions
+
+.. image:: https://pepy.tech/badge/packthing
+   :target: https://pepy.tech/project/packthing
    :alt: Downloads
 
-.. image:: https://img.shields.io/badge/code%20style-black-000000.svg
+.. image:: https://img.shields.io/badge/code%20style-black-000000
    :target: https://github.com/psf/black
    :alt: Code style: black
 

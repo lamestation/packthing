@@ -1,4 +1,4 @@
-name: Packthing package
+name: build
 
 on: [push]
 
