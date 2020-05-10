@@ -52,7 +52,8 @@ packthing is installable via ``pip``::
 Usage
 =====
 
-View the non-existent documentation.
+For full usage instructions, see the `documentation
+<https://packthing.readthedocs.io/>`_.
 
 Contact
 =======
