@@ -273,7 +273,11 @@ class Packager(_linux.Packager):
             util.command(["dh_installmime"])
             util.command(["dh_installdeb"])
             util.command(["dh_icons"])
-            util.command(["dh_desktop"])
+
+            try:
+                util.command(["dh_desktop"], catch=False)
+            except OSError:
+                pass
 
             try:
                 util.command(

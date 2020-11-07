@@ -30,4 +30,5 @@ Packthing
 .. toctree::
    :maxdepth: 2
 
+   builders/index.rst
    packagers/index.rst
