@@ -3,4 +3,4 @@ Packagers
 
 .. toctree::
 
-    deb.rst
+    Debian <deb.rst>
