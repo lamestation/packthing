@@ -76,9 +76,9 @@ def copy(src, dest, verbose=True, permissions=0o644):
     os.chmod(destfile, permissions)
 
 
-def command(args, verbose=True, strict=True, stdinput=None, catch=None):
-    if catch is None:
-        catch = True
+def command(args, verbose=True, strict=True, stdinput=None, abort=None):
+    if abort is None:
+        abort = True
     if verbose:
         print("-", " ".join(args))
 
@@ -90,10 +90,9 @@ def command(args, verbose=True, strict=True, stdinput=None, catch=None):
             args, stdout=subprocess.PIPE, stdin=subprocess.PIPE, stderr=subprocess.PIPE
         )
     except OSError as e:
-        if catch:
+        if abort:
             error("Command '" + args[0] + "' not found; exiting.")
-        else:
-            pass
+        return
 
     if stdinput is not None:
         stdinput = stdinput.encode()
