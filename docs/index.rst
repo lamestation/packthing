@@ -29,4 +29,5 @@ Packthing
 
 .. toctree::
    :maxdepth: 2
-   :caption: Contents:
+
+   packagers/index.rst

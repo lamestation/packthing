@@ -8,8 +8,7 @@ import subprocess
 import sys
 import time
 
-import packthing.util as util
-
+from .. import util
 from . import _base
 
 REQUIRE = ["dmgbuild", "macdeployqt"]
@@ -144,7 +143,9 @@ class Packager(_base.Packager):
             documenttypes.append(
                 dict(
                     CFBundleTypeName=mimetype["description"],
-                    CFBundleTypeExtensions=[mimetype["extension"],],
+                    CFBundleTypeExtensions=[
+                        mimetype["extension"],
+                    ],
                     CFBundleTypeIconFile="mac",
                     CFBundleTypeRole="Editor",
                     LSItemContentTypes=[

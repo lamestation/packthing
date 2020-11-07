@@ -4,9 +4,7 @@ import os
 import subprocess
 import uuid
 
-import packthing.icons as icons
-import packthing.util as util
-
+from .. import icons, util
 from . import _base
 
 try:

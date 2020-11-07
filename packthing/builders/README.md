@@ -1,8 +1,7 @@
-
 ## qmake
 
 ### Supported templates
 
-* app
-* lib
-* subdirs
+- app
+- lib
+- subdirs

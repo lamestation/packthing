@@ -3,8 +3,7 @@
 import os
 import subprocess
 
-import packthing.util as util
-
+from .. import util
 from . import _linux
 
 

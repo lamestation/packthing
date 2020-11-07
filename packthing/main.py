@@ -9,12 +9,7 @@ import sys
 
 import yaml
 
-from . import __version__
-from . import builders
-from . import importer
-from . import packagers
-from . import util
-from . import vcs
+from . import __version__, builders, importer, packagers, util, vcs
 
 
 def signal_handler(signal, frame):

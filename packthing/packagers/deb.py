@@ -8,9 +8,7 @@ import textwrap
 import time
 from email import utils
 
-import packthing.icons as icons
-import packthing.util as util
-
+from .. import icons, util
 from . import _linux
 
 REQUIRE = [

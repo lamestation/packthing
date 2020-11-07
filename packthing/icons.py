@@ -1,6 +1,6 @@
 import os
 
-import util
+from . import util
 
 # REQUIRE['imagemagick'] = ['convert']
 
