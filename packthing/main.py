@@ -457,7 +457,9 @@ def console():
     )
 
     parser.add_argument(
-        "--version", action="version", version="%(prog)s {version}".format(__version__)
+        "--version",
+        action="version",
+        version="%(prog)s {version}".format(version=__version__),
     )
 
     args = parser.parse_args()
