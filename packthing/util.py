@@ -87,7 +87,7 @@ def command(args, verbose=True, strict=True, stdinput=None):
         process = subprocess.Popen(
             args, stdout=subprocess.PIPE, stdin=subprocess.PIPE, stderr=subprocess.PIPE
         )
-    except (OSError, WindowsError) as e:
+    except OSError as e:
         error("Command '" + args[0] + "' not found; exiting.")
 
     if stdinput is not None:
