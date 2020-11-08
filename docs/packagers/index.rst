@@ -3,4 +3,6 @@ Packagers
 
 .. toctree::
 
-    Debian <deb.rst>
+    ``.deb`` <deb.rst>
+    ``.dmg`` <dmg.rst>
+    ``.run`` <run.rst>

@@ -4,6 +4,11 @@ Free Pascal Compiler (FPC) Builder
 .. contents::
     :local:
 
+System Requirements
+-------------------
+
+- ``fpc``
+
 Configuration
 -------------
 
