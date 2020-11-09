@@ -170,8 +170,9 @@ class Packager(_base.Packager):
         )
         icon_path = os.path.join(self.DIR_RESOURCES, "mac.icns")
         app_name = self.config["name"]
-        bundle_name = f"{app_name}.app"
-        dmg_name = f"{app_name}.dmg"
+        app_version = self.config["version"]
+        bundle_name = "{name}.app".format(name=app_name)
+        dmg_name = "{name}-{version}.dmg".format(name=app_name, version=app_version)
 
         dmgbuild_settings_file = os.path.join(self.DIR_PACKAGE, "settings.py")
         dmgbuild_settings = util.get_template(
@@ -193,7 +194,7 @@ class Packager(_base.Packager):
                 "-s",
                 dmgbuild_settings_file,
                 app_name,
-                dmg_name,
+                os.path.join(self.DIR_STAGING, dmg_name),
             ]
             print(cmd)
             subprocess.check_call(cmd)
